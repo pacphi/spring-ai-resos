@@ -1,0 +1,6 @@
+name_01;internal_note;booking_priority
+Party-1;Only reserved for celebratory occasions;0
+Party-2;Only reserved for celebratory occasions;0
+Main-hall;Open to all customers during business hours;1
+Speakeasy;Admit only if customer has passphrase of the day;2
+Patio;Open to customers, limited seating;3

@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      VECTOR_STORE_TYPE: pgVector
+    volumes:
+      - postgres-db-data:/var/lib/postgresql/data
+    networks:
+      - net
+
+volumes:
+  postgres-db-data: {}
+
+networks:
+  net:
+    driver: bridge

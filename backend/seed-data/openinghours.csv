@@ -1,0 +1,110 @@
+name_01;date_01;opens;closes;is_open;max_people;metadata
+The Spicy Spoon;2024-02-23;09:00;20:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-02-24;08:00;19:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-02-25;11:00;21:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-02-26;09:00;20:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-02-27;10:00;22:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-02-28;09:00;17:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-02-29;10:00;20:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-01;08:00;18:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-02;10:00;21:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-03;11:00;19:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-04;08:00;21:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-05;10:00;18:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-06;10:00;21:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Spicy Spoon;2024-03-07;09:00;19:00;true;60;{"location": {"city": "Springfield", "state/province": "IL", "country": "USA"}, "owner_name": "Alice Smith", "star_rating": 4}
+The Blue Lobster;2024-02-23;10:00;18:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-02-24;09:00;21:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-02-25;09:00;17:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-02-26;10:00;22:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-02-27;08:00;19:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-02-28;10:00;18:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-02-29;11:00;20:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-01;08:00;22:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-02;09:00;18:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-03;11:00;19:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-04;09:00;21:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-05;09:00;19:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-06;10:00;20:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+The Blue Lobster;2024-03-07;08:00;17:00;true;80;{"location": {"city": "Oceanview", "state/province": "CA", "country": "USA"}, "owner_name": "Bob Johnson", "star_rating": 5}
+Mama Rosa's;2024-02-23;11:00;20:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-02-24;08:00;19:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-02-25;10:00;21:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-02-26;10:00;20:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-02-27;09:00;17:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-02-28;09:00;20:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-02-29;10:00;22:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-01;08:00;18:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-02;10:00;22:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-03;11:00;19:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-04;08:00;21:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-05;09:00;18:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-06;10:00;21:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Mama Rosa's;2024-03-07;09:00;19:00;true;40;{"location": {"city": "Little Italy", "state/province": "NY", "country": "USA"}, "owner_name": "Maria Rossi", "star_rating": 4}
+Golden Dragon;2024-02-23;09:00;20:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-02-24;10:00;21:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-02-25;10:00;18:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-02-26;08:00;20:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-02-27;10:00;18:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-02-28;10:00;22:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-02-29;08:00;19:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-01;10:00;18:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-02;10:00;21:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-03;09:00;22:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-04;09:00;17:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-05;11:00;20:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-06;08:00;21:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+Golden Dragon;2024-03-07;10:00;18:00;true;90;{"location": {"city": "Chinatown", "state/province": "ON", "country": "Canada"}, "owner_name": "Li Wei", "star_rating": 3}
+The Burger Barn;2024-02-23;09:00;17:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-02-24;10:00;20:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-02-25;08:00;22:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-02-26;10:00;18:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-02-27;10:00;20:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-02-28;08:00;18:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-02-29;09:00;21:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-01;11:00;19:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-02;08:00;18:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-03;10:00;20:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-04;10:00;19:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-05;08:00;22:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-06;10:00;17:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+The Burger Barn;2024-03-07;10:00;19:00;true;50;{"location": {"city": "Ruralville", "state/province": "KS", "country": "USA"}, "owner_name": "David Miller", "star_rating": 2}
+Taco Time;2024-02-23;10:00;20:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-02-24;08:00;18:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-02-25;10:00;20:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-02-26;11:00;22:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-02-27;09:00;18:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-02-28;10:00;20:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-02-29;11:00;17:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-01;08:00;20:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-02;10:00;22:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-03;11:00;18:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-04;09:00;20:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-05;09:00;18:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-06;10:00;20:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+Taco Time;2024-03-07;09:00;22:00;true;30;{"location": {"city": "Desert Springs", "state/province": "AZ", "country": "USA"}, "owner_name": "Isabella Garcia", "star_rating": 3}
+The Pizza Palace;2024-02-23;08:00;20:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-02-24;10:00;18:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-02-25;10:00;20:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-02-26;08:00;22:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-02-27;09:00;18:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-02-28;10:00;20:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-02-29;08:00;18:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-01;10:00;20:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-02;10:00;22:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-03;09:00;18:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-04;09:00;20:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-05;10:00;17:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-06;08:00;19:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+The Pizza Palace;2024-03-07;10:00;22:00;true;70;{"location": {"city": "Suburbia", "state/province": "OH", "country": "USA"}, "owner_name": "Ethan Jones", "star_rating": 4}
+Sushi Sensations;2024-02-23;09:00;21:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-02-24;10:00;18:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-02-25;09:00;21:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-02-26;09:00;17:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-02-27;10:00;20:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-02-28;08:00;22:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-02-29;09:00;18:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-03-01;11:00;20:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-03-02;08:00;18:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-03-03;10:00;19:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}
+Sushi Sensations;2024-03-04;10:00;22:00;true;100;{"location": {"city": "Downtown", "state/province": "BC", "country": "Canada"}, "owner_name": "Kenji Tanaka", "star_rating": 5}

@@ -1,0 +1,26 @@
+package me.pacphi.ai.resos;
+
+import me.pacphi.ai.resos.mcp.ResOsService;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbacks;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.Bean;
+
+import java.util.List;
+
+@SpringBootApplication
+@EnableFeignClients
+public class SpringAiResOsMcpServerApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringAiResOsMcpServerApplication.class, args);
+	}
+
+	@Bean
+	public List<ToolCallback> resOsTools(ResOsService resOsService) {
+		return List.of(ToolCallbacks.from(resOsService));
+	}
+
+}

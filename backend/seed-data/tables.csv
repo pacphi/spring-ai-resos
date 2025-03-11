@@ -1,0 +1,23 @@
+name_01;seats_min;seats_max;internal_note;area_name
+Booth-1;4;6;Comfy, plush fabric, high-back, mid-central;Main-hall
+Booth-2;4;6;Older, kitch design, low-back, left-central;Main-hall
+Booth-3;6;8;Expansive, luxurious, high-back, right-central;Main-hall
+Table-1;2;4;Standard, low-back chairs, north-central;Main-hall
+Table-2;2;4;Standard, low-back chairs, north-left;Main-hall
+Table-3;2;4;Standard, low-back chairs, north-right;Main-hall
+Table-4;1;3;Small, crowded, quick service seating, south-central;Main-hall
+Table-5;1;3;Small, crowded, quick service seating, south-left;Main-hall
+Table-6;1;3;Small, crowded, quick service seating, south-right;Main-hall
+Seat-1;1;1;Bar stool;Speakeasy
+Seat-2;1;1;Bar stool;Speakeasy
+Seat-3;1;1;Bar stool;Speakeasy
+Seat-4;1;1;Bar stool;Speakeasy
+Seat-6;1;1;Bar stool;Speakeasy
+Seat-7;1;1;Bar stool;Speakeasy
+Seat-8;1;1;Bar stool;Speakeasy
+Lounge-1;2;4;Outdoor, near fireplace;Patio
+Lounge-2;2;4;Outside, hear fireplace;Patio
+Lounge-3;4;6;Outside over-looking hill country;Patio
+Lounge-4;6;8;Outside, over-looking lakeside;Patio
+Table-7;6;12;Game room, pool table, private bar;Party-1
+Table-8;8;16;Arcade and vintage pinball room, brick oven pizza stand;Party-2

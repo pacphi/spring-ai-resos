@@ -1,0 +1,1 @@
+io.pivotal.cfenv.spring.boot.CfEnvProcessor=me.pacphi.ai.resos.config.LlmEnvProcessor
