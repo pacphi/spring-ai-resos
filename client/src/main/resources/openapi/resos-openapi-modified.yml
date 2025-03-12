@@ -195,6 +195,8 @@ components:
         Represents a guest making a booking. Contains all necessary contact information
         and notification preferences for the guest.
       properties:
+        _id:
+          type: string
         name:
           type: string
           example: "Thomas A. Anderson"
@@ -230,6 +232,8 @@ components:
     Address:
       type: object
       properties:
+        _id:
+          type: string
         address1:
           type: string
         address2:
@@ -248,6 +252,8 @@ components:
     Restaurant:
       type: object
       properties:
+        _id:
+          type: string
         name:
           type: string
         address:
