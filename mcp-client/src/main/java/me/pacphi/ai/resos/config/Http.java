@@ -16,6 +16,7 @@ public class Http {
             SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
             factory.setConnectTimeout((int) Duration.ofMinutes(10).toMillis());
             factory.setReadTimeout((int) Duration.ofMinutes(10).toMillis());
+            restClientBuilder.defaultHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate");
             restClientBuilder.requestFactory(factory);
         };
     }
