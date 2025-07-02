@@ -1,8 +1,8 @@
 package me.pacphi.ai.resos;
 
 import me.pacphi.ai.resos.mcp.ResOsService;
+import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
-import org.springframework.ai.tool.ToolCallbacks;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;

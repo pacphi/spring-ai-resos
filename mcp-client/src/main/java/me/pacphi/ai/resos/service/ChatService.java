@@ -11,7 +11,6 @@ import org.springframework.ai.mcp.AsyncMcpToolCallbackProvider;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 @Service
 public class ChatService {
@@ -26,8 +25,7 @@ public class ChatService {
             McpAsyncClientManager asyncClientManager
             ) {
         this.chatClient = ChatClient.builder(chatModel)
-                .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory), new SimpleLoggerAdvisor())
-                .defaultAdvisors(a -> a.param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build(), new SimpleLoggerAdvisor())
                 .build();
         this.asyncClientManager = asyncClientManager;
     }
