@@ -45,7 +45,7 @@ Start with:
 * Github CLI (2.65.0 or better)
 * httpie CLI (3.2.2 or better)
 * Java SDK (21 or better)
-* Maven (3.9.9 or better)
+* Maven (3.9.11 or better)
 * an LLM provider account (if using public cloud or commercially hosted models)
 
 ## How to clone
