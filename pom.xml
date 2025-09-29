@@ -93,7 +93,7 @@
 		<npm.version>10.9.2</npm.version>
 		<spring-boot-hc5.version>1.2.1</spring-boot-hc5.version>
 		<spring-cloud-bindings.version>2.0.4</spring-cloud-bindings.version>
-		<swagger-annotations.version>2.2.37</swagger-annotations.version>
+		<swagger-annotations.version>2.2.38</swagger-annotations.version>
 		<assertj.version>3.27.6</assertj.version>
 	</properties>
 
