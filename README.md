@@ -28,6 +28,15 @@ Use-case:
 
 * Imagine instead of using OpenTable or Tock you could converse with a chatbot to search for restaurant(s) and make reservation(s) on your behalf.
 
+## Technologies
+
+* Spring Boot 4.0.1
+* Spring AI 2.0.0-M1
+* Spring Cloud 2025.0.0
+* Spring Security 7.0.0
+* Java 21
+* Maven 3.9.11
+
 ## Getting started
 
 Start with:
