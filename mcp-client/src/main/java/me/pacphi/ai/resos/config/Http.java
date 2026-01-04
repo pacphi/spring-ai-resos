@@ -1,12 +1,10 @@
 package me.pacphi.ai.resos.config;
 
-import org.springframework.boot.web.client.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-
-
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 
@@ -14,13 +12,11 @@ import java.time.Duration;
 public class Http {
 
     @Bean
-    public RestClientCustomizer restClientCustomizer() {
-        return restClientBuilder -> {
-            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-            factory.setConnectTimeout((int) Duration.ofMinutes(10).toMillis());
-            factory.setReadTimeout((int) Duration.ofMinutes(10).toMillis());
-            restClientBuilder.defaultHeader(HttpHeaders.ACCEPT_ENCODING, "gzip, deflate");
-            restClientBuilder.requestFactory(factory);
-        };
+    public WebClient.Builder webClientBuilder() {
+        HttpClient httpClient = HttpClient.create()
+                .responseTimeout(Duration.ofMinutes(10));
+
+        return WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(httpClient));
     }
 }

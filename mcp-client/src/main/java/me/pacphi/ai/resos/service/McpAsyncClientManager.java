@@ -1,15 +1,15 @@
 package me.pacphi.ai.resos.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.modelcontextprotocol.client.McpAsyncClient;
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.transport.WebFluxSseClientTransport;
+import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.spec.McpSchema;
 
-import org.springframework.ai.mcp.client.autoconfigure.NamedClientMcpTransport;
-import org.springframework.ai.mcp.client.autoconfigure.configurer.McpAsyncClientConfigurer;
-import org.springframework.ai.mcp.client.autoconfigure.properties.McpClientCommonProperties;
-import org.springframework.ai.mcp.client.autoconfigure.properties.McpSseClientProperties;
+import org.springframework.ai.mcp.client.common.autoconfigure.NamedClientMcpTransport;
+import org.springframework.ai.mcp.client.common.autoconfigure.configurer.McpAsyncClientConfigurer;
+import org.springframework.ai.mcp.client.common.autoconfigure.properties.McpClientCommonProperties;
+import org.springframework.ai.mcp.client.common.autoconfigure.properties.McpSseClientProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -25,20 +25,20 @@ public class McpAsyncClientManager {
     private final McpClientCommonProperties mcpClientCommonProperties;
     private final McpSseClientProperties mcpSseClientProperties;
     private final WebClient.Builder webClientBuilderTemplate;
-    private final ObjectMapper objectMapper;
+    private final McpJsonMapper jsonMapper;
 
     public McpAsyncClientManager(McpAsyncClientConfigurer mcpSyncClientConfigurer,
                                  McpClientCommonProperties mcpClientCommonProperties,
                                  McpSseClientProperties mcpSseClientProperties,
                                  WebClient.Builder webClientBuilderTemplate,
-                                 ObjectMapper objectMapper
+                                 McpJsonMapper jsonMapper
                                 ) {
 
         this.mcpSyncClientConfigurer = mcpSyncClientConfigurer;
         this.mcpClientCommonProperties = mcpClientCommonProperties;
         this.mcpSseClientProperties = mcpSseClientProperties;
         this.webClientBuilderTemplate = webClientBuilderTemplate;
-        this.objectMapper = objectMapper;
+        this.jsonMapper = jsonMapper;
     }
 
     public List<McpAsyncClient> newMcpAsyncClients() {
@@ -47,7 +47,7 @@ public class McpAsyncClientManager {
 
         for (Map.Entry<String, McpSseClientProperties.SseParameters> serverParameters : mcpSseClientProperties.getConnections().entrySet()) {
             var webClientBuilder = webClientBuilderTemplate.clone().baseUrl(serverParameters.getValue().url());
-            var transport = new WebFluxSseClientTransport(webClientBuilder, objectMapper);
+            var transport = new WebFluxSseClientTransport(webClientBuilder, jsonMapper);
             namedTransports.add(new NamedClientMcpTransport(serverParameters.getKey(), transport));
         }
 
