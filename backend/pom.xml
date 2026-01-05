@@ -14,7 +14,7 @@
 
     <properties>
         <h2.verison>2.3.232</h2.verison>
-        <spring-doc.version>3.0.0</spring-doc.version>
+        <spring-doc.version>3.0.1</spring-doc.version>
     </properties>
 
     <dependencies>
