@@ -65,6 +65,24 @@ public class SchemaCreator {
     }
 
     private Path getTargetPath() throws IOException {
+        // Use classpath resource to find the correct module's target/classes
+        // This works regardless of where Maven/tests are run from
+        try {
+            java.net.URL resource = getClass().getClassLoader().getResource("");
+            if (resource != null) {
+                Path classesPath = Paths.get(resource.toURI());
+                // Ensure db/changelog directory exists
+                Path changelogDir = classesPath.resolve("db/changelog");
+                if (!changelogDir.toFile().exists()) {
+                    changelogDir.toFile().mkdirs();
+                }
+                return classesPath;
+            }
+        } catch (java.net.URISyntaxException e) {
+            logger.warn("Failed to resolve classpath root, falling back to working directory", e);
+        }
+
+        // Fallback to working directory (original behavior)
         Path currentPath = Paths.get("").toAbsolutePath();
         Path targetPath = currentPath.resolve("target/classes");
         if (!targetPath.toFile().exists()) {
