@@ -39,8 +39,8 @@ public class ResOsService {
 	public List<Customer> getCustomers(
 			@ToolParam(required = false, description= "Number of customer records to return, up to a maximum of 100") Integer limit,
 			@ToolParam(required = false, description= "Number of customer records to skip") Integer skip,
-			@ToolParam(required = false, description= "Sort field and direction (field:direction, e.g., name:asc, createdAt:desc") String sort,
-			@ToolParam(required = false, description= "Search expression for filtering results.  For example: valid WHERE clause criteria.  If it is not immediately apparent which customer field to query, then construct query criteria using the metadata field.") String customQuery) {
+			@ToolParam(required = false, description= "Sort field and direction (field:direction, e.g., name_01:asc, created_at:desc") String sort,
+			@ToolParam(required = false, description= "Search expression for filtering results. Must use format: field OPERATOR value [AND|OR field OPERATOR value]. Allowed fields: name_01, email, phone, created_at, last_booking_at, booking_count, total_spent, metadata. Allowed operators: =, !=, >, >=, <, <=, LIKE, IS NULL, IS NOT NULL. Values must be quoted strings, numbers, or NULL. Example: booking_count >= 5 AND total_spent > 100. Do NOT use SQL functions.") String customQuery) {
 		return apiClient.customersGet(limit, skip, sort, customQuery).getBody();
 	}
 
@@ -53,8 +53,8 @@ public class ResOsService {
 	public List<Feedback> getFeedback(
 			@ToolParam(required = false, description= "Number of feedback records to return, up to a maximum of 100") Integer limit,
 			@ToolParam(required = false, description= "Number of feedback records to skip") Integer skip,
-			@ToolParam(required = false, description= "Sort field and direction (field:direction, e.g., name:asc, createdAt:desc") String sort,
-			@ToolParam(required = false, description= "Search expression for filtering results.  For example: valid WHERE clause criteria.") String customQuery) {
+			@ToolParam(required = false, description= "Sort field and direction (field:direction, e.g., rating:asc, created_at:desc") String sort,
+			@ToolParam(required = false, description= "Search expression for filtering results. Must use format: field OPERATOR value [AND|OR field OPERATOR value]. Allowed fields: booking_id, rating, comment_01, created_at, customer_id, is_public. Allowed operators: =, !=, >, >=, <, <=, LIKE, IS NULL, IS NOT NULL. Values must be quoted strings, numbers, or NULL. Example: rating >= 3 AND is_public = 'true'. Do NOT use SQL functions like NOW() or INTERVAL.") String customQuery) {
 		return apiClient.feedbackGet(limit, skip, sort, customQuery).getBody();
 	}
 
