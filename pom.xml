@@ -13,7 +13,7 @@
 
 	<groupId>me.pacphi</groupId>
 	<artifactId>spring-ai-resos-parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>spring-ai-resos-parent</name>
@@ -83,12 +83,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-ai.version>2.0.0-M1</spring-ai.version>
 		<jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
-		<spring-doc.version>3.0.0</spring-doc.version>
+		<spring-doc.version>3.0.1</spring-doc.version>
 		<cfenv.version>3.5.0</cfenv.version>
 		<commons-io.version>2.19.0</commons-io.version>
-		<json-io.version>4.70.0</json-io.version>
+		<json-io.version>4.72.0</json-io.version>
 		<junit-jupiter.version>6.0.0</junit-jupiter.version>
-		<liquibase.version>4.32.0</liquibase.version>
+		<liquibase.version>5.0.1</liquibase.version>
 		<node.version>v23.4.0</node.version>
 		<npm.version>10.9.2</npm.version>
 		<spring-boot-hc5.version>1.2.1</spring-boot-hc5.version>
@@ -243,7 +243,7 @@
 			<dependency>
 				<groupId>io.micrometer</groupId>
 				<artifactId>micrometer-bom</artifactId>
-				<version>1.16.0</version>
+				<version>1.16.1</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

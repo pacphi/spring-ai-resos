@@ -1,6 +1,6 @@
 package me.pacphi.ai.resos.mcp;
 
-import me.pacphi.ai.resos.api.DefaultApiClient;
+import me.pacphi.ai.resos.api.DefaultApi;
 import me.pacphi.ai.resos.model.Customer;
 import me.pacphi.ai.resos.model.Feedback;
 import me.pacphi.ai.resos.model.OpeningHours;
@@ -14,9 +14,9 @@ import java.util.List;
 @Service
 public class ResOsService {
 
-	private final DefaultApiClient apiClient;
+	private final DefaultApi apiClient;
 
-	public ResOsService(DefaultApiClient apiClient) {
+	public ResOsService(DefaultApi apiClient) {
 		this.apiClient = apiClient;
 	}
 

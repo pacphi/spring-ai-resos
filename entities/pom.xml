@@ -6,11 +6,11 @@
     <parent>
         <groupId>me.pacphi</groupId>
         <artifactId>spring-ai-resos-parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-ai-resos-entities</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -62,7 +62,7 @@
                                 <artifactItem>
                                     <groupId>me.pacphi</groupId>
                                     <artifactId>spring-ai-resos-client</artifactId>
-                                    <version>0.0.1-SNAPSHOT</version>
+                                    <version>1.0.0-SNAPSHOT</version>
                                     <classifier>sources</classifier>
                                     <type>jar</type>
                                     <outputDirectory>${project.build.directory}/unpacked-sources</outputDirectory>
@@ -78,7 +78,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.6.2</version>
+                <version>3.6.3</version>
                 <executions>
                     <execution>
                         <id>generate-jdbc-entities</id>
@@ -104,7 +104,7 @@
                     <dependency>
                         <groupId>me.pacphi</groupId>
                         <artifactId>spring-ai-resos-codegen</artifactId>
-                        <version>0.0.1-SNAPSHOT</version>
+                        <version>1.0.0-SNAPSHOT</version>
                     </dependency>
                 </dependencies>
             </plugin>

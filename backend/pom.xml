@@ -5,23 +5,23 @@
     <parent>
         <groupId>me.pacphi</groupId>
         <artifactId>spring-ai-resos-parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-ai-resos-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
         <h2.verison>2.3.232</h2.verison>
-        <spring-doc.version>3.0.0</spring-doc.version>
+        <spring-doc.version>3.0.1</spring-doc.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>me.pacphi</groupId>
             <artifactId>spring-ai-resos-entities</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

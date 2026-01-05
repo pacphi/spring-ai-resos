@@ -32,8 +32,8 @@ Use-case:
 
 * Spring Boot 4.0.1
 * Spring AI 2.0.0-M1
-* Spring Cloud 2025.0.0
-* Spring Security 7.0.0
+* Spring Cloud 2025.1.0
+* Spring Security 7.0.2
 * Java 21
 * Maven 3.9.11
 
@@ -153,7 +153,7 @@ Add the following stanza to a file called `claude_desktop_config.json`:
   "command": "java",
   "args": [
     "-jar",
-    "<path-to-project>/target/spring-ai-resos-mcp-server-0.0.1-SNAPSHOT.jar"
+    "<path-to-project>/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
   ]
 }
 ```
@@ -166,7 +166,7 @@ or for testing with backend
   "args": [
     "-Dspring.profiles.active=dev",
     "-jar",
-    "<path-to-project>/target/spring-ai-resos-mcp-server-0.0.1-SNAPSHOT.jar"
+    "<path-to-project>/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
   ]
 }
 ```
