@@ -18,18 +18,6 @@
             <groupId>me.pacphi</groupId>
             <artifactId>spring-ai-resos-client</artifactId>
             <version>1.0.0-SNAPSHOT</version>
-            <exclusions>
-                <!-- Exclude security to prevent OAuth2 intercepting WebClient -->
-                <exclusion>
-                    <groupId>org.springframework.security</groupId>
-                    <artifactId>spring-security-oauth2-client</artifactId>
-                </exclusion>
-                <!-- Exclude web starters that might conflict with webflux -->
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.ai</groupId>
