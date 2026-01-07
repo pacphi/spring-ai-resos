@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-@Profile("dev")
+@Profile({"dev", "seed", "test"})
 public class RepositoryResolver {
     private final ListableBeanFactory beanFactory;
     private final Map<Class<?>, CrudRepository<?, ?>> repositoryCache;

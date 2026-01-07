@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile(value = { "dev", "seed" })
+@Profile(value = { "dev", "seed", "test" })
 public class CsvResourceLoader {
 
     private static final Logger log = LoggerFactory.getLogger(CsvResourceLoader.class);

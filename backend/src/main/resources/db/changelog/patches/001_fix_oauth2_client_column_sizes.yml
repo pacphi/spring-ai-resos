@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001_fix_oauth2_client_column_sizes
+      author: security-patch
+      comment: Increase VARCHAR sizes for OAuth2 registered client JSON and URI fields
+      changes:
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: client_secret
+            newDataType: varchar(500)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: client_authentication_methods
+            newDataType: varchar(500)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: authorization_grant_types
+            newDataType: varchar(500)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: redirect_uris
+            newDataType: varchar(1000)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: post_logout_redirect_uris
+            newDataType: varchar(1000)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: scopes
+            newDataType: varchar(500)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: client_settings
+            newDataType: varchar(2000)
+        - modifyDataType:
+            tableName: oauth2_registered_client
+            columnName: token_settings
+            newDataType: varchar(2000)

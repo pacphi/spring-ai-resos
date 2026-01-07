@@ -7,8 +7,10 @@ spring:
       client:
         name: ${spring.application.name}
         request-timeout: 30s
-        type: ASYNC
-        sse:
+        type: SYNC  # Changed from ASYNC to SYNC for WebMVC
+        # Don't initialize clients at startup - let McpSyncClientManager handle per-request init
+        initialized: false
+        http:  # Changed from 'sse' to 'http' for WebMVC HTTP Streamable transport
           connections:
             butler:
               url: ${SPRING_AI_RESOS_SERVER_URL:http://localhost:8082}
@@ -60,6 +62,33 @@ management:
 server:
   tomcat:
     max-swallow-size: -1
+
+# OAuth2 Client Configuration
+spring.security.oauth2.client:
+  registration:
+    # For user authentication (authorization code + PKCE)
+    frontend-app:
+      client-id: ${OAUTH2_CLIENT_ID:frontend-app}
+      authorization-grant-type: authorization_code
+      redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+      scope: openid,profile,email,chat.read,chat.write
+    # For calling mcp-server (client credentials)
+    mcp-client-to-server:
+      client-id: ${MCP_CLIENT_ID:mcp-client}
+      client-secret: ${MCP_CLIENT_SECRET:mcp-client-secret}
+      authorization-grant-type: client_credentials
+      scope: mcp.read,mcp.write
+  provider:
+    frontend-app:
+      # Explicit OAuth2 endpoint URIs (preferred over issuer-uri for production)
+      # Benefits: faster startup (no OIDC discovery), works offline, easier testing
+      authorization-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/authorize
+      token-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/token
+      user-info-uri: ${AUTH_SERVER_URL:http://localhost:8080}/userinfo
+      jwk-set-uri: ${AUTH_SERVER_URL:http://localhost:8080}/.well-known/jwks.json
+      user-name-attribute: preferred_username
+    mcp-client-to-server:
+      token-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/token
 
 ---
 

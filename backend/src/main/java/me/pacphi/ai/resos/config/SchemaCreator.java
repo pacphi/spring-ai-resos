@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.system.ApplicationTemp;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -19,25 +20,55 @@ import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.FileCopyUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.*;
 import java.util.*;
 
-@Profile("dev")
+/**
+ * Dynamically generates Liquibase changelogs from Spring Data JDBC entities.
+ * <p>
+ * This component scans for @Table-annotated entities and generates Liquibase
+ * changesets. When running from a JAR (e.g., Docker container), it uses a
+ * consistent temporary directory provided by Spring Boot's ApplicationTemp.
+ * <p>
+ * <b>Key behaviors:</b>
+ * <ul>
+ *   <li>In IDE/filesystem: writes to target/classes/db/changelog/</li>
+ *   <li>In JAR: writes to ApplicationTemp directory (consistent across restarts)</li>
+ *   <li>Copies patch files from classpath to temp directory for JAR execution</li>
+ *   <li>Sets system property "liquibase.changelog.dir" for LiquibaseCustomizer</li>
+ * </ul>
+ */
+@Profile({"dev", "test"})
 @Component
 public class SchemaCreator {
     private static final Logger logger = LoggerFactory.getLogger(SchemaCreator.class);
+
+    /**
+     * System property key for communicating changelog directory to LiquibaseCustomizer.
+     * When set, indicates JAR execution mode requiring file-based changelog loading.
+     */
+    public static final String CHANGELOG_DIR_PROPERTY = "liquibase.changelog.dir";
+
     private final String entityBasePackage;
     private final String datasourceUrl;
+    private final ApplicationTemp applicationTemp;
+
+    // Track whether we're in JAR mode for changelog generation
+    private boolean jarExecutionMode = false;
 
     public SchemaCreator(
             @Value("${app.entity.base-package}") String entityBasePackage,
@@ -45,41 +76,65 @@ public class SchemaCreator {
     ) {
         this.entityBasePackage = entityBasePackage;
         this.datasourceUrl = datasourceUrl;
+        this.applicationTemp = new ApplicationTemp(SchemaCreator.class);
     }
 
     @PostConstruct
     public void generateSchema() throws IOException {
+        logger.info("SchemaCreator starting - generating Liquibase changelogs from entities");
+
         // Create changeset generator
         ChangesetGenerator generator = new ChangesetGenerator(datasourceUrl);
 
-        // Get target path
+        // Get target path (detects JAR vs filesystem execution)
         Path targetPath = getTargetPath();
         File changelogDir = targetPath.resolve("db/changelog/generated").toFile();
         changelogDir.mkdirs();
 
-        // Generate changesets
+        // Generate changesets from entities
         generator.generateChangesets(entityBasePackage, changelogDir.getAbsolutePath());
 
-        // Update master changelog
+        // Copy patches from classpath to temp directory if running from JAR
+        if (jarExecutionMode) {
+            copyPatchFilesToTempDirectory(targetPath);
+        }
+
+        // Update master changelog (must be after patches are copied)
         updateMasterChangelog(changelogDir, targetPath);
+
+        logger.info("SchemaCreator completed - changelogs ready at: {}",
+                targetPath.resolve("db/changelog/db.changelog-master.yml"));
     }
 
+    /**
+     * Determines the target path for changelog generation.
+     * Uses ApplicationTemp for JAR execution to ensure consistent directory
+     * across application restarts (important for Liquibase change tracking).
+     */
     private Path getTargetPath() throws IOException {
-        // Use classpath resource to find the correct module's target/classes
-        // This works regardless of where Maven/tests are run from
         try {
             java.net.URL resource = getClass().getClassLoader().getResource("");
             if (resource != null) {
+                String protocol = resource.getProtocol();
+                String resourceStr = resource.toString();
+
+                // Detect JAR execution: jar protocol or nested JAR path
+                if ("jar".equals(protocol) || resourceStr.contains("!") || resourceStr.contains(".jar")) {
+                    return getJarExecutionPath();
+                }
+
+                // Normal filesystem - use target/classes or target/test-classes
                 Path classesPath = Paths.get(resource.toURI());
-                // Ensure db/changelog directory exists
                 Path changelogDir = classesPath.resolve("db/changelog");
                 if (!changelogDir.toFile().exists()) {
                     changelogDir.toFile().mkdirs();
                 }
+                logger.debug("Using filesystem path for changelogs: {}", classesPath);
                 return classesPath;
             }
-        } catch (java.net.URISyntaxException e) {
-            logger.warn("Failed to resolve classpath root, falling back to working directory", e);
+        } catch (java.net.URISyntaxException | UnsupportedOperationException e) {
+            logger.warn("Failed to resolve classpath root ({}), falling back to temp directory", e.getMessage());
+            return getJarExecutionPath();
         }
 
         // Fallback to working directory (original behavior)
@@ -91,11 +146,77 @@ public class SchemaCreator {
         return targetPath;
     }
 
+    /**
+     * Gets a consistent temporary directory for JAR execution.
+     * Uses Spring Boot's ApplicationTemp which provides:
+     * - Consistent location across application restarts
+     * - Application-specific isolation
+     */
+    private Path getJarExecutionPath() {
+        jarExecutionMode = true;
+
+        // Use ApplicationTemp for consistent temp directory across restarts
+        File tempDir = applicationTemp.getDir("liquibase-changelogs");
+        Path tempPath = tempDir.toPath();
+
+        // Ensure changelog directory structure exists
+        Path changelogDir = tempPath.resolve("db/changelog");
+        changelogDir.toFile().mkdirs();
+
+        // Set system property for LiquibaseCustomizer to find
+        System.setProperty(CHANGELOG_DIR_PROPERTY, tempPath.toString());
+
+        logger.info("JAR execution detected - using ApplicationTemp directory: {}", tempPath);
+        logger.info("System property {} set to: {}", CHANGELOG_DIR_PROPERTY, tempPath);
+
+        return tempPath;
+    }
+
+    /**
+     * Copies patch files from classpath (inside JAR) to temp directory.
+     * This is necessary because the master changelog uses relative paths
+     * (patches/xxx.yml) which must exist on the filesystem.
+     */
+    private void copyPatchFilesToTempDirectory(Path targetPath) {
+        Path patchesDir = targetPath.resolve("db/changelog/patches");
+        patchesDir.toFile().mkdirs();
+
+        try {
+            Resource[] patchResources = new PathMatchingResourcePatternResolver()
+                    .getResources("classpath:db/changelog/patches/*.yml");
+
+            int copiedCount = 0;
+            for (Resource patchResource : patchResources) {
+                String filename = patchResource.getFilename();
+                if (filename != null && filename.endsWith(".yml")) {
+                    Path targetFile = patchesDir.resolve(filename);
+
+                    // Copy using InputStream (works with classpath resources in JAR)
+                    try (InputStream is = patchResource.getInputStream();
+                         FileOutputStream fos = new FileOutputStream(targetFile.toFile())) {
+                        FileCopyUtils.copy(is, fos);
+                        copiedCount++;
+                        logger.debug("Copied patch file: {} -> {}", filename, targetFile);
+                    }
+                }
+            }
+
+            if (copiedCount > 0) {
+                logger.info("Copied {} patch files from classpath to temp directory", copiedCount);
+            }
+        } catch (IOException e) {
+            logger.warn("Failed to copy patch files from classpath: {}", e.getMessage());
+            // Continue - patches might not exist, which is acceptable
+        }
+    }
+
     private void updateMasterChangelog(File generatedDir, Path targetPath) throws IOException {
         File masterFile = targetPath.resolve("db/changelog/db.changelog-master.yml").toFile();
         masterFile.getParentFile().mkdirs();
 
         List<Map<String, Object>> includes = new ArrayList<>();
+
+        // Include generated entity changelogs (security entities are now part of entity scanning)
         File[] files = generatedDir.listFiles((dir, name) -> name.endsWith(".yml"));
 
         if (files != null) {
@@ -111,6 +232,41 @@ public class SchemaCreator {
             }
         }
 
+        // Include patch files after generated changelogs
+        // Use classpath resource loading which works both from filesystem and JAR
+        try {
+            org.springframework.core.io.Resource[] patchResources =
+                    new org.springframework.core.io.support.PathMatchingResourcePatternResolver()
+                            .getResources("classpath:db/changelog/patches/*.yml");
+
+            java.util.List<String> patchNames = new java.util.ArrayList<>();
+            for (org.springframework.core.io.Resource patchResource : patchResources) {
+                String filename = patchResource.getFilename();
+                if (filename != null && filename.endsWith(".yml")) {
+                    patchNames.add(filename);
+                }
+            }
+
+            // Sort patch files alphabetically
+            java.util.Collections.sort(patchNames);
+
+            for (String patchName : patchNames) {
+                Map<String, Object> includeConfig = new HashMap<>();
+                includeConfig.put("file", "patches/" + patchName);
+                includeConfig.put("relativeToChangelogFile", true);
+
+                Map<String, Object> include = new HashMap<>();
+                include.put("include", includeConfig);
+                includes.add(include);
+            }
+
+            if (!patchNames.isEmpty()) {
+                logger.info("Found {} patch files to include in changelog", patchNames.size());
+            }
+        } catch (IOException e) {
+            logger.warn("Failed to load patch files from classpath, skipping patches", e);
+        }
+
         Map<String, Object> changelog = new HashMap<>();
         changelog.put("databaseChangeLog", includes);
 
@@ -122,6 +278,7 @@ public class SchemaCreator {
             new Yaml(options).dump(changelog, writer);
         }
     }
+
 }
 
 class ChangesetGenerator {
@@ -131,6 +288,8 @@ class ChangesetGenerator {
     private final Set<Class<?>> processedEntities = new HashSet<>();
     // Track dependencies
     private final Map<Class<?>, Set<Class<?>>> dependencies = new HashMap<>();
+    // Counter to ensure unique timestamps that preserve dependency order
+    private long timestampCounter;
 
     public ChangesetGenerator(String datasourceUrl) {
         this.databaseType = datasourceUrl.contains(":postgresql:") ? "POSTGRESQL" : "H2";
@@ -191,8 +350,22 @@ class ChangesetGenerator {
     }
 
     public void generateChangesets(String basePackage, String outputPath) throws IOException {
+        // Clear the output directory to ensure clean slate
+        File outputDir = new File(outputPath);
+        if (outputDir.exists()) {
+            File[] existingFiles = outputDir.listFiles((dir, name) -> name.endsWith(".yml"));
+            if (existingFiles != null) {
+                for (File file : existingFiles) {
+                    file.delete();
+                }
+            }
+        }
+
         Set<Class<?>> entities = this.findEntities(basePackage);
         List<Class<?>> orderedEntities = getOrderedEntities(entities);
+
+        // Initialize timestamp counter to ensure unique, ordered timestamps
+        this.timestampCounter = System.currentTimeMillis();
 
         for(Class<?> entity : orderedEntities) {
             if (!this.processedEntities.contains(entity) && this.hasIdField(entity)) {
@@ -228,18 +401,21 @@ class ChangesetGenerator {
     private void processEntity(Class<?> entity, String outputPath) throws IOException {
         processedEntities.add(entity);
 
-        // Generate table creation changeset
-        Map<String, Object> changeset = generateChangeset(entity);
+        // Get current timestamp and increment for next entity
+        long currentTimestamp = timestampCounter++;
 
-        // Write to file
+        // Generate table creation changeset with the same timestamp
+        Map<String, Object> changeset = generateChangeset(entity, currentTimestamp);
+
+        // Write to file with the timestamp to preserve dependency order
         String fileName = String.format("%d_%s_init.yml",
-                System.currentTimeMillis(),
+                currentTimestamp,
                 getTableName(entity));
 
         writeChangeset(changeset, new File(outputPath, fileName));
     }
 
-    private Map<String, Object> generateChangeset(Class<?> entity) {
+    private Map<String, Object> generateChangeset(Class<?> entity, long timestamp) {
         String tableName = getTableName(entity);
         List<Map<String, Object>> changes = new ArrayList<>();
 
@@ -274,7 +450,7 @@ class ChangesetGenerator {
 
         // Create the changeset
         String changesetId = String.format("%d_%s_init",
-                System.currentTimeMillis(),
+                timestamp,
                 tableName);
 
         Map<String, Object> changeSet = new HashMap<>();

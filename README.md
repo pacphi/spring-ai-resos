@@ -13,10 +13,12 @@ It also includes an MCP server, MCP client configuration for use with Claude and
     * [Build](#how-to-build)
     * [Consume](#how-to-consume)
     * [Run](#how-to-run)
+* Documentation
+  * [Architecture](docs/architecture/) - Comprehensive architecture documentation
+  * [Planning](docs/planning/) - Roadmap and future work
+  * [Historical](docs/historical/) - Project origin story
 * Also see
-  * [ResoOS API](https://documenter.getpostman.com/view/3308304/SzzehLGp?version=latest)
-  * the [spark](docs/SPARK.md) that lit this project up
-  * [Roadmap](docs/ROADMAP.md)
+  * [ResOS API](https://documenter.getpostman.com/view/3308304/SzzehLGp?version=latest) - External API reference
 
 ## Background
 
@@ -34,7 +36,7 @@ Use-case:
 * Spring AI 2.0.0-M1
 * Spring Cloud 2025.1.0
 * Spring Security 7.0.2
-* Java 21
+* Java 25
 * Maven 3.9.11
 
 ## Getting started
@@ -53,7 +55,7 @@ Start with:
 * Git CLI (2.43.0 or better)
 * Github CLI (2.65.0 or better)
 * httpie CLI (3.2.2 or better)
-* Java SDK (21 or better)
+* Java SDK (25 or better)
 * Maven (3.9.11 or better)
 * an LLM provider account (if using public cloud or commercially hosted models)
 

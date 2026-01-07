@@ -1,0 +1,94 @@
+# Full-stack Docker Compose for Spring AI ResOS with OAuth2 Security
+# Run with: docker compose -f docker/docker-compose.full-stack.yml up -d
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: resos-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - resos-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: docker/Dockerfile
+    container_name: resos-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USER: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      LIQUIBASE_CONTEXTS: dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - resos-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  mcp-server:
+    build:
+      context: ../mcp-server
+      dockerfile: Dockerfile
+    container_name: resos-mcp-server
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: cloud
+      RESOS_API_ENDPOINT: http://backend:8080
+      AUTH_SERVER_URL: http://backend:8080
+      MCP_CLIENT_ID: mcp-server
+      MCP_CLIENT_SECRET: mcp-server-secret
+      OAUTH2_ENABLED: "true"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - resos-net
+
+  mcp-client:
+    build:
+      context: ../mcp-client
+      dockerfile: Dockerfile
+    container_name: resos-mcp-client
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev,openai
+      SPRING_AI_RESOS_SERVER_URL: http://mcp-server:8082
+      AUTH_SERVER_URL: http://backend:8080
+      OAUTH2_CLIENT_ID: frontend-app
+      # OpenAI API key should be provided at runtime
+      # SPRING_AI_OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - mcp-server
+    networks:
+      - resos-net
+
+volumes:
+  postgres-data: {}
+
+networks:
+  resos-net:
+    driver: bridge

@@ -7,18 +7,26 @@ spring:
       server:
         name: ${spring.application.name}
         version: 1.2-modified
-        stdio: true
+        # WebMVC starter uses HTTP Streamable by default (no stdio: true needed)
+        # protocol: STREAMABLE is the default
 
   jackson:
     default-property-inclusion: non_null
 
   main:
     banner-mode: off
-    web-application-type: none
+    # Removed web-application-type: none to enable HTTP server for WebMVC
 
   threads:
     virtual:
       enabled: true
+
+  # OAuth2 Resource Server configuration for validating incoming tokens
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AUTH_SERVER_URL:http://localhost:8080}
 
 management:
   info:
@@ -43,6 +51,22 @@ management:
 default:
   url: ${RESOS_API_ENDPOINT:https://api.resos.com/v1}
 
+# OAuth2 Client Configuration for backend authentication
+security:
+  oauth2:
+    enabled: ${OAUTH2_ENABLED:true}
+
+spring.security.oauth2.client:
+  registration:
+    mcp-server:
+      client-id: ${MCP_CLIENT_ID:mcp-server}
+      client-secret: ${MCP_CLIENT_SECRET:mcp-server-secret}
+      authorization-grant-type: client_credentials
+      scope: backend.read,backend.write
+  provider:
+    mcp-server:
+      token-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/token
+
 logging:
   pattern:
     console:
@@ -58,13 +82,13 @@ spring:
 
   main:
     banner-mode: log
-    web-application-type: reactive
+    # Removed web-application-type: reactive (now uses servlet/WebMVC)
 
   ai:
     mcp:
       server:
-        stdio: false
-        type: ASYNC
+        # stdio: false not needed (HTTP is default for WebMVC)
+        # type: SYNC is the default for WebMVC starter
 
 logging:
   pattern:

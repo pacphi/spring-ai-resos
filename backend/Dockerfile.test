@@ -1,0 +1,18 @@
+# Simple Dockerfile for TestContainers
+FROM bellsoft/liberica-openjdk-debian:25
+
+WORKDIR /app
+
+# Copy JAR and seed data
+COPY target/spring-ai-resos-backend-1.0.0-SNAPSHOT.jar app.jar
+COPY seed-data /app/seed-data
+
+# Set CSV base path to /app/seed-data
+ENV CSV_BASE_PATH=/app/seed-data
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", \
+    "-Dspring.profiles.active=dev", \
+    "-Djava.security.egd=file:///dev/urandom", \
+    "-jar", "/app/app.jar"]

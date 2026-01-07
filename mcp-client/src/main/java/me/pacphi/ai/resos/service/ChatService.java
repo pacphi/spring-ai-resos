@@ -7,12 +7,12 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.mcp.AsyncMcpToolCallbackProvider;
+import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.function.Consumer;
 
 
 @Service
@@ -20,26 +20,58 @@ public class ChatService {
     private final Logger log = LoggerFactory.getLogger(ChatService.class);
 
     private final ChatClient chatClient;
-    private final McpAsyncClientManager asyncClientManager;
+    private final McpSyncClientManager syncClientManager;
 
     public ChatService(
             ChatModel chatModel,
             ChatMemory chatMemory,
-            McpAsyncClientManager asyncClientManager
+            McpSyncClientManager syncClientManager
             ) {
         this.chatClient = ChatClient.builder(chatModel)
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build(), new SimpleLoggerAdvisor())
                 .build();
-        this.asyncClientManager = asyncClientManager;
+        this.syncClientManager = syncClientManager;
     }
 
-    public Flux<String> streamResponseToQuestion(String question) {
-        AsyncMcpToolCallbackProvider provider =
-                AsyncMcpToolCallbackProvider.builder().mcpClients(asyncClientManager.newMcpAsyncClients()).build();
-        return constructRequest(question)
-                .toolCallbacks(provider.getToolCallbacks())
-                .stream()
-                .content();
+    /**
+     * Stream response to a question using callback-based approach for WebMVC.
+     *
+     * @param question The user's question
+     * @param onToken Callback for each token received
+     * @param onComplete Callback when streaming completes
+     * @param onError Callback for errors
+     */
+    public void streamResponseToQuestion(
+            String question,
+            Consumer<String> onToken,
+            Runnable onComplete,
+            Consumer<Throwable> onError) {
+
+        try {
+            SyncMcpToolCallbackProvider provider =
+                    SyncMcpToolCallbackProvider.builder()
+                        .mcpClients(syncClientManager.newMcpSyncClients())
+                        .build();
+
+            // Use Spring AI's streaming with callback
+            // Note: This assumes Spring AI 2.0+ provides streaming to Consumer
+            // If not available, we'll need to use Flux.subscribe() with blocking context
+            var stream = constructRequest(question)
+                    .toolCallbacks(provider.getToolCallbacks())
+                    .stream()
+                    .content();
+
+            // Subscribe to the stream and forward to callbacks
+            stream.subscribe(
+                onToken::accept,
+                onError::accept,
+                onComplete::run
+            );
+
+        } catch (Exception e) {
+            log.error("Error streaming chat response", e);
+            onError.accept(e);
+        }
     }
 
     private ChatClient.ChatClientRequestSpec constructRequest(String question) {
