@@ -1,0 +1,4 @@
+username;password;email;enabled;account_non_expired;account_non_locked;credentials_non_expired
+admin;admin123;admin@resos.local;true;true;true;true
+operator;operator123;operator@resos.local;true;true;true;true
+user;user123;user@resos.local;true;true;true;true

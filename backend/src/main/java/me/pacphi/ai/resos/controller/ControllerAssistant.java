@@ -8,17 +8,21 @@ import java.util.List;
 
 class ControllerAssistant {
 
-    // Define allowed operators. Add more as needed.
-    private static final List<String> ALLOWED_OPERATORS = List.of(
+    // Binary operators (require a value)
+    private static final List<String> BINARY_OPERATORS = List.of(
             "=",
             "!=",
             ">",
             ">=",
             "<",
             "<=",
-            "LIKE",
-            "IS NULL",
-            "IS NOT NULL"
+            "LIKE"
+    );
+
+    // Unary operators (no value needed)
+    private static final List<String> UNARY_OPERATORS = List.of(
+            "IS NOT NULL",  // Must be before IS NULL for regex matching
+            "IS NULL"
     );
 
     static Pageable createPageable(Integer limit, Integer skip, String sort) {
@@ -53,15 +57,25 @@ class ControllerAssistant {
             throw new IllegalArgumentException("Custom query is too long.");
         }
 
+        // Field pattern
+        String fieldPattern = "(" + String.join("|", allowedFields) + ")";
+
+        // Binary condition: field OPERATOR value (e.g., rating >= 3)
+        String binaryOperatorPattern = "(" + String.join("|", BINARY_OPERATORS) + ")";
+        String valuePattern = "('.*?'|\\d+|NULL)";
+        String binaryCondition = fieldPattern + "\\s*" + binaryOperatorPattern + "\\s*" + valuePattern;
+
+        // Unary condition: field IS NULL or field IS NOT NULL
+        String unaryOperatorPattern = "(" + String.join("|", UNARY_OPERATORS) + ")";
+        String unaryCondition = fieldPattern + "\\s+" + unaryOperatorPattern;
+
+        // A condition can be either binary or unary
+        String conditionPattern = "(" + binaryCondition + "|" + unaryCondition + ")";
+
+        // Allow single condition OR two conditions joined by AND/OR
         var sanityCheckRegex =
-                "^\\s*(" +
-                        String.join("|", allowedFields) +
-                        ")\\s*(" +
-                        String.join("|", ALLOWED_OPERATORS) +
-                        ")\\s*('.*?'|\\d+|NULL)\\s*(AND|OR)?\\s*(" +
-                        String.join("|", allowedFields) + ")\\s*(" +
-                        String.join("|", ALLOWED_OPERATORS) +
-                        ")\\s*('.*?'|\\d+|NULL)\\s*$";
+                "^\\s*" + conditionPattern +
+                "(\\s+(AND|OR)\\s+" + conditionPattern + ")?\\s*$";
 
         if (!customQuery.matches(sanityCheckRegex)) {
             throw new IllegalArgumentException("Invalid custom query: " + customQuery);

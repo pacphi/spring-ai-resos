@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: mcp-client-test
+
+# AI Configuration - disable for tests
+spring.ai:
+  openai:
+    api-key: test-api-key
+    chat:
+      enabled: false # Disable real AI calls in tests
+
+# Logging
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    me.pacphi.ai.resos: DEBUG
+    org.testcontainers: INFO

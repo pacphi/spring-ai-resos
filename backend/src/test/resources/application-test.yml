@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    # Use unique H2 database for each test run to avoid conflicts
+    url: jdbc:h2:mem:testdb-${random.uuid};MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yml
+    drop-first: true # Drop all database objects before migration (clean slate)
+
+  sql:
+    init:
+      mode: never
+
+# OAuth2 Test Configuration
+oauth2:
+  client:
+    mcp-server:
+      client-id: test-mcp-server
+      client-secret: test-mcp-secret
+      scopes: backend.read,backend.write
+    mcp-client:
+      client-id: test-mcp-client
+      client-secret: test-mcp-client-secret
+      scopes: backend.read,backend.write
+
+# Security Configuration for Tests
+app:
+  security:
+    issuer-uri: http://localhost:8080 # Fixed port for tests
+    token:
+      access-token-ttl: PT5M # 5 minutes for faster tests
+      refresh-token-ttl: PT1H # 1 hour for tests
+  entity:
+    base-package: me.pacphi.ai.resos.jdbc
+  seed:
+    csv:
+      base-path: ${CSV_BASE_PATH:./seed-data}
+      files:
+        - authorities.csv
+        - users.csv
+        - user-authorities.csv
+
+# Logging
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    me.pacphi.ai.resos: DEBUG
+    me.pacphi.ai.resos.csv: DEBUG
+    org.hibernate.SQL: DEBUG
+    liquibase: INFO
+
+# Disable Docker Compose for tests
+spring.docker.compose.enabled: false

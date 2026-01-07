@@ -18,7 +18,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-@Profile(value = { "dev", "seed" })
+@Profile(value = { "dev", "seed", "test" })
 public class CsvFileProcessor {
     private static final String SEPARATOR = ";";
 

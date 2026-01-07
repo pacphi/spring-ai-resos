@@ -5,18 +5,20 @@
 This multi-module project hosts a client code-generated from an OpenAPI derivative of the ResOs API combined with a Spring AI implementation.
 It also includes an MCP server, MCP client configuration for use with Claude and a standalone ReactJS powered chatbot UI.
 
-* [Background](#background)
-* [Getting started](#getting-started)
-* [Prerequisites](#prerequisites)
-* How to
-    * [Clone](#how-to-clone)
-    * [Build](#how-to-build)
-    * [Consume](#how-to-consume)
-    * [Run](#how-to-run)
-* Also see
-  * [ResoOS API](https://documenter.getpostman.com/view/3308304/SzzehLGp?version=latest)
-  * the [spark](docs/SPARK.md) that lit this project up
-  * [Roadmap](docs/ROADMAP.md)
+- [Background](#background)
+- [Getting started](#getting-started)
+- [Prerequisites](#prerequisites)
+- How to
+  - [Clone](#how-to-clone)
+  - [Build](#how-to-build)
+  - [Consume](#how-to-consume)
+  - [Run](#how-to-run)
+- Documentation
+  - [Architecture](docs/architecture/) - Comprehensive architecture documentation
+  - [Planning](docs/planning/) - Roadmap and future work
+  - [Project Origin](docs/archives/mvp/SPARK.md) - How this project started
+- Also see
+  - [ResOS API](https://documenter.getpostman.com/view/3308304/SzzehLGp?version=latest) - External API reference
 
 ## Background
 
@@ -26,27 +28,36 @@ as for the following
 
 Use-case:
 
-* Imagine instead of using OpenTable or Tock you could converse with a chatbot to search for restaurant(s) and make reservation(s) on your behalf.
+- Imagine instead of using OpenTable or Tock you could converse with a chatbot to search for restaurant(s) and make reservation(s) on your behalf.
+
+## Technologies
+
+- Spring Boot 4.0.1
+- Spring AI 2.0.0-M1
+- Spring Cloud 2025.1.0
+- Spring Security 7.0.2
+- Java 25
+- Maven 3.9.11
 
 ## Getting started
 
 Start with:
 
-* A Github [account](https://github.com/signup)
-* (Optional) An [API key](https://resos.com/support/how-to-use-resos-rest-api/) from ResOS
-  * you only need one if you intend to register as a restaurateur!
-  * we will spin up a [backend](backend) that is API-compatible, implemented with Spring Boot Starter Data JDBC
-* An LLM provider
-  * e.g., Groq Cloud, OpenRouter, or OpenAI
+- A Github [account](https://github.com/signup)
+- (Optional) An [API key](https://resos.com/support/how-to-use-resos-rest-api/) from ResOS
+  - you only need one if you intend to register as a restaurateur!
+  - we will spin up a [backend](backend) that is API-compatible, implemented with Spring Boot Starter Data JDBC
+- An LLM provider
+  - e.g., Groq Cloud, OpenRouter, or OpenAI
 
 ## Prerequisites
 
-* Git CLI (2.43.0 or better)
-* Github CLI (2.65.0 or better)
-* httpie CLI (3.2.2 or better)
-* Java SDK (21 or better)
-* Maven (3.9.11 or better)
-* an LLM provider account (if using public cloud or commercially hosted models)
+- Git CLI (2.43.0 or better)
+- Github CLI (2.65.0 or better)
+- httpie CLI (3.2.2 or better)
+- Java SDK (25 or better)
+- Maven (3.9.11 or better)
+- an LLM provider account (if using public cloud or commercially hosted models)
 
 ## How to clone
 
@@ -144,7 +155,7 @@ Add the following stanza to a file called `claude_desktop_config.json`:
   "command": "java",
   "args": [
     "-jar",
-    "<path-to-project>/target/spring-ai-resos-mcp-server-0.0.1-SNAPSHOT.jar"
+    "<path-to-project>/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
   ]
 }
 ```
@@ -157,7 +168,7 @@ or for testing with backend
   "args": [
     "-Dspring.profiles.active=dev",
     "-jar",
-    "<path-to-project>/target/spring-ai-resos-mcp-server-0.0.1-SNAPSHOT.jar"
+    "<path-to-project>/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
   ]
 }
 ```
@@ -186,18 +197,19 @@ cd ../mcp-client
 
 #### leveraging OpenAI
 
-Build and run a version of the chatbot that is compatible for use with [OpenAI](https://openai.com).  You will need to [obtain an API key](https://platform.openai.com/settings/profile?tab=api-keys).
+Build and run a version of the chatbot that is compatible for use with [OpenAI](https://openai.com). You will need to [obtain an API key](https://platform.openai.com/settings/profile?tab=api-keys).
 
 Before launching the app:
 
-* Create a `config` folder which would be a sibling of the `src` folder.  Create a file named `creds.yml` inside that folder.  Add your own API key into that file.
+- Create a `config` folder which would be a sibling of the `src` folder. Create a file named `creds.yml` inside that folder. Add your own API key into that file.
 
 ```yaml
 spring:
   ai:
     openai:
-      api-key: {REDACTED}
+      api-key: { REDACTED }
 ```
+
 > Replace `{REDACTED}` above with your OpenAI API key
 
 Next, to launch the chatbot, open a terminal shell and execute
@@ -208,21 +220,22 @@ mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
 
 ### leveraging Groq Cloud
 
-Build and run a version of the chatbot that is compatible for use with [Groq Cloud](https://groq.com).  You will need to [obtain an API key](https://console.groq.com/keys).
+Build and run a version of the chatbot that is compatible for use with [Groq Cloud](https://groq.com). You will need to [obtain an API key](https://console.groq.com/keys).
 Note that Groq does not currently have support for text embedding. So if you intend to run with the `groq-cloud` Spring profile activated, you will also need to provide additional credentials
 
 Before launching the app:
 
-* Create a `config` folder which would be a sibling of the `src` folder.  Create a file named `creds.yml` inside that folder.  Add your own API key into that file.
+- Create a `config` folder which would be a sibling of the `src` folder. Create a file named `creds.yml` inside that folder. Add your own API key into that file.
 
 ```yaml
 spring:
   ai:
     openai:
-      api-key: {REDACTED-1}
+      api-key: { REDACTED-1 }
       embedding:
-        api-key: {REDACTED-2}
+        api-key: { REDACTED-2 }
 ```
+
 > Replace `{REDACTED-1}` and `{REDACTED-2}` above with your Groq Cloud API and OpenAI keys respectively.
 
 Next, to launch the chatbot, open a terminal shell and execute
@@ -233,21 +246,22 @@ mvn spring-boot:run -Dspring-boot.run.profiles=groq-cloud,dev
 
 #### leveraging OpenRouter
 
-Build and run a version of the chatbot that is compatible for use with [OpenRouter](https://openrouter.ai/docs/quick-start).  You will need to [obtain an API key](https://openrouter.ai/settings/keys).
+Build and run a version of the chatbot that is compatible for use with [OpenRouter](https://openrouter.ai/docs/quick-start). You will need to [obtain an API key](https://openrouter.ai/settings/keys).
 Note that OpenRouter does not currently have support for text embedding. So if you intend to run with the `openrouter` Spring profile activated, you will also need to provide additional credentials
 
 Before launching the app:
 
-* Create a `config` folder which would be a sibling of the `src` folder.  Create a file named `creds.yml` inside that folder.  Add your own API key into that file.
+- Create a `config` folder which would be a sibling of the `src` folder. Create a file named `creds.yml` inside that folder. Add your own API key into that file.
 
 ```yaml
 spring:
   ai:
     openai:
-      api-key: {REDACTED-1}
+      api-key: { REDACTED-1 }
       embedding:
-        api-key: {REDACTED-2}
+        api-key: { REDACTED-2 }
 ```
+
 > Replace `{REDACTED-1}` and `{REDACTED-2}` above with your OpenRouter API and OpenAI keys respectively.
 
 Next, to launch the chatbot, open a terminal shell and execute

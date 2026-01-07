@@ -1,0 +1,39 @@
+# Build outputs
+target/
+build/
+dist/
+out/
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Maven wrapper
+.mvn/
+
+# Generated files
+**/generated/
+**/generated-sources/
+**/generated-test-sources/
+
+# Lock files (don't format these)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Frontend build (has its own prettier config)
+mcp-client/src/main/frontend/
+
+# Binary and data files
+*.jar
+*.war
+*.class
+*.log
+
+# Git
+.git/

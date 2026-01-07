@@ -1,0 +1,7 @@
+username;authority_name
+admin;ROLE_ADMIN
+admin;ROLE_OPERATOR
+admin;ROLE_USER
+operator;ROLE_OPERATOR
+operator;ROLE_USER
+user;ROLE_USER

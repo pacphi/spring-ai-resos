@@ -44,15 +44,15 @@ public class CustomerController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Define the allowed fields.  Must match the CustomerEntity field names.
+    // Define the allowed fields. Must match actual database column names (snake_case).
     private static final List<String> ALLOWED_FIELDS = List.of(
-            "name_01",  // Matches the @Column("name_01") annotation on the CustomerEntity
+            "name_01",
             "email",
             "phone",
-            "createdAt",
-            "lastBookingAt",
-            "bookingCount",
-            "totalSpent",
+            "created_at",
+            "last_booking_at",
+            "booking_count",
+            "total_spent",
             "metadata"
     );
 

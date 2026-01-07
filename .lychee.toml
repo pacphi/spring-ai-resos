@@ -1,0 +1,78 @@
+# Lychee link checker configuration
+# https://lychee.cli.rs/
+
+# Log level (error, warn, info, debug, trace)
+verbose = "info"
+
+# Enable caching
+cache = true
+
+# Maximum number of concurrent network requests
+max_concurrency = 32
+
+# Maximum number of retries per request
+max_retries = 3
+
+# Request timeout in seconds
+timeout = 20
+
+# User agent string
+user_agent = "lychee/0.15 (https://github.com/lycheeverse/lychee)"
+
+# Accept these response codes as valid
+accept = [200, 201, 202, 203, 204, 206, 429]
+
+# Exclude patterns (regex)
+exclude = [
+  # Localhost and internal URLs
+  "^https?://localhost",
+  "^https?://127\\.0\\.0\\.1",
+  "^https?://0\\.0\\.0\\.0",
+  # Common false positives
+  "^https?://example\\.com",
+  "^https?://your-domain",
+  # Private/placeholder URLs
+  "^https?://.*\\.local(host)?",
+  # Ignore mailto links
+  "^mailto:",
+  # Ignore tel links
+  "^tel:",
+  # API endpoints that require auth
+  "^https?://api\\.",
+  # Ignore internal Java documentation links
+  "^https?://docs\\.oracle\\.com",
+  # GitHub edit/compare links (often 404 for private repos)
+  "github\\.com/.*/edit/",
+  "github\\.com/.*/compare/",
+  # GitHub discussions (rate limiting causes false positives)
+  "github\\.com/.*/discussions"
+]
+
+# Exclude paths
+exclude_path = [
+  "node_modules",
+  "target",
+  ".git",
+  "mcp-client/src/main/frontend/node_modules"
+]
+
+# Include file extensions
+include = ["md", "markdown"]
+
+# Don't follow redirects
+# max_redirects = 5
+
+# Require HTTPS for all external links (optional, can be strict)
+require_https = false
+
+# Output format: compact, detailed, json, markdown
+format = "detailed"
+
+# Skip links matching these patterns for DNS resolution issues
+skip_missing = false
+
+# Check mail address validity (disabled - many false positives)
+include_mail = false
+
+# Base URL for relative links (optional)
+# base = "https://github.com/yourusername/spring-ai-resos"

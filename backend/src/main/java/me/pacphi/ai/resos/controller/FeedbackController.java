@@ -35,7 +35,6 @@ public class FeedbackController {
     private final FeedbackRepository feedbackRepository;
     private final PageableFeedbackRepository pageableFeedbackRepository;
     private final JdbcTemplate jdbcTemplate;
-    
 
     public FeedbackController(
             FeedbackRepository feedbackRepository,
@@ -47,14 +46,14 @@ public class FeedbackController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Define the allowed fields.  Must match the FeedbackEntity field names.
+    // Define the allowed fields. Must match actual database column names (snake_case).
     private static final List<String> ALLOWED_FIELDS = List.of(
             "booking_id",
             "rating",
             "comment_01",
-            "createdAt",
+            "created_at",
             "customer_id",
-            "isPublic"
+            "is_public"
     );
 
     /**

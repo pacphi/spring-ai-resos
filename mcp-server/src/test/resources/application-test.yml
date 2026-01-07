@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: mcp-server-test
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Mock JwkSetUri for tests (will be overridden by test configuration)
+          jwk-set-uri: http://localhost:8080/.well-known/jwks.json
+      client:
+        registration:
+          backend-api:
+            client-id: test-mcp-server
+            client-secret: test-secret
+            authorization-grant-type: client_credentials
+            scope: backend.read,backend.write
+        provider:
+          backend-api:
+            token-uri: http://localhost:8080/oauth2/token
+
+# Backend API Configuration
+backend:
+  api:
+    base-url: http://localhost:8080
+    client-registration-id: backend-api
+
+# Logging
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    me.pacphi.ai.resos: DEBUG
+
+# Disable actuator security for /health in tests
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

@@ -5,23 +5,23 @@
     <parent>
         <groupId>me.pacphi</groupId>
         <artifactId>spring-ai-resos-parent</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>spring-ai-resos-backend</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
         <h2.verison>2.3.232</h2.verison>
-        <spring-doc.version>3.0.0</spring-doc.version>
+        <spring-doc.version>3.0.1</spring-doc.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>me.pacphi</groupId>
             <artifactId>spring-ai-resos-entities</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -47,8 +47,8 @@
             <version>${h2.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-liquibase</artifactId>
         </dependency>
         <dependency>
             <groupId>com.opencsv</groupId>
@@ -59,6 +59,28 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Spring Security and OAuth2 Authorization Server -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-authorization-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
     </dependencies>
 
@@ -80,22 +102,96 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <argLine>--add-opens java.base/java.net=ALL-UNNAMED</argLine>
+                    <systemPropertyVariables>
+                        <liquibase.duplicateFileMode>WARN</liquibase.duplicateFileMode>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Remove existing Docker image before rebuild (optional cleanup) -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>docker-remove-existing-image</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>/bin/bash</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>-c</argument>
+                                <argument>
+                                    if docker image inspect spring-ai-resos-backend:test &gt;/dev/null 2&gt;&amp;1; then
+                                        echo "Removing existing Docker image spring-ai-resos-backend:test..."
+                                        docker rmi -f spring-ai-resos-backend:test || true
+                                    else
+                                        echo "No existing Docker image to remove."
+                                    fi
+                                </argument>
+                            </arguments>
+                            <successCodes>
+                                <successCode>0</successCode>
+                                <successCode>1</successCode>
+                            </successCodes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Build Docker test image using Google Jib (no Dockerfile needed) -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.5.1</version>
                 <configuration>
-                    <image>
-                        <builder>paketobuildpacks/builder-jammy-tiny</builder>
-                        <env>
-                            <BP_JVM_VERSION>21.0.7</BP_JVM_VERSION>
-                            <BP_NATIVE_IMAGE>true</BP_NATIVE_IMAGE>
-                            <BP_NATIVE_IMAGE_BUILD_ARGUMENTS>--add-opens java.base/java.net=ALL-UNNAMED</BP_NATIVE_IMAGE_BUILD_ARGUMENTS>
-                        </env>
-                    </image>
+                    <from>
+                        <image>bellsoft/liberica-openjdk-debian:25</image>
+                    </from>
+                    <to>
+                        <image>spring-ai-resos-backend:test</image>
+                    </to>
+                    <container>
+                        <jvmFlags>
+                            <jvmFlag>-Dspring.profiles.active=dev</jvmFlag>
+                            <jvmFlag>-Djava.security.egd=file:///dev/urandom</jvmFlag>
+                        </jvmFlags>
+                        <environment>
+                            <CSV_BASE_PATH>/app/seed-data</CSV_BASE_PATH>
+                        </environment>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                        <workingDirectory>/app</workingDirectory>
+                    </container>
+                    <extraDirectories>
+                        <paths>
+                            <path>
+                                <from>${project.basedir}/seed-data</from>
+                                <into>/app/seed-data</into>
+                            </path>
+                        </paths>
+                    </extraDirectories>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-build-test-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <!-- Build to local Docker daemon -->
+                            <goal>dockerBuild</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

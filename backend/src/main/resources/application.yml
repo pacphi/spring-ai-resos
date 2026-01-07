@@ -1,3 +1,6 @@
+server:
+  address: 0.0.0.0
+
 spring:
   application:
     name: spring-ai-resos-backend
@@ -11,6 +14,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yml
     database-change-log-table: DATABASECHANGELOG
     database-change-log-lock-table: DATABASECHANGELOGLOCK
+    contexts: ${LIQUIBASE_CONTEXTS:}
 
   threads:
     virtual:
@@ -23,6 +27,8 @@ app:
     csv:
       base-path: ${CSV_BASE_PATH:./seed-data}
       files:
+        - authorities.csv
+        - users.csv
         - areas.csv
         - tables.csv
         - customers.csv
@@ -30,6 +36,7 @@ app:
         - feedback.csv
         - orders.csv
         - openinghours.csv
+        - user-authorities.csv
 
 management:
   info:
@@ -63,7 +70,6 @@ springdoc:
   writer-with-default-pretty-printer: true
 
 ---
-
 spring:
   config:
     activate:
@@ -77,9 +83,7 @@ spring:
         command: down
         arguments: -v
       timeout: 1m
-
 ---
-
 spring:
   config:
     activate:
@@ -95,9 +99,7 @@ spring:
     compose:
       file:
         - ./docker/docker-compose.postgres.yml
-
 ---
-
 spring:
   config:
     activate:
@@ -116,6 +118,25 @@ spring:
     init:
       mode: ALWAYS
 
+  liquibase:
+    contexts: dev
+
+# OAuth2 Authorization Server configuration
+app:
+  security:
+    issuer-uri: ${ISSUER_URI:http://localhost:8080}
+
+# OAuth2 client seeding configuration (dev profile only)
+oauth2:
+  client:
+    mcp-server:
+      client-id: ${MCP_SERVER_CLIENT_ID:mcp-server}
+      client-secret: ${MCP_SERVER_CLIENT_SECRET:mcp-server-secret}
+    frontend-app:
+      client-id: ${FRONTEND_APP_CLIENT_ID:frontend-app}
+      redirect-base-url: ${FRONTEND_APP_REDIRECT_BASE_URL:http://localhost:8081}
+      post-logout-redirect-url: ${FRONTEND_APP_POST_LOGOUT_URL:http://localhost:8081/}
+
 # debug: true
 
 management:
@@ -127,6 +148,7 @@ management:
 logging:
   level:
     me.pacphi: TRACE
+    org.springframework.security: DEBUG
 #    liquibase: DEBUG
 #    org.springframework.jdbc.core.JdbcTemplate: DEBUG
 #    org.springframework.transaction.interceptor: TRACE
