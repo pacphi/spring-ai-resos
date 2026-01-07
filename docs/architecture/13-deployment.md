@@ -318,11 +318,11 @@ The backend Docker image is built using **Google Jib** - a container image build
 
 **Layer Optimization**:
 
-| Layer | Contents | Rebuild Frequency |
-|-------|----------|-------------------|
-| Dependencies | Third-party JARs | Rarely (only when deps change) |
-| Resources | application.yml, static files | Sometimes |
-| Classes | Your compiled code | Every code change |
+| Layer        | Contents                      | Rebuild Frequency              |
+| ------------ | ----------------------------- | ------------------------------ |
+| Dependencies | Third-party JARs              | Rarely (only when deps change) |
+| Resources    | application.yml, static files | Sometimes                      |
+| Classes      | Your compiled code            | Every code change              |
 
 This means incremental builds are much faster - only the classes layer changes when you modify code!
 
