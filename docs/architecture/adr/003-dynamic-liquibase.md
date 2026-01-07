@@ -1,6 +1,7 @@
 # ADR-003: Dynamic Liquibase Changelog Generation
 
 ## Status
+
 **Accepted** - Implemented in backend module
 
 ## Context
@@ -15,6 +16,7 @@ Database schema management typically follows one of several approaches:
 ### Problem Statement
 
 This project has unique requirements:
+
 - Entities are generated from OpenAPI specifications
 - Want zero-boilerplate entity and schema definitions
 - Need Liquibase for proper schema versioning and rollback
@@ -44,6 +46,7 @@ This project has unique requirements:
    - Generates Liquibase YAML changelogs
 
 2. **Dependency Resolution**:
+
    ```java
    private Map<String, Set<String>> buildDependencyGraph(
            List<Class<?>> entities) {
@@ -66,17 +69,19 @@ This project has unique requirements:
    ```
 
 3. **Type Mapping**:
-   | Java Type | PostgreSQL | H2 |
-   |-----------|-----------|-----|
-   | UUID | uuid | uuid |
-   | String | varchar(255) | varchar(255) |
-   | OffsetDateTime | timestamp with time zone | timestamp |
-   | BigDecimal | decimal(19,2) | decimal(19,2) |
-   | Integer | integer | integer |
-   | Boolean | boolean | boolean |
-   | Enum | varchar(50) | varchar(50) |
+
+   | Java Type      | PostgreSQL               | H2            |
+   | -------------- | ------------------------ | ------------- |
+   | UUID           | uuid                     | uuid          |
+   | String         | varchar(255)             | varchar(255)  |
+   | OffsetDateTime | timestamp with time zone | timestamp     |
+   | BigDecimal     | decimal(19,2)            | decimal(19,2) |
+   | Integer        | integer                  | integer       |
+   | Boolean        | boolean                  | boolean       |
+   | Enum           | varchar(50)              | varchar(50)   |
 
 4. **JAR Execution Handling**:
+
    ```java
    private Path getChangelogDirectory() {
        if (isRunningFromJar()) {
@@ -177,12 +182,14 @@ This project has unique requirements:
 **Approach**: Write `createTable` changelogs by hand.
 
 **Pros**:
+
 - Full control over schema
 - Industry standard approach
 - No runtime generation overhead
 - Easy to debug (see the SQL)
 
 **Cons**:
+
 - Duplicate effort (entities + changelogs)
 - Easy to drift (forget to update changelog)
 - 2x maintenance burden
@@ -195,11 +202,13 @@ This project has unique requirements:
 **Approach**: Use `spring.jpa.hibernate.ddl-auto=update`.
 
 **Pros**:
+
 - Automatic schema generation
 - Widely used
 - No Liquibase needed
 
 **Cons**:
+
 - Not using JPA (using Spring Data JDBC)
 - No migration versioning
 - No rollback capability
@@ -213,11 +222,13 @@ This project has unique requirements:
 **Approach**: Use Flyway instead of Liquibase, write SQL migrations manually.
 
 **Pros**:
+
 - Simpler than Liquibase (just SQL)
 - No XML/YAML overhead
 - Easy to understand
 
 **Cons**:
+
 - Still requires manual SQL writing
 - Duplicate entity/schema definitions
 - No changelog generation from entities
@@ -229,11 +240,13 @@ This project has unique requirements:
 **Approach**: Generate changelogs during Maven build, not at runtime.
 
 **Pros**:
+
 - No runtime overhead
 - Generated files visible immediately
 - Can commit generated changelogs to git
 
 **Cons**:
+
 - More complex Maven plugin setup
 - Need entities compiled before schema generation
 - May not work well with IDE hot reload
@@ -245,6 +258,7 @@ This project has unique requirements:
 ### Key Components
 
 **SchemaCreator** (`backend/src/main/java/me/pacphi/ai/resos/config/SchemaCreator.java`):
+
 ```java
 @Component
 public class SchemaCreator {
@@ -265,6 +279,7 @@ public class SchemaCreator {
 ```
 
 **LiquibaseConfiguration**:
+
 ```java
 @Configuration
 public class LiquibaseConfiguration implements BeanFactoryPostProcessor {
@@ -281,6 +296,7 @@ public class LiquibaseConfiguration implements BeanFactoryPostProcessor {
 ```
 
 **LiquibaseCustomizer**:
+
 ```java
 @Component
 public class LiquibaseCustomizer implements BeanPostProcessor {
@@ -306,6 +322,7 @@ public class LiquibaseCustomizer implements BeanPostProcessor {
 ### Generated Changelog Example
 
 **Input Entity**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -321,6 +338,7 @@ public class CustomerEntity {
 ```
 
 **Generated Changelog** (`db/changelog/generated/customer.yaml`):
+
 ```yaml
 databaseChangeLog:
   - changeSet:
@@ -350,6 +368,7 @@ databaseChangeLog:
 ### Master Changelog
 
 **db/changelog/db.changelog-master.yml**:
+
 ```yaml
 databaseChangeLog:
   # Generated entity changelogs
@@ -367,13 +386,13 @@ databaseChangeLog:
 
 ### Startup Time
 
-| Phase | Time | Notes |
-|-------|------|-------|
-| Entity scanning | 50ms | PathMatchingResourcePatternResolver |
-| Dependency graph | 30ms | Topological sort |
-| Changelog generation | 120ms | 15 entities × ~8ms each |
-| Liquibase execution | 800ms | Database operations |
-| **Total** | **~1000ms** | Acceptable for development |
+| Phase                | Time        | Notes                               |
+| -------------------- | ----------- | ----------------------------------- |
+| Entity scanning      | 50ms        | PathMatchingResourcePatternResolver |
+| Dependency graph     | 30ms        | Topological sort                    |
+| Changelog generation | 120ms       | 15 entities × ~8ms each             |
+| Liquibase execution  | 800ms       | Database operations                 |
+| **Total**            | **~1000ms** | Acceptable for development          |
 
 ### Memory Usage
 
@@ -421,6 +440,6 @@ January 2026 (Initial Architecture)
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date     | Change                    |
+| -------- | ------------------------- |
 | Jan 2026 | Initial decision document |

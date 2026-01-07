@@ -1,6 +1,7 @@
 # ADR-000: Project Genesis - Spring AI ResOs MVP Development
 
 ## Status
+
 **Historical Record** - MVP Completed March 2025, Maintained through November 2025
 
 ## Context
@@ -38,35 +39,35 @@ The project began with a clear MVP definition documented in `ROADMAP.md`:
 
 ### Technology Stack at MVP Completion (March 2025 - commit `2b7e6b3`)
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Spring Boot** | 3.4.x | Application framework |
-| **Spring AI** | 1.0.0-M6 (pre-release) | AI/LLM integration |
-| **Spring MCP** | Early adoption | MCP protocol support |
-| **Java** | 21 | Runtime platform |
-| **PostgreSQL** | 16 | Production database |
-| **H2** | Latest | Development database |
-| **OpenAPI Generator** | 7.x | Client code generation |
-| **OpenFeign** | Latest | HTTP client generation |
+| Component             | Version                | Purpose                |
+| --------------------- | ---------------------- | ---------------------- |
+| **Spring Boot**       | 3.4.x                  | Application framework  |
+| **Spring AI**         | 1.0.0-M6 (pre-release) | AI/LLM integration     |
+| **Spring MCP**        | Early adoption         | MCP protocol support   |
+| **Java**              | 21                     | Runtime platform       |
+| **PostgreSQL**        | 16                     | Production database    |
+| **H2**                | Latest                 | Development database   |
+| **OpenAPI Generator** | 7.x                    | Client code generation |
+| **OpenFeign**         | Latest                 | HTTP client generation |
 
 ### Technology Stack at End of Maintenance Period (November 2025 - commit `4cd3b99`)
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Spring Boot** | 3.5.7 | Application framework |
-| **Spring AI** | 1.0.3 | AI/LLM integration (GA) |
-| **Spring Cloud** | 2025.0.0 | Cloud-native patterns |
-| **Spring Framework BOM** | 6.x | Core framework |
-| **Spring Security OAuth2** | 6.5.6 | Authentication/authorization |
-| **Java** | 21 | Runtime platform |
-| **PostgreSQL** | 16 | Production database |
-| **H2** | Latest | Development database |
-| **OpenAPI Generator** | 7.17.0 | Client code generation |
-| **SpringDoc OpenAPI** | 2.8.14 | API documentation |
-| **Micrometer** | 1.16.0 | Observability |
-| **Liquibase** | (managed) | Database migrations |
-| **OpenCSV** | 5.12.0 | CSV data processing |
-| **JavaParser** | 3.27.1 | Code transformation |
+| Component                  | Version   | Purpose                      |
+| -------------------------- | --------- | ---------------------------- |
+| **Spring Boot**            | 3.5.7     | Application framework        |
+| **Spring AI**              | 1.0.3     | AI/LLM integration (GA)      |
+| **Spring Cloud**           | 2025.0.0  | Cloud-native patterns        |
+| **Spring Framework BOM**   | 6.x       | Core framework               |
+| **Spring Security OAuth2** | 6.5.6     | Authentication/authorization |
+| **Java**                   | 21        | Runtime platform             |
+| **PostgreSQL**             | 16        | Production database          |
+| **H2**                     | Latest    | Development database         |
+| **OpenAPI Generator**      | 7.17.0    | Client code generation       |
+| **SpringDoc OpenAPI**      | 2.8.14    | API documentation            |
+| **Micrometer**             | 1.16.0    | Observability                |
+| **Liquibase**              | (managed) | Database migrations          |
+| **OpenCSV**                | 5.12.0    | CSV data processing          |
+| **JavaParser**             | 3.27.1    | Code transformation          |
 
 ### Project Evolution Timeline
 
@@ -134,36 +135,36 @@ This phase focused on maintaining compatibility with the Spring Boot 3.5.x and S
 
 ### Phase 1: MVP Development (`686546e` to `2b7e6b3`)
 
-| Metric | Value |
-|--------|-------|
-| **Total Commits** | 15 |
-| **Date Range** | March 11-31, 2025 |
-| **Duration** | 20 days |
-| **Primary Contributor** | Chris Phillipson |
+| Metric                  | Value             |
+| ----------------------- | ----------------- |
+| **Total Commits**       | 15                |
+| **Date Range**          | March 11-31, 2025 |
+| **Duration**            | 20 days           |
+| **Primary Contributor** | Chris Phillipson  |
 
 ### Phase 2: Maintenance (`2b7e6b3` to `4cd3b99`)
 
-| Metric | Value |
-|--------|-------|
-| **Total Commits** | 81 |
-| **Date Range** | March 31 - November 10, 2025 |
-| **Duration** | ~7.5 months |
-| **Manual Commits** | ~11 |
-| **Dependabot Commits** | ~70 |
+| Metric                 | Value                        |
+| ---------------------- | ---------------------------- |
+| **Total Commits**      | 81                           |
+| **Date Range**         | March 31 - November 10, 2025 |
+| **Duration**           | ~7.5 months                  |
+| **Manual Commits**     | ~11                          |
+| **Dependabot Commits** | ~70                          |
 
 ### Notable Commits
 
-| Date | Commit | Description |
-|------|--------|-------------|
-| 2025-03-11 | `686546e` | Initial commit |
-| 2025-03-12 | `5b47c79` | Add id fields to models |
-| 2025-03-12 | `4125eec` | First ROADMAP update |
-| 2025-03-31 | `2b7e6b3` | **MVP COMPLETE** - MCP BOM upgrade |
+| Date       | Commit    | Description                                                                   |
+| ---------- | --------- | ----------------------------------------------------------------------------- |
+| 2025-03-11 | `686546e` | Initial commit                                                                |
+| 2025-03-12 | `5b47c79` | Add id fields to models                                                       |
+| 2025-03-12 | `4125eec` | First ROADMAP update                                                          |
+| 2025-03-31 | `2b7e6b3` | **MVP COMPLETE** - MCP BOM upgrade                                            |
 | 2025-07-02 | `f30c34f` | Major upgrade to Spring Boot 3.5.3, Spring Cloud 2025.0.0, Spring AI 1.0.0 GA |
-| 2025-08-05 | `78c7059` | Spring AI 1.0.1 |
-| 2025-10-02 | `5639898` | Spring AI 1.0.3 |
-| 2025-10-23 | `9cf4400` | Spring Boot 3.5.7 |
-| 2025-11-10 | `4cd3b99` | Final Spring Boot 3.5.x / Spring AI 1.x state |
+| 2025-08-05 | `78c7059` | Spring AI 1.0.1                                                               |
+| 2025-10-02 | `5639898` | Spring AI 1.0.3                                                               |
+| 2025-10-23 | `9cf4400` | Spring Boot 3.5.7                                                             |
+| 2025-11-10 | `4cd3b99` | Final Spring Boot 3.5.x / Spring AI 1.x state                                 |
 
 ## Lessons Learned
 
@@ -184,7 +185,7 @@ This phase focused on maintaining compatibility with the Spring Boot 3.5.x and S
 
 ## References
 
-- [Original ROADMAP.md](../../archives/ROADMAP.md) - Archived original roadmap
+- [Original ROADMAP.md](../../archives/mvp/ROADMAP.md) - Archived original roadmap
 - [Spring AI Documentation](https://docs.spring.io/spring-ai/reference/)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [ResOs API (Postman)](https://documenter.getpostman.com/view/3308304/SzzehLGp?version=latest)
@@ -201,10 +202,10 @@ This phase focused on maintaining compatibility with the Spring Boot 3.5.x and S
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
-| March 2025 | Project inception, ROADMAP.md created |
-| March 31, 2025 | **MVP completed** at commit `2b7e6b3` |
-| July 2025 | Major Spring ecosystem upgrade to Spring AI 1.0.0 GA |
-| November 2025 | Final Spring Boot 3.5.x / Spring AI 1.x state at commit `4cd3b99` |
-| January 2026 | Historical ADR created, ROADMAP.md archived |
+| Date           | Change                                                            |
+| -------------- | ----------------------------------------------------------------- |
+| March 2025     | Project inception, ROADMAP.md created                             |
+| March 31, 2025 | **MVP completed** at commit `2b7e6b3`                             |
+| July 2025      | Major Spring ecosystem upgrade to Spring AI 1.0.0 GA              |
+| November 2025  | Final Spring Boot 3.5.x / Spring AI 1.x state at commit `4cd3b99` |
+| January 2026   | Historical ADR created, ROADMAP.md archived                       |

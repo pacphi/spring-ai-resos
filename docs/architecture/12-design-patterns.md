@@ -14,12 +14,14 @@ Use OpenAPI specification as the single source of truth for API contracts, drivi
 ### Motivation
 
 **Problems Solved**:
+
 - API contract drift between client and server
 - Manual client code synchronization
 - Duplicate model definitions
 - Inconsistent validation rules
 
 **Benefits**:
+
 - Compile-time contract verification
 - Automated code generation
 - Living documentation (Swagger UI)
@@ -27,7 +29,7 @@ Use OpenAPI specification as the single source of truth for API contracts, drivi
 
 ### Implementation
 
-```
+```text
 OpenAPI Spec (YAML)
     ↓ OpenAPI Generator
 Generated HTTP Client (Java)
@@ -40,6 +42,7 @@ Database Schema
 ```
 
 **Key Files**:
+
 - `client/src/main/resources/openapi/resos-openapi-modified.yml` - API specification
 - `client/pom.xml` - OpenAPI Generator configuration
 - `client/target/generated-sources/` - Generated client code
@@ -47,12 +50,14 @@ Database Schema
 ### Applicability
 
 **Use When**:
+
 - Building client-server applications
 - Need strong API contracts
 - Multiple consumers of same API
 - Want automated client generation
 
 **Don't Use When**:
+
 - Simple internal APIs (overhead not justified)
 - Rapidly changing APIs (spec maintenance burden)
 - GraphQL or other non-REST paradigms
@@ -78,6 +83,7 @@ Transform API data transfer objects (DTOs) into persistence entities automatical
 **Problem**: Generated POJOs have Jackson annotations, but Spring Data JDBC needs different annotations.
 
 **Solutions Considered**:
+
 1. **Manual Entities**: Write entities separately (duplicate code)
 2. **Dual Annotations**: Entities have both Jackson and JDBC annotations (messy)
 3. **Runtime Transformation**: Use reflection (performance cost)
@@ -86,6 +92,7 @@ Transform API data transfer objects (DTOs) into persistence entities automatical
 ### Implementation
 
 **EntityGenerator** (JavaParser):
+
 ```java
 public void transform(File inputDir, File outputDir) {
     // For each Java file in inputDir
@@ -129,6 +136,7 @@ public void transform(File inputDir, File outputDir) {
 **Example**:
 
 **Input** (OpenAPI POJO):
+
 ```java
 public class Customer {
     @JsonProperty("id")
@@ -141,6 +149,7 @@ public class Customer {
 ```
 
 **Output** (JDBC Entity):
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -159,12 +168,14 @@ public class CustomerEntity {
 ### Applicability
 
 **Use When**:
+
 - Have generated DTOs (OpenAPI, Avro, Protobuf)
 - Need different annotations for persistence
 - Want single source of truth
 - Build-time transformation acceptable
 
 **Don't Use When**:
+
 - DTOs and entities significantly different
 - Complex transformation logic needed
 - Runtime flexibility required
@@ -185,6 +196,7 @@ Generate database schema migrations from entity annotations at runtime, eliminat
 **Problem**: Three sources of truth - entities, Liquibase changelogs, actual schema
 
 **Traditional Approach**:
+
 1. Write entity: `@Table("customer") class CustomerEntity`
 2. Write Liquibase: `createTable: customer`
 3. Apply to database
@@ -194,6 +206,7 @@ Generate database schema migrations from entity annotations at runtime, eliminat
 ### Implementation
 
 **SchemaCreator Algorithm**:
+
 ```java
 @PostConstruct
 public void generateSchemas() {
@@ -217,6 +230,7 @@ public void generateSchemas() {
 ```
 
 **Type Mapping**:
+
 ```java
 private String mapType(Class<?> javaType) {
     return switch (javaType.getSimpleName()) {
@@ -234,24 +248,26 @@ private String mapType(Class<?> javaType) {
 ### Applicability
 
 **Use When**:
+
 - Using Spring Data JDBC (or JPA)
 - Want zero-boilerplate schema management
 - Entities are authoritative
 - Development environment (not production)
 
 **Don't Use When**:
+
 - Complex schema features needed (triggers, views, custom indexes)
 - Production deployments (use pre-generated changelogs)
 - Database schema drives entity design (database-first)
 
 ### Challenges
 
-| Challenge | Solution |
-|-----------|----------|
-| JAR execution (no write to classpath) | Use temp directory with system property |
-| Circular dependencies | Topological sort with cycle detection |
-| Complex constraints | Manual patch changelogs |
-| Performance (startup time) | Acceptable for dev (~300ms for 20 entities) |
+| Challenge                             | Solution                                    |
+| ------------------------------------- | ------------------------------------------- |
+| JAR execution (no write to classpath) | Use temp directory with system property     |
+| Circular dependencies                 | Topological sort with cycle detection       |
+| Complex constraints                   | Manual patch changelogs                     |
+| Performance (startup time)            | Acceptable for dev (~300ms for 20 entities) |
 
 ---
 
@@ -266,6 +282,7 @@ Authenticate service-to-service communication using OAuth2 client credentials gr
 ### Motivation
 
 **Problems Solved**:
+
 - Hard-coded API keys (security risk)
 - Manual token refresh (complexity)
 - Token expiration handling (errors)
@@ -274,6 +291,7 @@ Authenticate service-to-service communication using OAuth2 client credentials gr
 ### Implementation
 
 **Configuration**:
+
 ```yaml
 spring:
   security:
@@ -293,6 +311,7 @@ spring:
 ```
 
 **Bean Setup**:
+
 ```java
 @Bean
 public OAuth2AuthorizedClientManager authorizedClientManager(...) {
@@ -319,6 +338,7 @@ public RestClient restClient(OAuth2AuthorizedClientManager manager) {
 ```
 
 **Automatic Behavior**:
+
 - First request: Fetch token from auth server
 - Subsequent requests: Reuse cached token
 - Token expiry: Automatically refresh
@@ -327,12 +347,14 @@ public RestClient restClient(OAuth2AuthorizedClientManager manager) {
 ### Applicability
 
 **Use When**:
+
 - Microservices architecture
 - Service-to-service authentication
 - OAuth2 infrastructure available
 - Need centralized credential management
 
 **Don't Use When**:
+
 - User-based authentication (use authorization_code instead)
 - Simple applications (overhead not justified)
 - No OAuth2 server available
@@ -352,14 +374,17 @@ Stream LLM responses token-by-token to the browser using Server-Sent Events (SSE
 **Problem**: LLM responses take 2-5 seconds to generate fully
 
 **Traditional Approach**: Wait for complete response, then send
+
 - **User Experience**: Long wait, appears frozen
 
 **Streaming Approach**: Send tokens as generated
+
 - **User Experience**: Immediate feedback, feels responsive
 
 ### Implementation
 
 **Backend** (ChatService with Flux → Callback Bridge):
+
 ```java
 public void streamResponse(
         String question,
@@ -383,6 +408,7 @@ public void streamResponse(
 ```
 
 **Controller** (SseEmitter):
+
 ```java
 @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter chat(@RequestBody Request req) {
@@ -400,10 +426,11 @@ public SseEmitter chat(@RequestBody Request req) {
 ```
 
 **Frontend** (Fetch API):
+
 ```javascript
 const response = await fetch('/api/chat', {
   method: 'POST',
-  body: JSON.stringify({ question })
+  body: JSON.stringify({ question }),
 });
 
 const reader = response.body.getReader();
@@ -421,12 +448,14 @@ while (true) {
 ### Applicability
 
 **Use When**:
+
 - Long-running operations (AI, data processing)
 - Real-time feedback important
 - User experience priority
 - WebMVC (servlet) stack
 
 **Alternatives**:
+
 - WebSockets (bidirectional, more complex)
 - Long polling (inefficient)
 - HTTP/2 Server Push (deprecated)
@@ -446,6 +475,7 @@ Dynamically resolve Spring Data repositories at runtime based on entity class ty
 **Problem**: CSV seeding needs to persist many entity types, but repositories are type-specific.
 
 **Traditional Approach**: Hard-code repository for each entity type
+
 ```java
 if (entityClass == CustomerEntity.class) {
     customerRepository.save(entity);
@@ -460,6 +490,7 @@ if (entityClass == CustomerEntity.class) {
 ### Implementation
 
 **RepositoryResolver**:
+
 ```java
 @Component
 public class RepositoryResolver {
@@ -495,6 +526,7 @@ public class RepositoryResolver {
 ```
 
 **Usage** (DataSeeder):
+
 ```java
 for (String filename : csvFiles) {
     EntityMapper<?> mapper = findMapper(filename);
@@ -512,11 +544,13 @@ for (String filename : csvFiles) {
 ### Applicability
 
 **Use When**:
+
 - Generic data processing (batch imports, exports)
 - Plugin architectures (new entities added dynamically)
 - Framework code (don't know entity types upfront)
 
 **Don't Use When**:
+
 - Simple CRUD (direct repository injection easier)
 - Type safety critical (generics can hide errors)
 
@@ -533,6 +567,7 @@ Use custom annotations to enable automatic discovery and registration of compone
 ### Example: @CsvEntityMapper
 
 **Annotation Definition**:
+
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -543,6 +578,7 @@ public @interface CsvEntityMapper {
 ```
 
 **Usage**:
+
 ```java
 @CsvEntityMapper("users")
 public class AppUserMapper implements EntityMapper<AppUserEntity> {
@@ -560,6 +596,7 @@ public class AppUserMapper implements EntityMapper<AppUserEntity> {
 ```
 
 **Discovery** (DataSeeder):
+
 ```java
 Map<String, EntityMapper<?>> mappers =
     applicationContext.getBeansOfType(EntityMapper.class);
@@ -576,6 +613,7 @@ for (EntityMapper<?> mapper : mappers.values()) {
 ```
 
 **Benefits**:
+
 - No central registration file
 - Add new mapper = just create class with annotation
 - Type-safe (implements interface)
@@ -584,11 +622,13 @@ for (EntityMapper<?> mapper : mappers.values()) {
 ### Applicability
 
 **Use When**:
+
 - Plugin architecture
 - Extensible systems
 - Many similar components (converters, validators, mappers)
 
 **Examples in Spring**:
+
 - `@RestController` (auto-discovered)
 - `@Repository` (auto-discovered)
 - `@Tool` (Spring AI tool discovery)
@@ -614,6 +654,7 @@ Bridge reactive streams (Flux) to imperative callback-based API for WebMVC compa
 ### Implementation
 
 **Service Layer**:
+
 ```java
 public void streamResponse(
         String question,
@@ -631,6 +672,7 @@ public void streamResponse(
 ```
 
 **Controller Layer**:
+
 ```java
 @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter chat(@RequestBody Request req) {
@@ -648,6 +690,7 @@ public SseEmitter chat(@RequestBody Request req) {
 ```
 
 **Benefits**:
+
 - Reactive benefits (backpressure) with imperative API
 - Type-safe callbacks
 - Testable (can mock callbacks)
@@ -656,11 +699,13 @@ public SseEmitter chat(@RequestBody Request req) {
 ### Applicability
 
 **Use When**:
+
 - Need reactive streams in WebMVC
 - Streaming responses to browser
 - Bridging reactive libraries with imperative code
 
 **Alternatives**:
+
 - `StreamingResponseBody` (lower-level, more control)
 - Full WebFlux migration (if entire app can be reactive)
 
@@ -676,7 +721,7 @@ Layer OAuth2 security across multiple services: Authorization Server → Resourc
 
 ### Structure
 
-```
+```text
 ┌────────────────────┐
 │ Authorization      │  Issues JWT tokens
 │ Server             │  Validates credentials
@@ -717,6 +762,7 @@ Layer OAuth2 security across multiple services: Authorization Server → Resourc
 ### Implementation
 
 **Authorization Server**:
+
 ```java
 @Bean
 @Order(1)
@@ -733,6 +779,7 @@ public SecurityFilterChain authServerChain(HttpSecurity http) {
 ```
 
 **Resource Server**:
+
 ```java
 @Bean
 @Order(2)
@@ -749,6 +796,7 @@ public SecurityFilterChain resourceServerChain(HttpSecurity http) {
 ```
 
 **OAuth2 Client**:
+
 ```java
 @Bean
 public RestClient restClient(OAuth2AuthorizedClientManager manager) {
@@ -772,12 +820,14 @@ public RestClient restClient(OAuth2AuthorizedClientManager manager) {
 ### Applicability
 
 **Use When**:
+
 - Microservices architecture
 - Multiple services need authentication
 - Want centralized user management
 - Cloud-native applications
 
 **Don't Use When**:
+
 - Monolithic application (simpler auth sufficient)
 - Internal-only services (mutual TLS might be better)
 - Very high throughput (JWT validation overhead)
@@ -801,6 +851,7 @@ Model domain entities as aggregates with clear boundaries, using Spring Data JDB
 ### Example: Booking Aggregate
 
 **Aggregate Root**:
+
 ```java
 @Table("booking")
 public class BookingEntity {  // Aggregate root
@@ -818,6 +869,7 @@ public class BookingEntity {  // Aggregate root
 ```
 
 **Part of Aggregate**:
+
 ```java
 @Table("booking_tables")
 public class BookingTableEntity {  // Part of booking aggregate
@@ -830,6 +882,7 @@ public class BookingTableEntity {  // Part of booking aggregate
 ```
 
 **Not Part of Aggregate**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {  // Separate aggregate
@@ -857,12 +910,14 @@ public class CustomerEntity {  // Separate aggregate
 ### Applicability
 
 **Use When**:
+
 - Using Spring Data JDBC
 - Clear domain boundaries
 - Want explicit data loading
 - DDD approach
 
 **Don't Use When**:
+
 - Complex object graphs (use JPA instead)
 - Need lazy loading (performance critical)
 - Unclear aggregate boundaries
@@ -904,6 +959,7 @@ public class LoggingInterceptor implements ClientHttpRequestInterceptor {
 ```
 
 **Usage**:
+
 ```java
 RestClient.builder()
     .requestInterceptor(new LoggingInterceptor())
@@ -912,6 +968,7 @@ RestClient.builder()
 ```
 
 **Benefits**:
+
 - Separation of concerns
 - Reusable across clients
 - Composable (multiple interceptors)
@@ -941,6 +998,7 @@ public class CsvProperties {
 ```
 
 **Configuration** (application.yml):
+
 ```yaml
 app:
   seed:
@@ -952,6 +1010,7 @@ app:
 ```
 
 **Usage**:
+
 ```java
 @Configuration
 @EnableConfigurationProperties(CsvProperties.class)
@@ -964,6 +1023,7 @@ public class CsvConfig {
 ```
 
 **Benefits**:
+
 - Type-safe (not String properties)
 - IDE autocomplete
 - Validation support (`@Valid`, `@NotNull`)
@@ -973,18 +1033,18 @@ public class CsvConfig {
 
 ## Summary
 
-| Pattern | Category | Key Benefit |
-|---------|----------|-------------|
-| **OpenAPI-First** | Architectural | Zero API drift |
-| **Entity Transformation** | Code Generation | Zero duplicate entities |
-| **Dynamic Schema Generation** | Persistence | Zero manual SQL |
-| **OAuth2 Client Credentials** | Security | Automatic token management |
-| **Streaming Response** | Communication | Real-time user feedback |
-| **Repository Resolver** | Dependency Injection | Extensible data access |
-| **Annotation-Driven Discovery** | Registration | Plugin-friendly architecture |
-| **Callback-Based Streaming** | Integration | Reactive-imperative bridge |
-| **Three-Tier OAuth2** | Security | Defense in depth |
-| **Aggregate-Oriented Design** | Domain Modeling | Clear boundaries |
+| Pattern                         | Category             | Key Benefit                  |
+| ------------------------------- | -------------------- | ---------------------------- |
+| **OpenAPI-First**               | Architectural        | Zero API drift               |
+| **Entity Transformation**       | Code Generation      | Zero duplicate entities      |
+| **Dynamic Schema Generation**   | Persistence          | Zero manual SQL              |
+| **OAuth2 Client Credentials**   | Security             | Automatic token management   |
+| **Streaming Response**          | Communication        | Real-time user feedback      |
+| **Repository Resolver**         | Dependency Injection | Extensible data access       |
+| **Annotation-Driven Discovery** | Registration         | Plugin-friendly architecture |
+| **Callback-Based Streaming**    | Integration          | Reactive-imperative bridge   |
+| **Three-Tier OAuth2**           | Security             | Defense in depth             |
+| **Aggregate-Oriented Design**   | Domain Modeling      | Clear boundaries             |
 
 ## Related Documentation
 

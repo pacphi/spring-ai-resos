@@ -21,7 +21,7 @@
 
 ### Test Pyramid Approach
 
-```
+```text
                     E2E Tests (Manual/Selenium)
                            /\
                           /  \
@@ -90,6 +90,7 @@ class OAuth2TokenGenerationTest {
 ```
 
 **Dependencies**:
+
 - `spring-security-test`
 - `rest-assured` (optional, for fluent API testing)
 
@@ -295,10 +296,12 @@ class McpEndpointSecurityTest {
 ```
 
 **Dependencies**:
+
 - Requires backend running on 8080 (or use @SpringBootTest with different approach)
 - May need `@DirtiesContext` for test isolation
 
 **Challenges**:
+
 - Tests need backend auth server running
 - **Solution**: Use `@TestConfiguration` to mock `JwtDecoder` OR use test containers
 
@@ -517,6 +520,7 @@ class FullStackOAuth2FlowTest {
 **Location**: `backend/src/test/java/me/pacphi/ai/resos/test/`
 
 #### OAuth2TestHelper.java
+
 ```java
 public class OAuth2TestHelper {
 
@@ -539,6 +543,7 @@ public class OAuth2TestHelper {
 ```
 
 #### TestDataBuilder.java
+
 ```java
 public class TestDataBuilder {
 
@@ -557,14 +562,17 @@ public class TestDataBuilder {
 ## Test Data Strategy
 
 ### Option A: Use Seed Data (Current Approach)
+
 - ✅ **Pros**: Realistic data, matches dev environment
 - ❌ **Cons**: Tests depend on seed data, slower startup
 
 ### Option B: Programmatic Test Data
+
 - ✅ **Pros**: Fast, isolated, predictable
 - ❌ **Cons**: More code, doesn't test seed mechanism
 
 ### Option C: Hybrid (Recommended)
+
 - Use seed data for smoke tests
 - Use programmatic data for specific scenarios
 - Use `@Sql` scripts for complex test data
@@ -598,20 +606,20 @@ app:
   security:
     issuer-uri: http://localhost:${local.server.port}
     token:
-      access-token-ttl: PT5M  # 5 minutes for tests
+      access-token-ttl: PT5M # 5 minutes for tests
 ```
 
 ---
 
 ## Mocking Strategy
 
-### What to Mock:
+### What to Mock
 
 1. **External Services**: Mock backend when testing mcp-server/mcp-client
 2. **AI Models**: Mock ChatModel to avoid API calls
 3. **Time-Dependent**: Mock clock for token expiration tests
 
-### What NOT to Mock:
+### What NOT to Mock
 
 1. **OAuth2 Infrastructure**: Test real Spring Security OAuth2
 2. **Database**: Use H2 in-memory (real JDBC)
@@ -698,26 +706,26 @@ app:
 
 ## Success Metrics
 
-| Category | Target | Current |
-|----------|--------|---------|
-| **Backend Security Coverage** | 80%+ | TBD |
-| **MCP-Server Security Coverage** | 70%+ | TBD |
-| **MCP-Client Auth Coverage** | 70%+ | TBD |
-| **Integration Test Count** | 25-30 tests | 0 |
-| **Test Execution Time** | < 60 seconds | TBD |
-| **Build Success Rate** | 100% | ✅ |
+| Category                         | Target       | Current |
+| -------------------------------- | ------------ | ------- |
+| **Backend Security Coverage**    | 80%+         | TBD     |
+| **MCP-Server Security Coverage** | 70%+         | TBD     |
+| **MCP-Client Auth Coverage**     | 70%+         | TBD     |
+| **Integration Test Count**       | 25-30 tests  | 0       |
+| **Test Execution Time**          | < 60 seconds | TBD     |
+| **Build Success Rate**           | 100%         | ✅      |
 
 ---
 
 ## Risks & Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **Tests require multiple services running** | High | Use mocks or Testcontainers |
-| **Token expiration during tests** | Medium | Use short-lived tokens, mock clock |
-| **Database state pollution** | Medium | Use `@DirtiesContext`, random DB names |
-| **Flaky network tests** | Low | Use WireMock for external calls |
-| **Long test execution** | Medium | Parallel execution, selective testing |
+| Risk                                        | Impact | Mitigation                             |
+| ------------------------------------------- | ------ | -------------------------------------- |
+| **Tests require multiple services running** | High   | Use mocks or Testcontainers            |
+| **Token expiration during tests**           | Medium | Use short-lived tokens, mock clock     |
+| **Database state pollution**                | Medium | Use `@DirtiesContext`, random DB names |
+| **Flaky network tests**                     | Low    | Use WireMock for external calls        |
+| **Long test execution**                     | Medium | Parallel execution, selective testing  |
 
 ---
 
@@ -733,13 +741,13 @@ app:
 
 ## Effort Estimate
 
-| Phase | Tests | Hours | Priority |
-|-------|-------|-------|----------|
-| Backend OAuth2 | 15-20 tests | 6-8h | **HIGH** |
-| MCP-Server Security | 5-8 tests | 3-4h | **MEDIUM** |
-| MCP-Client Auth | 6-10 tests | 4-5h | **MEDIUM** |
-| Manual E2E | N/A | 2-3h | **LOW** |
-| **Total** | **26-38 tests** | **15-20h** | |
+| Phase               | Tests           | Hours      | Priority   |
+| ------------------- | --------------- | ---------- | ---------- |
+| Backend OAuth2      | 15-20 tests     | 6-8h       | **HIGH**   |
+| MCP-Server Security | 5-8 tests       | 3-4h       | **MEDIUM** |
+| MCP-Client Auth     | 6-10 tests      | 4-5h       | **MEDIUM** |
+| Manual E2E          | N/A             | 2-3h       | **LOW**    |
+| **Total**           | **26-38 tests** | **15-20h** |            |
 
 ---
 
@@ -759,12 +767,14 @@ If comprehensive testing is too much, create **minimal smoke tests**:
 ## Recommendation
 
 **Approach**: Start with **Backend OAuth2 Tests** (Phase 6.1)
+
 - Most critical component
 - Validates foundation for all other security
 - Relatively easy to test (no inter-service dependencies)
 - Provides confidence for manual E2E testing
 
 Then decide based on results:
+
 - If backend tests reveal issues → fix before proceeding
 - If backend tests pass → move to manual E2E testing
 - Save mcp-server/mcp-client tests for later if time-constrained

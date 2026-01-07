@@ -70,12 +70,14 @@ flowchart TD
 **File**: `client/src/main/resources/openapi/resos-openapi-modified.yml`
 
 The OpenAPI specification is the **single source of truth** for:
+
 - API contract (endpoints, request/response schemas)
 - Data models (Customer, Booking, Order, etc.)
 - Validation rules
 - Documentation
 
 Example model definition:
+
 ```yaml
 Customer:
   type: object
@@ -102,6 +104,7 @@ Customer:
 **Configuration**: `client/pom.xml`
 
 Key configuration:
+
 ```xml
 <configuration>
     <inputSpec>src/main/resources/openapi/resos-openapi-modified.yml</inputSpec>
@@ -112,6 +115,7 @@ Key configuration:
 ```
 
 **Output**:
+
 - `DefaultApi.java` - Type-safe HTTP client interface
 - `Customer.java` - POJO with Jackson annotations
 - `ApiClient.java` - RestClient configuration
@@ -123,6 +127,7 @@ Key configuration:
 Unpacks client module sources to `entities/target/unpacked-sources/` for transformation.
 
 **Configuration in `entities/pom.xml`**:
+
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -175,6 +180,7 @@ Unpacks client module sources to `entities/target/unpacked-sources/` for transfo
 **Example Transformation**:
 
 **Before (OpenAPI POJO)**:
+
 ```java
 public class Customer {
     @JsonProperty("id")
@@ -190,6 +196,7 @@ public class Customer {
 ```
 
 **After (JDBC Entity)**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -237,15 +244,16 @@ public class CustomerEntity {
    - Set system property for Liquibase
 
 **Type Mapping**:
-| Java Type | SQL Type (PostgreSQL) | SQL Type (H2) |
-|-----------|----------------------|---------------|
-| UUID | uuid | uuid |
-| String | varchar(255) | varchar(255) |
-| OffsetDateTime | timestamp with time zone | timestamp |
-| BigDecimal | decimal(19,2) | decimal(19,2) |
-| Integer | integer | integer |
-| Boolean | boolean | boolean |
-| Enum | varchar(50) | varchar(50) |
+
+| Java Type      | SQL Type (PostgreSQL)    | SQL Type (H2) |
+| -------------- | ------------------------ | ------------- |
+| UUID           | uuid                     | uuid          |
+| String         | varchar(255)             | varchar(255)  |
+| OffsetDateTime | timestamp with time zone | timestamp     |
+| BigDecimal     | decimal(19,2)            | decimal(19,2) |
+| Integer        | integer                  | integer       |
+| Boolean        | boolean                  | boolean       |
+| Enum           | varchar(50)              | varchar(50)   |
 
 ### Stage 6: Database Migration
 
@@ -254,6 +262,7 @@ public class CustomerEntity {
 **Master Changelog**: `db/changelog/db.changelog-master.yml`
 
 Includes:
+
 - Generated entity changelogs
 - Manual patches (OAuth2 column sizes)
 - Seed data (if applicable)
@@ -270,12 +279,12 @@ Includes:
 
 ## Challenges & Solutions
 
-| Challenge | Solution |
-|-----------|----------|
-| JAR execution can't write to classpath | Temp directory with system property |
-| Circular dependencies in entities | Topological sort with cycle detection |
-| Type mapping accuracy | Comprehensive mapping table |
-| Build order complexity | Maven reactor handles it automatically |
+| Challenge                              | Solution                               |
+| -------------------------------------- | -------------------------------------- |
+| JAR execution can't write to classpath | Temp directory with system property    |
+| Circular dependencies in entities      | Topological sort with cycle detection  |
+| Type mapping accuracy                  | Comprehensive mapping table            |
+| Build order complexity                 | Maven reactor handles it automatically |
 
 ## Build Commands
 
@@ -295,11 +304,11 @@ cd backend && mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `client/src/main/resources/openapi/resos-openapi-modified.yml` | API specification |
-| `client/pom.xml` | OpenAPI Generator config |
-| `codegen/src/main/java/.../EntityGenerator.java` | Transformation logic |
-| `entities/pom.xml` | Build orchestration |
-| `backend/src/main/java/.../SchemaCreator.java` | Schema generation |
-| `backend/src/main/resources/db/changelog/db.changelog-master.yml` | Liquibase master |
+| File                                                              | Purpose                  |
+| ----------------------------------------------------------------- | ------------------------ |
+| `client/src/main/resources/openapi/resos-openapi-modified.yml`    | API specification        |
+| `client/pom.xml`                                                  | OpenAPI Generator config |
+| `codegen/src/main/java/.../EntityGenerator.java`                  | Transformation logic     |
+| `entities/pom.xml`                                                | Build orchestration      |
+| `backend/src/main/java/.../SchemaCreator.java`                    | Schema generation        |
+| `backend/src/main/resources/db/changelog/db.changelog-master.yml` | Liquibase master         |

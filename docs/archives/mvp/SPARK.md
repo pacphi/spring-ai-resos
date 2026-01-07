@@ -1,16 +1,17 @@
 # Developing a Spring AI Enhanced Restaurant Booking System Employing an API-first Approach
 
-* [ResOS API OpenAPI Specification Proposal](#resos-api-openapi-specification-proposal)
-  * [Initial Request](#initial-request)
-  * [Development Process](#development-process)
-    * [Phase 1: Initial Specification](#phase-1-initial-specification)
-    * [Phase 2: Complete API Coverage](#phase-2-complete-api-coverage)
-    * [Phase 3: Enhanced Validation and Error Handling](#phase-3-enhanced-validation-and-error-handling)
-  * [Key Features of the Specification](#key-features-of-the-specification)
-  * [Technical Details](#technical-details)
-  * [Implementation Considerations](#implementation-considerations)
-  * [Next Steps](#next-steps)
-  * [Draft OpenAPI Specification](#draft-openapi-specification)
+- [Developing a Spring AI Enhanced Restaurant Booking System Employing an API-first Approach](#developing-a-spring-ai-enhanced-restaurant-booking-system-employing-an-api-first-approach)
+  - [ResOS API OpenAPI Specification Proposal](#resos-api-openapi-specification-proposal)
+    - [Initial Request](#initial-request)
+    - [Development Process](#development-process)
+      - [Phase 1: Initial Specification](#phase-1-initial-specification)
+      - [Phase 2: Complete API Coverage](#phase-2-complete-api-coverage)
+      - [Phase 3: Enhanced Validation and Error Handling](#phase-3-enhanced-validation-and-error-handling)
+    - [Key Features of the Specification](#key-features-of-the-specification)
+    - [Technical Details](#technical-details)
+    - [Implementation Considerations](#implementation-considerations)
+    - [Next Steps](#next-steps)
+    - [Draft OpenAPI Specification](#draft-openapi-specification)
 
 ## ResOS API OpenAPI Specification Proposal
 
@@ -25,6 +26,7 @@ The effort began with a request to create an OpenAPI YAML configuration that enc
 #### Phase 1: Initial Specification
 
 The first phase focused on creating a basic OpenAPI 3.0 specification with:
+
 - Authentication scheme using HTTP Basic Auth
 - Core data models (Booking, Guest, Restaurant, Table, Area)
 - Essential endpoints for booking management:
@@ -117,6 +119,7 @@ The specification was further improved with:
 The specification includes:
 
 1. Base Configuration:
+
    ```yaml
    openapi: 3.0.0
    info:
@@ -127,6 +130,7 @@ The specification includes:
    ```
 
 2. Security Scheme:
+
    ```yaml
    security:
      - basicAuth: []
@@ -138,6 +142,7 @@ The specification includes:
    ```
 
 3. Error Schema Example:
+
    ```yaml
    Error:
      type: object
@@ -191,7 +196,7 @@ info:
   version: '1.2'
   description: |
     ResOS API for managing restaurant bookings, tables, opening hours, orders, feedback and customers.
-    
+
     For support or feature requests, contact: hi@resos.com
   contact:
     email: hi@resos.com
@@ -263,7 +268,7 @@ components:
                 type: string
               message:
                 type: string
-                
+
     Customer:
       type: object
       properties:
@@ -290,7 +295,7 @@ components:
           format: float
         metadata:
           type: object
-          description: "Custom metadata associated with the customer"
+          description: 'Custom metadata associated with the customer'
 
     OpeningHours:
       type: object
@@ -379,20 +384,20 @@ components:
       properties:
         name:
           type: string
-          example: "Thomas A. Anderson"
+          example: 'Thomas A. Anderson'
           minLength: 2
           maxLength: 100
-          description: "Full name of the guest making the booking"
+          description: 'Full name of the guest making the booking'
         email:
           type: string
           format: email
-          example: "neo@resos.com"
-          description: "Valid email address for booking confirmations and updates"
+          example: 'neo@resos.com'
+          description: 'Valid email address for booking confirmations and updates'
           pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'
         phone:
           type: string
           pattern: '^\\+[1-9][0-9]{6,14}$'
-          example: "+13115552368"
+          example: '+13115552368'
           description: |
             Phone number in E.164 format, including country code with + prefix.
             Must contain only numbers after the + symbol.
@@ -422,10 +427,10 @@ components:
           type: integer
         countryCode:
           type: string
-          example: "DK"
+          example: 'DK'
         country:
           type: string
-          example: "Denmark"
+          example: 'Denmark'
 
     Restaurant:
       type: object
@@ -490,23 +495,23 @@ components:
       properties:
         _id:
           type: string
-          description: "Unique identifier for the booking"
+          description: 'Unique identifier for the booking'
           readOnly: true
         date:
           type: string
           format: date
-          example: "2021-09-18"
-          description: "Date of the booking in YYYY-MM-DD format"
+          example: '2021-09-18'
+          description: 'Date of the booking in YYYY-MM-DD format'
         time:
           type: string
           pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
-          example: "21:00"
-          description: "Time of the booking in 24-hour HH:mm format"
+          example: '21:00'
+          description: 'Time of the booking in 24-hour HH:mm format'
         people:
           type: integer
           minimum: 1
           maximum: 999
-          description: "Number of people in the booking party"
+          description: 'Number of people in the booking party'
         duration:
           type: integer
           minimum: 15
@@ -542,7 +547,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Table'
-          description: "Array of tables allocated for this booking"
+          description: 'Array of tables allocated for this booking'
         metadata:
           type: object
           description: |
@@ -553,7 +558,7 @@ components:
           type: array
           items:
             type: string
-          description: "Array of customer-visible comments on the booking"
+          description: 'Array of customer-visible comments on the booking'
         guest:
           $ref: '#/components/schemas/Guest'
         source:
@@ -578,20 +583,20 @@ components:
             * other - Other booking source
         openingHourId:
           type: string
-          description: "Reference to the opening hours period this booking is for"
+          description: 'Reference to the opening hours period this booking is for'
         createdAt:
           type: string
           format: date-time
           readOnly: true
-          description: "Timestamp when the booking was created"
+          description: 'Timestamp when the booking was created'
         activityAt:
           type: string
           format: date-time
           readOnly: true
-          description: "Timestamp of the last activity on this booking"
+          description: 'Timestamp of the last activity on this booking'
         sendNotification:
           type: boolean
-          description: "Whether notifications should be sent for this booking"
+          description: 'Whether notifications should be sent for this booking'
         payment:
           type: object
           description: |
@@ -606,17 +611,17 @@ components:
         note:
           type: string
           maxLength: 1000
-          description: "Internal note only visible to the restaurant"
+          description: 'Internal note only visible to the restaurant'
         noteAuthor:
           type: string
-          default: "API"
+          default: 'API'
           maxLength: 100
-          description: "Name of the person who wrote the internal note"
+          description: 'Name of the person who wrote the internal note'
         referrer:
           type: string
           format: uri
           maxLength: 2000
-          description: "URL of website that referred the booking"
+          description: 'URL of website that referred the booking'
         languageCode:
           type: string
           enum: [en, es, de, da, sv]
@@ -640,7 +645,7 @@ components:
       schema:
         type: string
         format: date
-        example: "2021-04-17"
+        example: '2021-04-17'
 
     toDateTime:
       name: toDateTime
@@ -650,7 +655,7 @@ components:
       schema:
         type: string
         format: date
-        example: "2021-04-18"
+        example: '2021-04-18'
 
     limit:
       name: limit
@@ -678,7 +683,7 @@ components:
       required: false
       schema:
         type: string
-        example: "createdAt:1"
+        example: 'createdAt:1'
 
     customQuery:
       name: customQuery
@@ -687,7 +692,7 @@ components:
       required: false
       schema:
         type: string
-        example: "people>1,duration>60"
+        example: 'people>1,duration>60'
 
 paths:
   /healthcheck:

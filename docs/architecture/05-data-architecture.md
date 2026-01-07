@@ -22,19 +22,20 @@ The database consists of three logical domains:
 
 **Purpose**: Customer information and booking history tracking
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Unique customer identifier |
-| name | VARCHAR(255) | NOT NULL | Customer full name |
-| email | VARCHAR(255) | UNIQUE | Customer email address |
-| phone | VARCHAR(255) | - | Contact phone number |
-| created_at | TIMESTAMP | - | Account creation date |
-| last_booking_at | TIMESTAMP | - | Most recent booking date |
-| booking_count | INTEGER | DEFAULT 0 | Total bookings made |
-| total_spent | DECIMAL(19,2) | - | Cumulative spend |
-| metadata | JSONB | - | Additional custom data |
+| Column          | Type          | Constraints  | Description                |
+| --------------- | ------------- | ------------ | -------------------------- |
+| id              | UUID          | PK, NOT NULL | Unique customer identifier |
+| name            | VARCHAR(255)  | NOT NULL     | Customer full name         |
+| email           | VARCHAR(255)  | UNIQUE       | Customer email address     |
+| phone           | VARCHAR(255)  | -            | Contact phone number       |
+| created_at      | TIMESTAMP     | -            | Account creation date      |
+| last_booking_at | TIMESTAMP     | -            | Most recent booking date   |
+| booking_count   | INTEGER       | DEFAULT 0    | Total bookings made        |
+| total_spent     | DECIMAL(19,2) | -            | Cumulative spend           |
+| metadata        | JSONB         | -            | Additional custom data     |
 
 **JDBC Entity**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -76,21 +77,22 @@ public class CustomerEntity {
 
 **Purpose**: Restaurant reservation records
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Unique booking identifier |
-| guest_id | UUID | FK → customer | Customer making booking |
-| restaurant_id | UUID | FK → restaurant | Restaurant being booked |
-| booking_date | DATE | NOT NULL | Reservation date |
-| booking_time | TIME | NOT NULL | Reservation time |
-| people_count | INTEGER | NOT NULL | Number of guests |
-| duration_minutes | INTEGER | - | Expected duration |
-| status | VARCHAR(50) | NOT NULL | pending, confirmed, seated, completed, cancelled |
-| metadata | JSONB | - | Additional booking data |
-| comments | TEXT | - | Customer comments |
-| internal_note | TEXT | - | Staff notes |
+| Column           | Type        | Constraints     | Description                                      |
+| ---------------- | ----------- | --------------- | ------------------------------------------------ |
+| id               | UUID        | PK, NOT NULL    | Unique booking identifier                        |
+| guest_id         | UUID        | FK → customer   | Customer making booking                          |
+| restaurant_id    | UUID        | FK → restaurant | Restaurant being booked                          |
+| booking_date     | DATE        | NOT NULL        | Reservation date                                 |
+| booking_time     | TIME        | NOT NULL        | Reservation time                                 |
+| people_count     | INTEGER     | NOT NULL        | Number of guests                                 |
+| duration_minutes | INTEGER     | -               | Expected duration                                |
+| status           | VARCHAR(50) | NOT NULL        | pending, confirmed, seated, completed, cancelled |
+| metadata         | JSONB       | -               | Additional booking data                          |
+| comments         | TEXT        | -               | Customer comments                                |
+| internal_note    | TEXT        | -               | Staff notes                                      |
 
 **JDBC Entity**:
+
 ```java
 @Table("booking")
 public class BookingEntity {
@@ -123,9 +125,10 @@ public class BookingEntity {
 ```
 
 **Relationships**:
+
 - `guest` → CustomerEntity (many-to-one)
 - `restaurant` → RestaurantEntity (many-to-one)
-- `tables` → Set<BookingTableEntity> (one-to-many, join table)
+- `tables` → `Set<BookingTableEntity>` (one-to-many, join table)
 
 ### OrderEntity
 
@@ -133,16 +136,17 @@ public class BookingEntity {
 
 **Purpose**: Food and beverage orders
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Unique order identifier |
-| booking_id | UUID | FK → booking | Associated reservation |
-| status | VARCHAR(50) | NOT NULL | pending, preparing, served, paid |
-| total_amount | DECIMAL(19,2) | - | Order total |
-| created_at | TIMESTAMP | - | Order creation time |
-| updated_at | TIMESTAMP | - | Last update time |
+| Column       | Type          | Constraints  | Description                      |
+| ------------ | ------------- | ------------ | -------------------------------- |
+| id           | UUID          | PK, NOT NULL | Unique order identifier          |
+| booking_id   | UUID          | FK → booking | Associated reservation           |
+| status       | VARCHAR(50)   | NOT NULL     | pending, preparing, served, paid |
+| total_amount | DECIMAL(19,2) | -            | Order total                      |
+| created_at   | TIMESTAMP     | -            | Order creation time              |
+| updated_at   | TIMESTAMP     | -            | Last update time                 |
 
 **JDBC Entity**:
+
 ```java
 @Table("order_01")
 public class OrderEntity {
@@ -175,16 +179,17 @@ public class OrderEntity {
 
 **Purpose**: Restaurant seating inventory
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Unique table identifier |
-| area_id | UUID | FK → area | Dining area/section |
-| name | VARCHAR(255) | NOT NULL | Table identifier (e.g., T-101) |
-| seats_min | INTEGER | - | Minimum capacity |
-| seats_max | INTEGER | - | Maximum capacity |
-| internal_note | TEXT | - | Staff notes |
+| Column        | Type         | Constraints  | Description                    |
+| ------------- | ------------ | ------------ | ------------------------------ |
+| id            | UUID         | PK, NOT NULL | Unique table identifier        |
+| area_id       | UUID         | FK → area    | Dining area/section            |
+| name          | VARCHAR(255) | NOT NULL     | Table identifier (e.g., T-101) |
+| seats_min     | INTEGER      | -            | Minimum capacity               |
+| seats_max     | INTEGER      | -            | Maximum capacity               |
+| internal_note | TEXT         | -            | Staff notes                    |
 
 **JDBC Entity**:
+
 ```java
 @Table("table_01")
 public class TableEntity {
@@ -225,20 +230,21 @@ public class TableEntity {
 
 **Purpose**: Application user accounts
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Unique user identifier |
-| username | VARCHAR(255) | UNIQUE, NOT NULL | Login username |
-| password | VARCHAR(255) | NOT NULL | BCrypt hashed password |
-| email | VARCHAR(255) | UNIQUE | User email |
-| enabled | BOOLEAN | DEFAULT true | Account enabled flag |
-| account_non_expired | BOOLEAN | DEFAULT true | Account not expired |
-| account_non_locked | BOOLEAN | DEFAULT true | Account not locked |
-| credentials_non_expired | BOOLEAN | DEFAULT true | Credentials not expired |
-| created_at | TIMESTAMP | - | Account creation date |
-| updated_at | TIMESTAMP | - | Last modification date |
+| Column                  | Type         | Constraints      | Description             |
+| ----------------------- | ------------ | ---------------- | ----------------------- |
+| id                      | UUID         | PK, NOT NULL     | Unique user identifier  |
+| username                | VARCHAR(255) | UNIQUE, NOT NULL | Login username          |
+| password                | VARCHAR(255) | NOT NULL         | BCrypt hashed password  |
+| email                   | VARCHAR(255) | UNIQUE           | User email              |
+| enabled                 | BOOLEAN      | DEFAULT true     | Account enabled flag    |
+| account_non_expired     | BOOLEAN      | DEFAULT true     | Account not expired     |
+| account_non_locked      | BOOLEAN      | DEFAULT true     | Account not locked      |
+| credentials_non_expired | BOOLEAN      | DEFAULT true     | Credentials not expired |
+| created_at              | TIMESTAMP    | -                | Account creation date   |
+| updated_at              | TIMESTAMP    | -                | Last modification date  |
 
 **JDBC Entity**:
+
 ```java
 @Table("app_user")
 public class AppUserEntity {
@@ -275,6 +281,7 @@ public class AppUserEntity {
 ```
 
 **UserDetails Integration**:
+
 ```java
 public class AppUserDetailsService implements UserDetailsService {
 
@@ -318,14 +325,15 @@ public class AppUserDetailsService implements UserDetailsService {
 
 **Purpose**: Role definitions
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Unique authority identifier |
+| Column  | Type         | Constraints      | Description                 |
+| ------- | ------------ | ---------------- | --------------------------- |
+| id      | UUID         | PK, NOT NULL     | Unique authority identifier |
 | name_01 | VARCHAR(255) | UNIQUE, NOT NULL | Role name (e.g., ROLE_USER) |
 
 **Note**: Column named `name_01` because "name" is sometimes reserved.
 
 **Default Roles**:
+
 - `ROLE_USER` - Basic customer access
 - `ROLE_OPERATOR` - Restaurant staff/manager
 - `ROLE_ADMIN` - Full administrative access
@@ -336,13 +344,14 @@ public class AppUserDetailsService implements UserDetailsService {
 
 **Purpose**: User-to-Role mapping (many-to-many join table)
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PK, NOT NULL | Synthetic join table ID |
-| user_id | UUID | FK → app_user, NOT NULL | User reference |
-| authority_id | UUID | FK → authority, NOT NULL | Role reference |
+| Column       | Type | Constraints              | Description             |
+| ------------ | ---- | ------------------------ | ----------------------- |
+| id           | UUID | PK, NOT NULL             | Synthetic join table ID |
+| user_id      | UUID | FK → app_user, NOT NULL  | User reference          |
+| authority_id | UUID | FK → authority, NOT NULL | Role reference          |
 
 **JDBC Entity**:
+
 ```java
 @Table("user_authority")
 public class UserAuthorityEntity {
@@ -370,6 +379,7 @@ public class UserAuthorityEntity {
 **Purpose**: OAuth2 client registrations
 
 **Key Columns**:
+
 - `id`: String primary key
 - `client_id`: Unique client identifier
 - `client_secret`: Hashed client secret
@@ -382,6 +392,7 @@ public class UserAuthorityEntity {
 **Schema**: Defined by Spring Authorization Server
 
 **Seeded Clients**:
+
 1. **mcp-server**: client_credentials, scopes=[backend.read, backend.write]
 2. **mcp-client**: client_credentials, scopes=[mcp.read, mcp.write]
 3. **frontend-app**: authorization_code + PKCE, public client
@@ -393,6 +404,7 @@ public class UserAuthorityEntity {
 **Purpose**: Active access/refresh tokens
 
 **Key Columns**:
+
 - `id`: String primary key
 - `registered_client_id`: FK to oauth2_registered_client
 - `principal_name`: Username
@@ -440,10 +452,12 @@ private UUID id;
 ```
 
 **Database generation**:
+
 - PostgreSQL: `DEFAULT gen_random_uuid()`
 - H2: `DEFAULT random_uuid()`
 
 **Why UUID?**:
+
 - Globally unique (no coordination needed)
 - Can generate client-side
 - Better for distributed systems
@@ -454,23 +468,27 @@ private UUID id;
 **Pattern**: Use `AggregateReference<TargetEntity, IdType>` for foreign keys
 
 **Example**:
+
 ```java
 @Column("guest_id")
 private AggregateReference<CustomerEntity, UUID> guest;
 ```
 
 **Benefits**:
+
 - Type-safe references
 - Explicit aggregate boundaries
 - No automatic loading (prevents N+1)
 - Clear ownership
 
 **Database Mapping**:
+
 - Column: `guest_id` (UUID)
 - Foreign key constraint: `fk_booking_customer`
 - Reference: `customer(id)`
 
 **Usage**:
+
 ```java
 // Get referenced ID
 UUID customerId = booking.getGuest().getId();
@@ -485,6 +503,7 @@ CustomerEntity customer = customerRepository.findById(customerId)
 **Pattern**: Use `@MappedCollection` for child collections
 
 **Example**:
+
 ```java
 @Table("booking")
 public class BookingEntity {
@@ -506,11 +525,13 @@ public class BookingTableEntity {
 ```
 
 **Behavior**:
+
 - Spring Data JDBC loads collection when loading parent
 - Deleting parent cascades to children
 - Use `Set<T>` not `List<T>` (avoids duplicate issues)
 
 **Database**:
+
 - Join table: `booking_tables`
 - Columns: `booking_id`, `table_id`
 - Foreign keys to both `booking` and `table_01`
@@ -555,6 +576,7 @@ public class TableEntity {
 ```
 
 **Key Points**:
+
 - One side owns the relationship (Booking is aggregate root)
 - Other side has no back-reference (Table doesn't know its bookings)
 - Join table managed by owning side
@@ -565,6 +587,7 @@ public class TableEntity {
 **Pattern**: Use `@Embedded` for value objects
 
 **Example**:
+
 ```java
 @Table("booking")
 public class BookingEntity {
@@ -582,6 +605,7 @@ public class Metadata {
 ```
 
 **Database Mapping**:
+
 - No separate table
 - Columns: `metadata_key1`, `metadata_key2` (flattened with prefix)
 
@@ -592,6 +616,7 @@ public class Metadata {
 **Purpose**: Separate persistence model from API model
 
 **Example**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -622,6 +647,7 @@ public class CustomerEntity {
 ```
 
 **Usage in Controller**:
+
 ```java
 @GetMapping("/customers/{id}")
 public ResponseEntity<Customer> getCustomer(@PathVariable UUID id) {
@@ -658,6 +684,7 @@ public interface CustomerRepository extends CrudRepository<CustomerEntity, UUID>
 ```
 
 **Provided Methods** (from CrudRepository):
+
 - `save(T entity)` - Insert or update
 - `findById(ID id)` - Get by primary key
 - `findAll()` - Get all records
@@ -678,6 +705,7 @@ public interface PageableCustomerRepository
 ```
 
 **Usage**:
+
 ```java
 Pageable pageable = PageRequest.of(
     0,           // page number
@@ -767,6 +795,7 @@ public class CustomConverters extends AbstractJdbcConfiguration {
 ### Converter Implementations
 
 **OffsetDateTime Converters**:
+
 ```java
 @ReadingConverter
 public class StringToOffsetDateTimeConverter
@@ -790,6 +819,7 @@ public class OffsetDateTimeToStringConverter
 ```
 
 **URI Converters**:
+
 ```java
 @ReadingConverter
 public class StringToUriConverter implements Converter<String, URI> {
@@ -829,6 +859,7 @@ public class UriToStringConverter implements Converter<URI, String> {
 **Trigger**: CommandLineRunner with profiles `dev`, `seed`, `test`
 
 **Configuration**:
+
 ```yaml
 app:
   seed:
@@ -844,12 +875,13 @@ app:
         - feedback.csv
         - orders.csv
         - openinghours.csv
-        - user-authorities.csv  # Last (references users and authorities)
+        - user-authorities.csv # Last (references users and authorities)
 ```
 
 ### Annotation-Driven Mapper Discovery
 
 **@CsvEntityMapper Annotation**:
+
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -860,6 +892,7 @@ public @interface CsvEntityMapper {
 ```
 
 **Example Mapper**:
+
 ```java
 @CsvEntityMapper("users")
 public class AppUserMapper implements EntityMapper<AppUserEntity> {
@@ -896,6 +929,7 @@ public class AppUserMapper implements EntityMapper<AppUserEntity> {
 ### CSV File Format
 
 **users.csv** (`backend/seed-data/users.csv`):
+
 ```csv
 username;password;email;enabled;accountNonExpired;accountNonLocked;credentialsNonExpired
 admin;admin123;admin@example.com;true;true;true;true
@@ -907,6 +941,7 @@ user;user123;user@example.com;true;true;true;true
 **Header**: Yes (first line skipped)
 
 **authorities.csv**:
+
 ```csv
 name_01
 ROLE_USER
@@ -915,6 +950,7 @@ ROLE_ADMIN
 ```
 
 **user-authorities.csv**:
+
 ```csv
 username;authority_name
 admin;ROLE_ADMIN
@@ -928,6 +964,7 @@ user;ROLE_USER
 ### Seeding Process
 
 **DataSeeder Algorithm**:
+
 ```java
 @Override
 public void run(ApplicationArguments args) throws Exception {
@@ -970,6 +1007,7 @@ public void run(ApplicationArguments args) throws Exception {
 **Purpose**: Dynamically find repository for entity class
 
 **RepositoryResolver**:
+
 ```java
 @Component
 public class RepositoryResolver {
@@ -1002,6 +1040,7 @@ public class RepositoryResolver {
 ```
 
 **Benefits**:
+
 - No hard-coded repository references
 - Extensible (add new entities without code changes)
 - Type-safe at runtime
@@ -1022,7 +1061,8 @@ public class RepositoryResolver {
 10. **user-authorities.csv** - References users AND authorities (MUST BE LAST)
 
 **Violation Example**:
-```
+
+```text
 Loading user-authorities.csv before users.csv
 → FK constraint violation (user_id references app_user.id which doesn't exist yet)
 → SQLException: foreign key constraint fails
@@ -1035,6 +1075,7 @@ Loading user-authorities.csv before users.csv
 ### H2 (Development)
 
 **Configuration**:
+
 ```yaml
 spring:
   datasource:
@@ -1049,12 +1090,14 @@ spring:
 ```
 
 **Features**:
+
 - In-memory (data lost on restart)
 - Fast startup
 - Web console at http://localhost:8080/h2-console
 - PostgreSQL compatibility mode
 
 **Limitations**:
+
 - Some PostgreSQL features not supported
 - JSONB maps to VARCHAR
 - No true UUID type (uses BINARY)
@@ -1062,6 +1105,7 @@ spring:
 ### PostgreSQL (Production)
 
 **Configuration**:
+
 ```yaml
 spring:
   datasource:
@@ -1072,6 +1116,7 @@ spring:
 ```
 
 **Features**:
+
 - Persistent storage
 - JSONB support
 - Native UUID type
@@ -1079,6 +1124,7 @@ spring:
 - Better performance at scale
 
 **Docker Compose**:
+
 ```yaml
 services:
   postgres:
@@ -1088,7 +1134,7 @@ services:
       POSTGRES_USER: resos
       POSTGRES_PASSWORD: resos_password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
 ```
@@ -1096,6 +1142,7 @@ services:
 ### Database Type Detection
 
 **In SchemaCreator**:
+
 ```java
 private boolean isPostgreSQL() {
     return datasourceUrl.contains("postgresql");
@@ -1162,6 +1209,7 @@ databaseChangeLog:
 5. **Views**: Materialized views for reporting
 
 **Example Patch** (`patches/001_fix_oauth2_client_column_sizes.yml`):
+
 ```yaml
 databaseChangeLog:
   - changeSet:
@@ -1185,11 +1233,13 @@ databaseChangeLog:
 ### Migration Strategy
 
 **Development**:
+
 - `SchemaCreator` enabled (profiles: dev, test)
 - Changelogs regenerated on every startup
 - Schema dropped/recreated (via Liquibase context or manual SQL)
 
 **Production**:
+
 - `SchemaCreator` disabled (no dev/test profile)
 - Use pre-generated changelogs (committed to git)
 - Liquibase applies migrations incrementally
@@ -1202,6 +1252,7 @@ databaseChangeLog:
 ### Primary Keys
 
 All tables have UUID primary keys:
+
 ```sql
 ALTER TABLE customer ADD PRIMARY KEY (id);
 ```
@@ -1258,17 +1309,20 @@ CREATE INDEX idx_oauth2_auth_principal ON oauth2_authorization(principal_name);
 ### Query Examples
 
 **Simple Find**:
+
 ```java
 Optional<CustomerEntity> customer = customerRepository.findById(customerId);
 ```
 
 **Derived Query**:
+
 ```java
 List<CustomerEntity> customers = customerRepository
     .findByNameContaining("Smith");
 ```
 
 **Pagination**:
+
 ```java
 Pageable pageable = PageRequest.of(0, 20, Sort.by("name"));
 Page<CustomerEntity> page = pageableCustomerRepository
@@ -1276,6 +1330,7 @@ Page<CustomerEntity> page = pageableCustomerRepository
 ```
 
 **Custom Query**:
+
 ```java
 List<AppUserEntity> admins = userRepository
     .findByRole("ROLE_ADMIN");
@@ -1284,11 +1339,13 @@ List<AppUserEntity> admins = userRepository
 ### Transaction Management
 
 **Default Behavior**:
+
 - `@Transactional` on repository methods
 - Read operations: read-only transaction
 - Write operations: read-write transaction
 
 **Custom Transactions**:
+
 ```java
 @Service
 public class BookingService {
@@ -1313,14 +1370,14 @@ public class BookingService {
 
 ## Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `backend/src/main/java/me/pacphi/ai/resos/config/SchemaCreator.java` | Dynamic schema generation | ~400 |
-| `backend/src/main/java/me/pacphi/ai/resos/csv/DataSeeder.java` | CSV loading orchestrator | ~150 |
-| `backend/src/main/java/me/pacphi/ai/resos/csv/impl/AppUserMapper.java` | User CSV mapping | ~60 |
-| `backend/src/main/java/me/pacphi/ai/resos/jdbc/CustomConverters.java` | Type converters | ~80 |
-| `backend/src/main/resources/db/changelog/db.changelog-master.yml` | Liquibase master | ~40 |
-| `backend/seed-data/*.csv` | Seed data files | ~200 total |
+| File                                                                   | Purpose                   | Lines      |
+| ---------------------------------------------------------------------- | ------------------------- | ---------- |
+| `backend/src/main/java/me/pacphi/ai/resos/config/SchemaCreator.java`   | Dynamic schema generation | ~400       |
+| `backend/src/main/java/me/pacphi/ai/resos/csv/DataSeeder.java`         | CSV loading orchestrator  | ~150       |
+| `backend/src/main/java/me/pacphi/ai/resos/csv/impl/AppUserMapper.java` | User CSV mapping          | ~60        |
+| `backend/src/main/java/me/pacphi/ai/resos/jdbc/CustomConverters.java`  | Type converters           | ~80        |
+| `backend/src/main/resources/db/changelog/db.changelog-master.yml`      | Liquibase master          | ~40        |
+| `backend/seed-data/*.csv`                                              | Seed data files           | ~200 total |
 
 ## Related Documentation
 

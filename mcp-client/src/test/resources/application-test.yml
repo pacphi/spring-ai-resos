@@ -7,7 +7,7 @@ spring.ai:
   openai:
     api-key: test-api-key
     chat:
-      enabled: false  # Disable real AI calls in tests
+      enabled: false # Disable real AI calls in tests
 
 # Logging
 logging:

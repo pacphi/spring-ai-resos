@@ -11,12 +11,12 @@
 
 ### Final Test Status
 
-| Module | Test Classes | Tests | Pass | Status |
-|--------|--------------|-------|------|--------|
-| **Backend** | 5 | 28 | 28 | ✅ **100%** |
-| **MCP-Server** | 2 | 11 | 11 | ✅ **100%** |
-| **MCP-Client** | 3 | 14 | 14 | ✅ **100%** |
-| **TOTAL** | **10** | **53** | **53** | ✅ **100%** |
+| Module         | Test Classes | Tests  | Pass   | Status      |
+| -------------- | ------------ | ------ | ------ | ----------- |
+| **Backend**    | 5            | 28     | 28     | ✅ **100%** |
+| **MCP-Server** | 2            | 11     | 11     | ✅ **100%** |
+| **MCP-Client** | 3            | 14     | 14     | ✅ **100%** |
+| **TOTAL**      | **10**       | **53** | **53** | ✅ **100%** |
 
 ### Running Tests
 
@@ -54,7 +54,7 @@ cd mcp-client && mvn test    # 14 tests, ~26s (includes TestContainers)
 
 This project uses **SchemaCreator** to dynamically generate Liquibase changelogs from entity classes at runtime:
 
-```
+```text
 Entity Classes (@Table annotated)
          ↓
   SchemaCreator (@PostConstruct)
@@ -86,15 +86,17 @@ public class SchemaCreator { ... }
 spring:
   liquibase:
     enabled: true
-    drop-first: true  # ← CRITICAL! Clean slate each run
+    drop-first: true # ← CRITICAL! Clean slate each run
 ```
 
 **DO NOT**:
+
 - ❌ Create manual `schema.sql` files
 - ❌ Create static Liquibase changelogs in `src/main/resources`
 - ❌ Fight the dynamic schema system
 
 **DO**:
+
 - ✅ Enable SchemaCreator in test profile
 - ✅ Enable Liquibase with `drop-first: true`
 - ✅ Enable CSV seeders in test profile
@@ -107,6 +109,7 @@ spring:
 #### No More `@AutoConfigureMockMvc`
 
 **Spring Boot 3.x** (old):
+
 ```java
 @SpringBootTest
 @AutoConfigureMockMvc  // ← Removed in Spring Boot 4.x
@@ -117,6 +120,7 @@ class MyTest {
 ```
 
 **Spring Boot 4.x** (current):
+
 ```java
 @SpringBootTest
 class MyTest {
@@ -137,12 +141,14 @@ class MyTest {
 #### No More Simple `@MockBean`
 
 **Old**:
+
 ```java
 @MockBean
 private ChatService chatService;
 ```
 
 **New**:
+
 ```java
 @Autowired
 private ChatService chatService;
@@ -166,6 +172,7 @@ static class TestConfig {
 #### Why We Changed
 
 **Problem**: issuer-uri triggers OIDC discovery during ApplicationContext initialization:
+
 1. Spring Boot reads `issuer-uri: http://localhost:8080`
 2. Tries to fetch `/.well-known/openid-configuration`
 3. Fails BEFORE TestContainers can start backend
@@ -173,6 +180,7 @@ static class TestConfig {
 **Solution**: Use explicit URIs (production best practice anyway!)
 
 **Before**:
+
 ```yaml
 provider:
   frontend-app:
@@ -180,6 +188,7 @@ provider:
 ```
 
 **After**:
+
 ```yaml
 provider:
   frontend-app:
@@ -192,13 +201,13 @@ provider:
 
 #### Benefits of Explicit URIs
 
-| Benefit | Description |
-|---------|-------------|
-| ✅ Faster startup | No OIDC discovery HTTP call |
-| ✅ Offline capable | Works in air-gapped environments |
+| Benefit                    | Description                             |
+| -------------------------- | --------------------------------------- |
+| ✅ Faster startup          | No OIDC discovery HTTP call             |
+| ✅ Offline capable         | Works in air-gapped environments        |
 | ✅ TestContainers friendly | No timing issues with container startup |
-| ✅ More explicit | Easier to troubleshoot |
-| ✅ Production ready | Industry best practice |
+| ✅ More explicit           | Easier to troubleshoot                  |
+| ✅ Production ready        | Industry best practice                  |
 
 **Runtime Impact**: None - identical OAuth2 functionality
 
@@ -209,6 +218,7 @@ provider:
 **Problem**: When running from JAR (Docker containers), SchemaCreator couldn't write changelogs
 
 **Root Causes**:
+
 1. SchemaCreator writes to temp directory in JAR mode
 2. Liquibase looks on classpath by default
 3. Bean ordering - Liquibase might init before SchemaCreator's @PostConstruct
@@ -287,7 +297,7 @@ public class LiquibaseConfiguration {
 
 **Problem**: JAR execution failed with reflection error:
 
-```
+```text
 java.lang.reflect.InaccessibleObjectException:
 Unable to make private java.net.URI() accessible:
 module java.base does not "opens java.net" to unnamed module
@@ -365,6 +375,7 @@ public abstract class AbstractOAuth2IntegrationTest {
 **Bug**: Used `.toString()` which creates `{key=value}` instead of JSON
 
 **Fix**:
+
 ```java
 // BEFORE (wrong)
 String settings = client.getClientSettings().getSettings().toString();
@@ -420,6 +431,7 @@ private String oidcIdTokenClaims;
 **Bug**: Query used `a.name` but column is `a.name_01`
 
 **Fix**:
+
 ```java
 // BEFORE
 SELECT a.name FROM authority a ...
@@ -437,6 +449,7 @@ SELECT a.name_01 FROM authority a ...
 **Bug**: Components restricted to `@Profile("dev")` only
 
 **Fix**: Added "test" to all bootstrap components:
+
 - SchemaCreator
 - LiquibaseConfiguration, LiquibaseCustomizer
 - All CSV mappers/processors (via @CsvEntityMapper meta-annotation)
@@ -450,6 +463,7 @@ SELECT a.name_01 FROM authority a ...
 **Bug**: `/api/auth/login-url` required authentication
 
 **Fix**:
+
 ```java
 // SecurityConfig.java
 .requestMatchers("/api/auth/status", "/api/auth/login-url").permitAll()
@@ -469,7 +483,7 @@ SELECT a.name_01 FROM authority a ...
 
 ### Test Lifecycle
 
-```
+```text
 Test Starts
     ↓
 SchemaCreator runs (@Profile("test"))
@@ -496,6 +510,7 @@ Context destroyed
 ## Backend Tests (28 tests)
 
 ### Location
+
 `backend/src/test/java/me/pacphi/ai/resos/security/`
 
 ### Test Classes
@@ -505,6 +520,7 @@ Context destroyed
 **Purpose**: Verify OAuth2 Authorization Server issues valid JWT tokens
 
 **Tests**:
+
 - `shouldIssueTokenForClientCredentials` - Client credentials flow
 - `shouldRejectInvalidClientCredentials` - Auth failure handling
 - `shouldIncludeCorrectScopesInToken` - Scope validation
@@ -512,6 +528,7 @@ Context destroyed
 - `shouldRejectUnknownClient` - Client validation
 
 **Key Pattern**:
+
 ```java
 @SpringBootTest(webEnvironment = DEFINED_PORT, properties = {"server.port=8080"})
 @ActiveProfiles("test")
@@ -521,6 +538,7 @@ Context destroyed
 **Why Fixed Port**: OAuth2 Authorization Server needs `issuer-uri` during bean creation, before random port is available.
 
 **Key Learning**: Scope claims vary:
+
 - `"scope": "read write"` (space-delimited string)
 - `"scope": ["read", "write"]` (array)
 - `"scp": ["read", "write"]` (alternative claim name)
@@ -532,12 +550,14 @@ Context destroyed
 **Purpose**: Verify scope-based and role-based authorization
 
 **Tests**:
+
 - Scope-based access (SCOPE_backend.read, SCOPE_backend.write)
 - Role-based access (ROLE_USER, ROLE_ADMIN)
 - Anonymous access denial
 - Mixed authorization scenarios
 
 **Key Pattern**:
+
 ```java
 @Test
 @WithMockUser(authorities = {"SCOPE_backend.read"})
@@ -556,6 +576,7 @@ void shouldAllowReadAccessWithReadScope() throws Exception {
 **Purpose**: Test database-backed user authentication
 
 **Tests**:
+
 - User loading from database
 - Authority loading from authority + user_authority tables
 - Exception handling for non-existent users
@@ -571,6 +592,7 @@ void shouldAllowReadAccessWithReadScope() throws Exception {
 **Purpose**: Test form-based login flows
 
 **Tests**:
+
 - Login page display
 - Valid/invalid credential handling
 - Non-existent user handling
@@ -591,6 +613,7 @@ void shouldAllowReadAccessWithReadScope() throws Exception {
 ## MCP-Server Tests (11 tests)
 
 ### Location
+
 `mcp-server/src/test/java/me/pacphi/ai/resos/mcp/`
 
 ### 1. McpEndpointSecurityTest (6 tests)
@@ -617,8 +640,9 @@ static class TestJwtDecoderConfig {
 **Why**: Allows testing JWT validation logic without OAuth2 Authorization Server dependency.
 
 **Tests**:
-- JWT authentication required for /mcp/**
-- Public access to /actuator/**
+
+- JWT authentication required for /mcp/\*\*
+- Public access to /actuator/\*\*
 - Token validation
 - Scope-based access control
 
@@ -629,6 +653,7 @@ static class TestJwtDecoderConfig {
 **Purpose**: Verify mcp-server OAuth2 client configuration for calling backend
 
 **Tests**:
+
 - Bean wiring validation
 - OAuth2 client manager configuration
 - Client credentials flow setup
@@ -639,6 +664,7 @@ static class TestJwtDecoderConfig {
 ## MCP-Client Tests (14 tests)
 
 ### Location
+
 `mcp-client/src/test/java/me/pacphi/ai/resos/`
 
 ### Base Class: AbstractOAuth2IntegrationTest
@@ -680,6 +706,7 @@ public abstract class AbstractOAuth2IntegrationTest {
 **Purpose**: Test OAuth2 login configuration and auth endpoints
 
 **Tests**:
+
 - `shouldReturnAuthStatusForUnauthenticatedUser` - Auth status endpoint
 - `shouldReturnAuthStatusForAuthenticatedUser` - Authenticated user info
 - `shouldAccessProtectedEndpointWhenAuthenticated` - Protected access
@@ -709,6 +736,7 @@ void shouldReturnAuthStatusForAuthenticatedUser() throws Exception {
 **Purpose**: Test chat streaming endpoints with authentication
 
 **Tests**:
+
 - `shouldStreamChatResponseWhenAuthenticated` - SSE streaming
 - `shouldDenyChatAccessWithoutAuthentication` - Anonymous denial
 - `shouldHandleChatServiceErrors` - Error handling
@@ -753,6 +781,7 @@ void shouldStreamChatResponseWhenAuthenticated() throws Exception {
 **Purpose**: Test MCP client OAuth2 integration
 
 **Tests**:
+
 - `shouldHaveMcpClientManagerBean` - Bean presence
 - `shouldConfigureOAuth2ForMcpServerCalls` - OAuth2 configuration
 - `shouldUseClientCredentialsForMcpServerCalls` - Client credentials flow
@@ -764,68 +793,71 @@ void shouldStreamChatResponseWhenAuthenticated() throws Exception {
 
 ### Docker Image Build
 
-**Automated in Maven**:
+**Automated with Google Jib**:
+
+The backend Docker image is built using Google Jib - a container image builder that doesn't require a Dockerfile. Jib is configured in `backend/pom.xml`:
 
 ```xml
 <!-- backend/pom.xml -->
 <plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>exec-maven-plugin</artifactId>
-    <version>3.5.0</version>
+    <groupId>com.google.cloud.tools</groupId>
+    <artifactId>jib-maven-plugin</artifactId>
+    <version>3.4.4</version>
+    <configuration>
+        <from>
+            <image>bellsoft/liberica-openjdk-debian:25</image>
+        </from>
+        <to>
+            <image>spring-ai-resos-backend:test</image>
+        </to>
+        <container>
+            <jvmFlags>
+                <jvmFlag>-Dspring.profiles.active=dev</jvmFlag>
+                <jvmFlag>-Djava.security.egd=file:///dev/urandom</jvmFlag>
+            </jvmFlags>
+            <environment>
+                <CSV_BASE_PATH>/app/seed-data</CSV_BASE_PATH>
+            </environment>
+            <ports>
+                <port>8080</port>
+            </ports>
+        </container>
+        <extraDirectories>
+            <paths>
+                <path>
+                    <from>${project.basedir}/seed-data</from>
+                    <into>/app/seed-data</into>
+                </path>
+            </paths>
+        </extraDirectories>
+    </configuration>
     <executions>
         <execution>
             <id>docker-build-test-image</id>
-            <phase>package</phase>  <!-- Before tests run -->
+            <phase>package</phase>
             <goals>
-                <goal>exec</goal>
+                <goal>dockerBuild</goal>
             </goals>
-            <configuration>
-                <executable>docker</executable>
-                <arguments>
-                    <argument>build</argument>
-                    <argument>-f</argument>
-                    <argument>Dockerfile.test</argument>
-                    <argument>-t</argument>
-                    <argument>spring-ai-resos-backend:test</argument>
-                    <argument>.</argument>
-                </arguments>
-            </configuration>
         </execution>
     </executions>
 </plugin>
 ```
 
+**Benefits of Jib**:
+
+- **No Dockerfile needed** - configuration in pom.xml
+- **Faster builds** - intelligent layer caching (dependencies, resources, classes as separate layers)
+- **Reproducible** - same contents always produce same image
+- **More reliable** - no shell script fragility
+
 **Result**: `mvn clean install` automatically builds Docker image before mcp-client tests run!
-
----
-
-### Dockerfile.test
-
-```dockerfile
-FROM bellsoft/liberica-openjdk-debian:25
-
-WORKDIR /app
-
-COPY target/spring-ai-resos-backend-1.0.0-SNAPSHOT.jar app.jar
-COPY seed-data /app/seed-data
-
-ENV CSV_BASE_PATH=/app/seed-data
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", \
-    "-Dspring.profiles.active=dev", \
-    "-Djava.security.egd=file:///dev/urandom", \
-    "-jar", "/app/app.jar"]
-```
-
-**Key**: Includes seed-data for CSV loading
 
 ---
 
 ### Container Startup Time
 
 **Average**: 3-4 seconds
+
 - Liquibase runs 18 changesets
 - Seeds 5 entities (authorities, users, areas, tables, etc.)
 - OAuth2 clients registered
@@ -862,7 +894,8 @@ mvn clean install
 ### Issue: "Table already exists"
 
 **Symptom**:
-```
+
+```text
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "customer" already exists
 ```
 
@@ -875,7 +908,8 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "customer" already exists
 ### Issue: "issuer did not match requested issuer"
 
 **Symptom**:
-```
+
+```text
 The Issuer "http://localhost:8080" provided in the configuration metadata
 did not match the requested issuer "http://localhost:32789"
 ```
@@ -889,7 +923,8 @@ did not match the requested issuer "http://localhost:32789"
 ### Issue: "Connection refused to .well-known/openid-configuration"
 
 **Symptom**:
-```
+
+```text
 ResourceAccessException: Connection refused to
 http://localhost:8080/.well-known/openid-configuration
 ```
@@ -903,7 +938,8 @@ http://localhost:8080/.well-known/openid-configuration
 ### Issue: "Unable to make private java.net.URI() accessible"
 
 **Symptom**:
-```
+
+```text
 java.lang.reflect.InaccessibleObjectException:
 Unable to make private java.net.URI() accessible:
 module java.base does not "opens java.net"
@@ -922,6 +958,7 @@ module java.base does not "opens java.net"
 **Root Cause**: CSRF protection enabled, tests missing CSRF token
 
 **Fix**: Add `.with(csrf())` to POST requests:
+
 ```java
 mockMvc.perform(post("/api/endpoint")
         .with(oidcLogin())
@@ -969,7 +1006,7 @@ JsonNode claims = objectMapper.readTree(payload);
 
 ## Project Structure
 
-```
+```text
 backend/
 ├── src/
 │   ├── main/
@@ -1006,8 +1043,7 @@ backend/
 │   │   │   └── SpringAiResOsBackendApplicationTests.java ✅
 │   │   └── resources/
 │   │       └── application-test.yml
-│   ├── Dockerfile.test (for TestContainers)
-│   └── seed-data/ (CSV files)
+│   └── seed-data/ (CSV files, copied to Docker image via Jib)
 
 mcp-server/src/test/java/me/pacphi/ai/resos/mcp/
 ├── McpEndpointSecurityTest.java ✅
@@ -1046,6 +1082,7 @@ mcp-client/
 **Context**: TestContainers backend on random port vs issuer-uri expecting localhost:8080
 
 **Options Considered**:
+
 1. ✅ **Replace issuer-uri with explicit URIs** (chosen)
 2. ❌ Mock OAuth2 (loses E2E value)
 3. ❌ Complex @DynamicPropertySource workarounds (fragile)
@@ -1059,6 +1096,7 @@ mcp-client/
 **Context**: How to test mcp-client OAuth2 integration?
 
 **Options Considered**:
+
 1. ✅ **TestContainers with real backend** (chosen) - True E2E
 2. ❌ WireMock OAuth2 server - Brittle, incomplete
 3. ❌ Mock OAuth2 components - No integration value
@@ -1072,6 +1110,7 @@ mcp-client/
 **Context**: SchemaCreator can't write to JAR filesystem
 
 **Options Considered**:
+
 1. ✅ **ApplicationTemp + file-based changelogs** (chosen)
 2. ❌ Package changelogs in JAR - Conflicts with dynamic generation
 3. ❌ Disable SchemaCreator in Docker - Loses dev/prod parity
@@ -1085,6 +1124,7 @@ mcp-client/
 **Context**: Stay current with latest JDK
 
 **Changed**:
+
 - `pom.xml`: `<java.version>25</java.version>`
 - `Dockerfile.test`: `FROM bellsoft/liberica-openjdk-debian:25`
 - `.github/workflows/ci.yml`: `java: [ 25 ]`
@@ -1107,6 +1147,7 @@ Hours lost because components had `@Profile("dev")` instead of `@Profile({"dev",
 ### 3. Explicit URIs > issuer-uri for Testing
 
 While issuer-uri is convenient, explicit URIs are:
+
 - More testable
 - More reliable
 - Actually a production best practice
@@ -1130,6 +1171,7 @@ We initially had wrong test expectations because we didn't verify what ResourceS
 ### 7. Docker Build Automation Matters
 
 Manual `docker build` commands are error-prone. Integrating into Maven ensures:
+
 - ✅ Consistent builds
 - ✅ CI/CD friendly
 - ✅ No forgotten steps
@@ -1139,15 +1181,15 @@ Manual `docker build` commands are error-prone. Integrating into Maven ensures:
 
 ## Success Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| **Backend Test Coverage** | 90%+ | 100% (28/28) | ✅ |
-| **MCP-Server Test Coverage** | 70%+ | 100% (11/11) | ✅ |
-| **MCP-Client Test Coverage** | 70%+ | 100% (14/14) | ✅ |
-| **Overall Coverage** | 70%+ | **100% (53/53)** | ✅ |
-| **Test Execution Time** | < 60s | ~26s (longest) | ✅ |
-| **Build Success Rate** | 100% | 100% | ✅ |
-| **Docker Integration** | Automated | Automated | ✅ |
+| Metric                       | Target    | Actual           | Status |
+| ---------------------------- | --------- | ---------------- | ------ |
+| **Backend Test Coverage**    | 90%+      | 100% (28/28)     | ✅     |
+| **MCP-Server Test Coverage** | 70%+      | 100% (11/11)     | ✅     |
+| **MCP-Client Test Coverage** | 70%+      | 100% (14/14)     | ✅     |
+| **Overall Coverage**         | 70%+      | **100% (53/53)** | ✅     |
+| **Test Execution Time**      | < 60s     | ~26s (longest)   | ✅     |
+| **Build Success Rate**       | 100%      | 100%             | ✅     |
+| **Docker Integration**       | Automated | Automated        | ✅     |
 
 ---
 
@@ -1182,6 +1224,7 @@ cd mcp-client && mvn test
 ### Skip Docker Build
 
 If Docker isn't available:
+
 ```bash
 # Option 1: Build image manually first
 cd backend && docker build -f Dockerfile.test -t spring-ai-resos-backend:test .
@@ -1195,14 +1238,17 @@ mvn test -pl backend,mcp-server
 ## References
 
 ### Spring Security Test
+
 - [Testing OAuth 2.0](https://docs.spring.io/spring-security/reference/servlet/test/mockmvc/oauth2.html)
 - [Spring Security Test Support](https://docs.spring.io/spring-security/reference/servlet/test/index.html)
 
 ### TestContainers
+
 - [Securing Spring Boot with Keycloak](https://testcontainers.com/guides/securing-spring-boot-microservice-using-keycloak-and-testcontainers/)
 - [TestContainers Java](https://java.testcontainers.org/)
 
 ### Spring Boot
+
 - [Spring Boot Maven Plugin](https://docs.spring.io/spring-boot/maven-plugin/build-image.html)
 - [OAuth2 Client Core](https://docs.spring.io/spring-security/reference/servlet/oauth2/client/core.html)
 
@@ -1383,6 +1429,7 @@ class ChatStreamingTest extends AbstractOAuth2IntegrationTest {
 ### ✅ Phase 6 Complete
 
 **Achievements**:
+
 - 100% test coverage (53/53 tests)
 - Fixed 6 critical production bugs
 - Implemented E2E TestContainers integration

@@ -3,6 +3,7 @@
 ## Overview
 
 Implement comprehensive OAuth2 security using Spring Authorization Server embedded in the backend, with:
+
 - **Backend**: OAuth2 Authorization Server + Resource Server (port 8080)
 - **MCP-Server**: OAuth2 Resource Server + OAuth2 Client (port 8082)
 - **MCP-Client**: OAuth2 Client with authorization_code + PKCE for React SPA (port 8081)
@@ -27,6 +28,7 @@ The original implementation used WebFlux-based reactive stack with SSE transport
 1. **Spring Security Default Behavior**: Adding `spring-boot-starter-oauth2-client` to mcp-server brought Spring Security onto the classpath. By default, Spring Security protects ALL endpoints, causing unauthenticated requests to `/sse` to receive 302 redirects to the OAuth2 login page.
 
 2. **MCP Security Library Incompatibility**: The official [spring-ai-community/mcp-security](https://github.com/spring-ai-community/mcp-security) library states:
+
    > "Requires Spring WebMVC (not WebFlux); SSE transport unsupported"
    > "The deprecated SSE transport is not supported. Use Streamable HTTP or stateless transport instead."
 
@@ -34,14 +36,14 @@ The original implementation used WebFlux-based reactive stack with SSE transport
 
 ### Files Created (To Be Migrated)
 
-| File | Status |
-|------|--------|
-| `mcp-server/src/main/java/.../ResOsConfig.java` | Has reactive WebClient - needs WebMVC conversion |
-| `mcp-client/src/main/java/.../McpAsyncClientManager.java` | Uses `WebFluxSseClientTransport` - needs replacement |
-| `mcp-client/src/main/java/.../ChatService.java` | Returns `Flux<String>` - needs blocking conversion |
-| `mcp-client/src/main/java/.../ChatController.java` | Returns `ResponseEntity<Flux<String>>` - needs conversion |
-| `mcp-client/src/main/java/.../AuthController.java` | Uses `Mono<>` and `ServerWebExchange` - needs servlet conversion |
-| `mcp-client/src/main/java/.../SecurityConfig.java` | Uses `@EnableWebFluxSecurity` - needs `@EnableWebSecurity` |
+| File                                                      | Status                                                           |
+| --------------------------------------------------------- | ---------------------------------------------------------------- |
+| `mcp-server/src/main/java/.../ResOsConfig.java`           | Has reactive WebClient - needs WebMVC conversion                 |
+| `mcp-client/src/main/java/.../McpAsyncClientManager.java` | Uses `WebFluxSseClientTransport` - needs replacement             |
+| `mcp-client/src/main/java/.../ChatService.java`           | Returns `Flux<String>` - needs blocking conversion               |
+| `mcp-client/src/main/java/.../ChatController.java`        | Returns `ResponseEntity<Flux<String>>` - needs conversion        |
+| `mcp-client/src/main/java/.../AuthController.java`        | Uses `Mono<>` and `ServerWebExchange` - needs servlet conversion |
+| `mcp-client/src/main/java/.../SecurityConfig.java`        | Uses `@EnableWebFluxSecurity` - needs `@EnableWebSecurity`       |
 
 ### Lessons Learned
 
@@ -61,7 +63,7 @@ The original implementation used WebFlux-based reactive stack with SSE transport
 
 ### Architecture Diagram
 
-```
+```text
 ┌─────────────────────┐     OAuth2 (auth_code+PKCE)    ┌─────────────────────────────────────┐
 │   React SPA         │ ◄─────────────────────────────►│           Backend (8080)            │
 │   (mcp-client)      │                                │  ┌─────────────────────────────────┐│
@@ -90,6 +92,7 @@ The original implementation used WebFlux-based reactive stack with SSE transport
 #### `mcp-server/pom.xml`
 
 **Remove:**
+
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
@@ -98,6 +101,7 @@ The original implementation used WebFlux-based reactive stack with SSE transport
 ```
 
 **Add:**
+
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
@@ -112,6 +116,7 @@ The original implementation used WebFlux-based reactive stack with SSE transport
 #### `mcp-server/src/main/resources/application.yml`
 
 **Update transport configuration:**
+
 ```yaml
 spring:
   ai:
@@ -129,18 +134,19 @@ spring:
 
 **Convert from reactive WebClient to RestClient:**
 
-| Before (Reactive) | After (Blocking) |
-|-------------------|------------------|
-| `WebClient.Builder` | `RestClient.Builder` |
-| `ReactorClientHttpConnector` | `JdkClientHttpRequestFactory` or Apache HttpClient |
-| `Mono.just(request)` | Direct return |
-| `ServerOAuth2AuthorizedClientExchangeFilterFunction` | `OAuth2ClientHttpRequestInterceptor` |
+| Before (Reactive)                                    | After (Blocking)                                   |
+| ---------------------------------------------------- | -------------------------------------------------- |
+| `WebClient.Builder`                                  | `RestClient.Builder`                               |
+| `ReactorClientHttpConnector`                         | `JdkClientHttpRequestFactory` or Apache HttpClient |
+| `Mono.just(request)`                                 | Direct return                                      |
+| `ServerOAuth2AuthorizedClientExchangeFilterFunction` | `OAuth2ClientHttpRequestInterceptor`               |
 
 ### 0.2 MCP-Client Module Changes
 
 #### `mcp-client/pom.xml`
 
 **Remove:**
+
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -153,6 +159,7 @@ spring:
 ```
 
 **Add:**
+
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -166,14 +173,14 @@ spring:
 
 #### Java File Conversions
 
-| File | Changes Required |
-|------|------------------|
-| `ChatController.java` | `Flux<String>` → `SseEmitter` or streaming `ResponseEntity<StreamingResponseBody>` |
-| `ChatService.java` | `Flux<String>` → `Stream<String>` or callback-based streaming |
-| `McpAsyncClientManager.java` | `WebFluxSseClientTransport` → `HttpClientSseClientTransport` or Streamable HTTP transport |
-| `AuthController.java` | `Mono<>` → direct return, `ServerWebExchange` → `HttpServletRequest` |
-| `SecurityConfig.java` | `@EnableWebFluxSecurity` → `@EnableWebSecurity`, `SecurityWebFilterChain` → `SecurityFilterChain` |
-| `Http.java` | Remove `reactor.netty` imports, use JDK HttpClient or Apache |
+| File                         | Changes Required                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------------- |
+| `ChatController.java`        | `Flux<String>` → `SseEmitter` or streaming `ResponseEntity<StreamingResponseBody>`                |
+| `ChatService.java`           | `Flux<String>` → `Stream<String>` or callback-based streaming                                     |
+| `McpAsyncClientManager.java` | `WebFluxSseClientTransport` → `HttpClientSseClientTransport` or Streamable HTTP transport         |
+| `AuthController.java`        | `Mono<>` → direct return, `ServerWebExchange` → `HttpServletRequest`                              |
+| `SecurityConfig.java`        | `@EnableWebFluxSecurity` → `@EnableWebSecurity`, `SecurityWebFilterChain` → `SecurityFilterChain` |
+| `Http.java`                  | Remove `reactor.netty` imports, use JDK HttpClient or Apache                                      |
 
 ### 0.3 Client Module (Generated API Client)
 
@@ -183,24 +190,24 @@ The `client/` module has both WebMVC and WebFlux dependencies. Evaluate whether 
 
 ## Phase 1: Database Schema (Liquibase)
 
-*[Unchanged from original plan]*
+_[Unchanged from original plan]_
 
 ### Security Tables
 
-| Table | Purpose |
-|-------|---------|
-| `app_user` | Application users with BCrypt passwords |
-| `authority` | Roles (ROLE_USER, ROLE_OPERATOR, ROLE_ADMIN) |
-| `user_authority` | Join table |
-| `oauth2_registered_client` | OAuth2 clients |
-| `oauth2_authorization` | Active tokens |
-| `oauth2_authorization_consent` | User consents |
+| Table                          | Purpose                                      |
+| ------------------------------ | -------------------------------------------- |
+| `app_user`                     | Application users with BCrypt passwords      |
+| `authority`                    | Roles (ROLE_USER, ROLE_OPERATOR, ROLE_ADMIN) |
+| `user_authority`               | Join table                                   |
+| `oauth2_registered_client`     | OAuth2 clients                               |
+| `oauth2_authorization`         | Active tokens                                |
+| `oauth2_authorization_consent` | User consents                                |
 
 ---
 
 ## Phase 2: Backend Security (Authorization Server)
 
-*[Unchanged from original plan]*
+_[Unchanged from original plan]_
 
 ### Key Configuration Classes
 
@@ -407,7 +414,8 @@ The React SPA currently uses WebFlux-based endpoints. With WebMVC:
 
 The main impact is how streaming responses are consumed:
 
-#### Current (WebFlux Flux):
+#### Current (WebFlux Flux)
+
 ```javascript
 // App.jsx - current implementation
 const eventSource = new EventSource('/api/chat/stream?...');
@@ -416,19 +424,21 @@ fetch('/api/chat', { method: 'POST', ... })
   .then(response => response.body.getReader())
 ```
 
-#### Updated (WebMVC SseEmitter):
+#### Updated (WebMVC SseEmitter)
+
 The frontend code **should not need changes** if using standard SSE:
+
 - `SseEmitter` produces standard `text/event-stream` format
 - Browser's `EventSource` API works identically
 - `fetch()` with streaming also works the same
 
 ### 6.3 Files to Review
 
-| File | Potential Changes |
-|------|-------------------|
-| `mcp-client/src/main/frontend/src/App.jsx` | Verify SSE consumption works with SseEmitter |
-| `mcp-client/src/main/frontend/src/AuthContext.jsx` | Should work unchanged (JSON endpoints) |
-| `mcp-client/src/main/frontend/src/components/*.jsx` | Review any direct API calls |
+| File                                                | Potential Changes                            |
+| --------------------------------------------------- | -------------------------------------------- |
+| `mcp-client/src/main/frontend/src/App.jsx`          | Verify SSE consumption works with SseEmitter |
+| `mcp-client/src/main/frontend/src/AuthContext.jsx`  | Should work unchanged (JSON endpoints)       |
+| `mcp-client/src/main/frontend/src/components/*.jsx` | Review any direct API calls                  |
 
 ### 6.4 CORS Configuration
 
@@ -465,10 +475,10 @@ export default defineConfig({
       '/oauth2': {
         target: 'http://localhost:8081',
         changeOrigin: true,
-      }
-    }
-  }
-})
+      },
+    },
+  },
+});
 ```
 
 ### 6.6 Testing React Changes
@@ -485,6 +495,7 @@ export default defineConfig({
 ## Implementation Checklist
 
 ### Phase 0: WebFlux → WebMVC Migration
+
 - [ ] Update `mcp-server/pom.xml` - swap webflux for webmvc starter
 - [ ] Update `mcp-client/pom.xml` - swap webflux for web starter
 - [ ] Convert `ResOsConfig.java` to use RestClient
@@ -496,11 +507,13 @@ export default defineConfig({
 - [ ] Update `application.yml` files to remove reactive config
 
 ### Phase 1: Database Schema
+
 - [ ] Create security tables changelog
 - [ ] Create seed data changelog
 - [ ] Update master changelog
 
 ### Phase 2: Backend Authorization Server
+
 - [ ] Add dependencies to backend pom.xml
 - [ ] Create AuthorizationServerConfig.java
 - [ ] Create ResourceServerConfig.java
@@ -509,18 +522,21 @@ export default defineConfig({
 - [ ] Create login.html template
 
 ### Phase 3: MCP-Server OAuth2 Resource Server
+
 - [ ] Add oauth2-resource-server dependency
 - [ ] Create SecurityConfig.java with JWT validation
 - [ ] Update application.yml with JWT issuer config
 - [ ] Test token validation
 
 ### Phase 4: MCP-Client OAuth2 Client
+
 - [ ] Create WebMVC SecurityConfig.java
 - [ ] Configure OAuth2 client for mcp-server calls
 - [ ] Update React SPA auth integration
 - [ ] Test end-to-end auth flow
 
 ### Phase 5: Integration Testing
+
 - [ ] Test backend auth endpoints
 - [ ] Test mcp-server with JWT tokens
 - [ ] Test mcp-client OAuth2 login flow
@@ -528,6 +544,7 @@ export default defineConfig({
 - [ ] Test full chat flow with security
 
 ### Phase 6: React SPA Updates
+
 - [ ] Review `App.jsx` chat streaming implementation
 - [ ] Review `AuthContext.jsx` for API compatibility
 - [ ] Add CORS configuration (WebMvcConfigurer)
@@ -539,12 +556,12 @@ export default defineConfig({
 
 ## Key Dependencies Summary
 
-| Module | Old (WebFlux) | New (WebMVC) |
-|--------|---------------|--------------|
+| Module     | Old (WebFlux)                          | New (WebMVC)                                      |
+| ---------- | -------------------------------------- | ------------------------------------------------- |
 | mcp-server | `spring-ai-starter-mcp-server-webflux` | `spring-ai-mcp-server-webmvc-spring-boot-starter` |
-| mcp-server | - | `spring-boot-starter-oauth2-resource-server` |
-| mcp-client | `spring-boot-starter-webflux` | `spring-boot-starter-web` |
-| mcp-client | `spring-ai-starter-mcp-client-webflux` | `spring-ai-mcp-client-spring-boot-starter` |
+| mcp-server | -                                      | `spring-boot-starter-oauth2-resource-server`      |
+| mcp-client | `spring-boot-starter-webflux`          | `spring-boot-starter-web`                         |
+| mcp-client | `spring-ai-starter-mcp-client-webflux` | `spring-ai-mcp-client-spring-boot-starter`        |
 
 ---
 

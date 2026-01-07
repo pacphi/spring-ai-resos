@@ -6,7 +6,7 @@ This project is organized as a Maven multi-module build with 6 distinct modules,
 
 See [Module Dependencies Diagram](diagrams/module-dependencies.md) for visual representation.
 
-```
+```text
 codegen (build-time utility)
    ↓ used by
 entities ← depends on client (source unpacking)
@@ -32,12 +32,12 @@ backend
 
 ### Module Information
 
-| Property | Value |
-|----------|-------|
-| **Artifact ID** | `spring-ai-resos-codegen` |
-| **Type** | JAR (build-time tool) |
-| **Runtime** | No (used during build only) |
-| **Location** | `/codegen/` |
+| Property        | Value                       |
+| --------------- | --------------------------- |
+| **Artifact ID** | `spring-ai-resos-codegen`   |
+| **Type**        | JAR (build-time tool)       |
+| **Runtime**     | No (used during build only) |
+| **Location**    | `/codegen/`                 |
 
 ### Responsibilities
 
@@ -50,6 +50,7 @@ backend
 ### Key Components
 
 **EntityGenerator** (`codegen/src/main/java/me/pacphi/ai/resos/util/EntityGenerator.java`):
+
 - Parses Java source files using JavaParser
 - Removes Jackson annotations (`@JsonProperty`, `@JsonCreator`)
 - Adds Spring Data JDBC annotations (`@Table`, `@Id`, `@Column`)
@@ -63,7 +64,7 @@ backend
     <dependency>
         <groupId>com.github.javaparser</groupId>
         <artifactId>javaparser-core</artifactId>
-        <version>3.26.3</version>
+        <version>3.27.1</version>
     </dependency>
 </dependencies>
 ```
@@ -71,6 +72,7 @@ backend
 ### Used By
 
 **entities module** during `exec:java` phase:
+
 ```xml
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
@@ -108,12 +110,12 @@ backend
 
 ### Module Information
 
-| Property | Value |
-|----------|-------|
+| Property        | Value                    |
+| --------------- | ------------------------ |
 | **Artifact ID** | `spring-ai-resos-client` |
-| **Type** | JAR (library) |
-| **Runtime** | Yes (used by mcp-server) |
-| **Location** | `/client/` |
+| **Type**        | JAR (library)            |
+| **Runtime**     | Yes (used by mcp-server) |
+| **Location**    | `/client/`               |
 
 ### Responsibilities
 
@@ -125,15 +127,18 @@ backend
 ### Generated Packages
 
 **me.pacphi.ai.resos.api**:
+
 - `DefaultApi` - Main HTTP client interface
 - Methods for all API operations (customers, bookings, orders, etc.)
 
 **me.pacphi.ai.resos.model**:
+
 - Data model POJOs (Customer, Booking, Order, Table, etc.)
 - Jackson annotations for JSON serialization
 - Bean validation annotations
 
 **me.pacphi.ai.resos.configuration**:
+
 - `ApiClient` - RestClient configuration
 - Request interceptors
 - Base URL configuration
@@ -145,6 +150,7 @@ backend
 **Based On**: ResOs API v1.2 (modified for this project)
 
 **Key Models**:
+
 - Customer, Booking, Order, Table, Area
 - Feedback, OpeningHours, Restaurant
 - Error responses, pagination models
@@ -152,11 +158,12 @@ backend
 ### Build Configuration
 
 **OpenAPI Generator Plugin** (`client/pom.xml`):
+
 ```xml
 <plugin>
     <groupId>org.openapitools</groupId>
     <artifactId>openapi-generator-maven-plugin</artifactId>
-    <version>7.10.0</version>
+    <version>7.18.0</version>
     <executions>
         <execution>
             <phase>generate-sources</phase>
@@ -182,6 +189,7 @@ backend
 ```
 
 **Key Configuration Options**:
+
 - `library: spring-http-interface` - Uses Spring 6+ HTTP Interface (not OpenFeign)
 - `useJakartaEe: true` - Jakarta EE namespace (Spring Boot 3+)
 - `dateLibrary: java8` - Use Java 8 date/time API
@@ -225,6 +233,7 @@ backend
 ### Example Generated Code
 
 **DefaultApi Interface**:
+
 ```java
 public interface DefaultApi {
 
@@ -251,12 +260,12 @@ public interface DefaultApi {
 
 ### Module Information
 
-| Property | Value |
-|----------|-------|
+| Property        | Value                      |
+| --------------- | -------------------------- |
 | **Artifact ID** | `spring-ai-resos-entities` |
-| **Type** | JAR (library) |
-| **Runtime** | Yes (used by backend) |
-| **Location** | `/entities/` |
+| **Type**        | JAR (library)              |
+| **Runtime**     | Yes (used by backend)      |
+| **Location**    | `/entities/`               |
 
 ### Responsibilities
 
@@ -284,6 +293,7 @@ public interface DefaultApi {
 ### Generated Package
 
 **me.pacphi.ai.resos.jdbc**:
+
 - `CustomerEntity`, `BookingEntity`, `OrderEntity`
 - `TableEntity`, `AreaEntity`, `FeedbackEntity`
 - `AppUserEntity`, `AuthorityEntity`, `UserAuthorityEntity`
@@ -292,6 +302,7 @@ public interface DefaultApi {
 ### Build Configuration
 
 **Source Unpacking** (`entities/pom.xml`):
+
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -350,13 +361,13 @@ public interface DefaultApi {
 
 ### Module Information
 
-| Property | Value |
-|----------|-------|
-| **Artifact ID** | `spring-ai-resos-backend` |
-| **Type** | Executable JAR |
-| **Main Class** | `SpringAiResOsBackendApplication` |
-| **Port** | 8080 |
-| **Location** | `/backend/` |
+| Property        | Value                             |
+| --------------- | --------------------------------- |
+| **Artifact ID** | `spring-ai-resos-backend`         |
+| **Type**        | Executable JAR                    |
+| **Main Class**  | `SpringAiResOsBackendApplication` |
+| **Port**        | 8080                              |
+| **Location**    | `/backend/`                       |
 
 ### Responsibilities
 
@@ -369,7 +380,7 @@ public interface DefaultApi {
 
 ### Package Structure
 
-```
+```text
 me.pacphi.ai.resos
 ├── config
 │   ├── SchemaCreator.java                  # Dynamic Liquibase generation
@@ -418,6 +429,7 @@ me.pacphi.ai.resos
 ### Configuration
 
 **application.yml** (dev profile):
+
 ```yaml
 server:
   port: 8080
@@ -485,18 +497,18 @@ app:
 
 ### Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `config/SchemaCreator.java` | Dynamic Liquibase generation | ~400 |
-| `security/AuthorizationServerConfig.java` | OAuth2 Auth Server | ~200 |
-| `security/ResourceServerConfig.java` | API protection | ~100 |
-| `security/JwtTokenCustomizer.java` | Custom JWT claims | ~50 |
-| `csv/DataSeeder.java` | CSV loading orchestrator | ~150 |
+| File                                      | Purpose                      | Lines |
+| ----------------------------------------- | ---------------------------- | ----- |
+| `config/SchemaCreator.java`               | Dynamic Liquibase generation | ~400  |
+| `security/AuthorizationServerConfig.java` | OAuth2 Auth Server           | ~200  |
+| `security/ResourceServerConfig.java`      | API protection               | ~100  |
+| `security/JwtTokenCustomizer.java`        | Custom JWT claims            | ~50   |
+| `csv/DataSeeder.java`                     | CSV loading orchestrator     | ~150  |
 
 ### Build & Run
 
 ```bash
-# Build
+# Build (includes Docker image via Jib)
 cd backend
 mvn clean package
 
@@ -506,9 +518,11 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 # Run with PostgreSQL
 mvn spring-boot:run -Dspring-boot.run.profiles=postgres
 
-# Docker
-docker build -f Dockerfile.test -t backend:latest .
-docker run -p 8080:8080 backend:latest
+# Docker (image built automatically by Jib during mvn package)
+docker run -p 8080:8080 spring-ai-resos-backend:test
+
+# Build Docker image manually (if needed)
+mvn jib:dockerBuild
 ```
 
 ---
@@ -519,13 +533,13 @@ docker run -p 8080:8080 backend:latest
 
 ### Module Information
 
-| Property | Value |
-|----------|-------|
-| **Artifact ID** | `spring-ai-resos-mcp-server` |
-| **Type** | Executable JAR |
-| **Main Class** | `SpringAiResOsMcpServerApplication` |
-| **Port** | 8082 |
-| **Location** | `/mcp-server/` |
+| Property        | Value                               |
+| --------------- | ----------------------------------- |
+| **Artifact ID** | `spring-ai-resos-mcp-server`        |
+| **Type**        | Executable JAR                      |
+| **Main Class**  | `SpringAiResOsMcpServerApplication` |
+| **Port**        | 8082                                |
+| **Location**    | `/mcp-server/`                      |
 
 ### Responsibilities
 
@@ -537,7 +551,7 @@ docker run -p 8080:8080 backend:latest
 
 ### Package Structure
 
-```
+```text
 me.pacphi.ai.resos.mcp
 ├── SpringAiResOsMcpServerApplication.java  # Main class
 ├── ResOsService.java                       # Tool provider (@Tool methods)
@@ -548,6 +562,7 @@ me.pacphi.ai.resos.mcp
 ### Tool Provider
 
 **ResOsService** (`mcp/ResOsService.java`):
+
 ```java
 @Component
 public class ResOsService {
@@ -588,6 +603,7 @@ public class ResOsService {
 ```
 
 **Spring AI Behavior**:
+
 - Scans for `@Tool` annotated methods
 - Generates JSON Schema from method signatures and `@ToolParam` descriptions
 - Exposes tools via MCP protocol at `/mcp/tools/{toolName}`
@@ -596,10 +612,12 @@ public class ResOsService {
 ### Security Configuration
 
 **Dual OAuth2 Role**:
+
 1. **Resource Server**: Validates incoming JWTs from mcp-client
 2. **OAuth2 Client**: Calls backend API with client credentials
 
 **SecurityConfig** (`mcp/SecurityConfig.java`):
+
 ```java
 @Configuration
 @EnableWebSecurity
@@ -624,6 +642,7 @@ public class SecurityConfig {
 ### Backend API Client Configuration
 
 **ResOsConfig** (`mcp/ResOsConfig.java`):
+
 ```java
 @Configuration
 public class ResOsConfig {
@@ -672,6 +691,7 @@ public class ResOsConfig {
 ```
 
 **Key Components**:
+
 - **RestClient**: JDK HttpClient-based, 30s timeout
 - **OAuth2 Interceptor**: Automatically adds Bearer token
 - **HttpServiceProxyFactory**: Creates type-safe interface implementation
@@ -680,6 +700,7 @@ public class ResOsConfig {
 ### Configuration
 
 **application.yml** (dev profile):
+
 ```yaml
 server:
   port: 8082
@@ -770,13 +791,13 @@ java -jar target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar
 
 ### Module Information
 
-| Property | Value |
-|----------|-------|
-| **Artifact ID** | `spring-ai-resos-mcp-frontend` |
-| **Type** | Executable JAR |
-| **Main Class** | `SpringAiResOsFrontendApplication` |
-| **Port** | 8081 |
-| **Location** | `/mcp-client/` |
+| Property        | Value                              |
+| --------------- | ---------------------------------- |
+| **Artifact ID** | `spring-ai-resos-mcp-frontend`     |
+| **Type**        | Executable JAR                     |
+| **Main Class**  | `SpringAiResOsFrontendApplication` |
+| **Port**        | 8081                               |
+| **Location**    | `/mcp-client/`                     |
 
 ### Responsibilities
 
@@ -789,7 +810,8 @@ java -jar target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar
 ### Package Structure
 
 **Backend** (Java):
-```
+
+```text
 me.pacphi.ai.resos
 ├── SpringAiResOsFrontendApplication.java   # Main class
 ├── config
@@ -804,7 +826,8 @@ me.pacphi.ai.resos
 ```
 
 **Frontend** (React):
-```
+
+```text
 src/main/frontend/src
 ├── App.jsx                                 # Main application shell
 ├── AuthContext.jsx                         # Authentication state
@@ -819,6 +842,7 @@ src/main/frontend/src
 ### Chat Service
 
 **ChatService** (`service/ChatService.java`):
+
 ```java
 @Service
 public class ChatService {
@@ -872,6 +896,7 @@ public class ChatService {
 ### Chat Controller
 
 **ChatController** (`controller/ChatController.java`):
+
 ```java
 @RestController
 @RequestMapping("/api/v1/resos")
@@ -904,11 +929,12 @@ public class ChatController {
 ### Frontend Build
 
 **frontend-maven-plugin** configuration:
+
 ```xml
 <plugin>
     <groupId>com.github.eirslett</groupId>
     <artifactId>frontend-maven-plugin</artifactId>
-    <version>1.15.2</version>
+    <version>2.0.0</version>
     <configuration>
         <nodeVersion>${node.version}</nodeVersion>
         <npmVersion>${npm.version}</npmVersion>
@@ -944,6 +970,7 @@ public class ChatController {
 ```
 
 **Build Process**:
+
 1. Install Node.js and npm
 2. Run `npm install` to install dependencies
 3. Run `npm run build` (Vite production build)
@@ -953,6 +980,7 @@ public class ChatController {
 ### Configuration
 
 **application.yml** (openai profile):
+
 ```yaml
 server:
   port: 8081
@@ -1060,6 +1088,7 @@ spring:
 ### React Frontend
 
 **package.json**:
+
 ```json
 {
   "name": "spring-ai-resos-frontend",
@@ -1108,7 +1137,7 @@ npm run dev
 
 ### Build Time
 
-```
+```text
 codegen → provides utilities → entities
 client → provides sources → entities
 entities → provides entities → backend
@@ -1117,7 +1146,7 @@ client → provides API client → mcp-server
 
 ### Runtime
 
-```
+```text
 mcp-client → HTTP (OAuth2) → mcp-server
 mcp-server → HTTP (OAuth2) → backend
 mcp-client → HTTP (OAuth2) → backend (for auth)
@@ -1127,14 +1156,14 @@ mcp-client → HTTP (OAuth2) → backend (for auth)
 
 ### JAR Outputs
 
-| Module | Artifact | Type | Size (approx) |
-|--------|----------|------|---------------|
-| codegen | spring-ai-resos-codegen-1.0.0-SNAPSHOT.jar | Library | 50KB |
-| client | spring-ai-resos-client-1.0.0-SNAPSHOT.jar | Library | 500KB |
-| entities | spring-ai-resos-entities-1.0.0-SNAPSHOT.jar | Library | 200KB |
-| backend | spring-ai-resos-backend-1.0.0-SNAPSHOT.jar | Executable | 80MB |
-| mcp-server | spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar | Executable | 70MB |
-| mcp-client | spring-ai-resos-mcp-frontend-1.0.0-SNAPSHOT.jar | Executable | 75MB |
+| Module     | Artifact                                        | Type       | Size (approx) |
+| ---------- | ----------------------------------------------- | ---------- | ------------- |
+| codegen    | spring-ai-resos-codegen-1.0.0-SNAPSHOT.jar      | Library    | 50KB          |
+| client     | spring-ai-resos-client-1.0.0-SNAPSHOT.jar       | Library    | 500KB         |
+| entities   | spring-ai-resos-entities-1.0.0-SNAPSHOT.jar     | Library    | 200KB         |
+| backend    | spring-ai-resos-backend-1.0.0-SNAPSHOT.jar      | Executable | 80MB          |
+| mcp-server | spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar   | Executable | 70MB          |
+| mcp-client | spring-ai-resos-mcp-frontend-1.0.0-SNAPSHOT.jar | Executable | 75MB          |
 
 **Note**: Executable JARs include all dependencies (Spring Boot fat JAR)
 

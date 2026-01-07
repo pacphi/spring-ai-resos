@@ -1,6 +1,7 @@
 # ADR-001: OpenAPI-First Development
 
 ## Status
+
 **Accepted** - Implemented in initial architecture
 
 ## Context
@@ -14,6 +15,7 @@ When building a multi-module system with client-server communication, there's a 
 ### Problem Statement
 
 This project needed to:
+
 - Generate a type-safe HTTP client for the MCP Server to call the Backend API
 - Transform generated POJOs into Spring Data JDBC entities
 - Ensure zero drift between API contract and implementation
@@ -45,13 +47,15 @@ This project needed to:
    - Output: Type-safe `DefaultApi` interface with model POJOs
 
 3. **Code Generation Pipeline**:
-   ```
+
+   ```text
    OpenAPI Spec → OpenAPI Generator → HTTP Client (POJOs)
    → Maven Unpack → EntityGenerator (JavaParser)
    → JDBC Entities → SchemaCreator → Database Schema
    ```
 
 4. **Configuration** (`client/pom.xml`):
+
    ```xml
    <plugin>
        <groupId>org.openapitools</groupId>
@@ -102,11 +106,13 @@ This project needed to:
 **Approach**: Write Spring REST controllers with `@RestController`, generate OpenAPI spec from annotations.
 
 **Pros**:
+
 - Simpler build process
 - No separate spec file to maintain
 - Familiar to Spring developers
 
 **Cons**:
+
 - Server-side logic mixed with API contract
 - Generated spec may not be comprehensive
 - Hard to generate JDBC entities from controllers
@@ -119,11 +125,13 @@ This project needed to:
 **Approach**: Write server code, manually implement HTTP client.
 
 **Pros**:
+
 - Full control over client implementation
 - No code generation tools needed
 - Simpler build process
 
 **Cons**:
+
 - High maintenance burden
 - Easy to introduce API contract drift
 - No compile-time contract verification
@@ -136,11 +144,13 @@ This project needed to:
 **Approach**: Use GraphQL instead of REST, with schema-first development.
 
 **Pros**:
+
 - Type-safe by design
 - Flexible queries
 - Single endpoint
 
 **Cons**:
+
 - Complete architectural change
 - ResOs API is REST-based (no GraphQL)
 - More complex tooling
@@ -152,11 +162,11 @@ This project needed to:
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `client/src/main/resources/openapi/resos-openapi-modified.yml` | API specification |
-| `client/pom.xml` | OpenAPI Generator configuration |
-| `client/target/generated-sources/` | Generated client code |
+| File                                                           | Purpose                         |
+| -------------------------------------------------------------- | ------------------------------- |
+| `client/src/main/resources/openapi/resos-openapi-modified.yml` | API specification               |
+| `client/pom.xml`                                               | OpenAPI Generator configuration |
+| `client/target/generated-sources/`                             | Generated client code           |
 
 ### Entity Transformation
 
@@ -227,6 +237,6 @@ January 2026 (Initial Architecture)
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date     | Change                    |
+| -------- | ------------------------- |
 | Jan 2026 | Initial decision document |

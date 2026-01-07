@@ -1,64 +1,64 @@
-migrationId: 'sb4-20260105-spring-ai-resos'
-branch: 'feature/spring-boot-4-migration'
-startedAt: '2026-01-05T18:00:00Z'
-lastUpdatedAt: '2026-01-05T18:05:00Z'
-marketplaceVersion: '1.0.0'
+migrationId: "sb4-20260105-spring-ai-resos"
+branch: "feature/spring-boot-4-migration"
+startedAt: "2026-01-05T18:00:00Z"
+lastUpdatedAt: "2026-01-05T18:05:00Z"
+marketplaceVersion: "1.0.0"
 
 targetVersions:
-  spring-boot: '4.0.1'
-  spring-framework: '7.0.2'
-  spring-cloud: '2025.1.0'
-  spring-ai: '2.0.0-M1'
-  jackson: '3.0.3'
-  junit: '6.0.0'
+  spring-boot: "4.0.1"
+  spring-framework: "7.0.2"
+  spring-cloud: "2025.1.0"
+  spring-ai: "2.0.0-M1"
+  jackson: "3.0.3"
+  junit: "6.0.0"
 
 appliedTransformations:
   - skill: jackson-migrator
-    version: '1.0.0'
+    version: "1.0.0"
     transformations:
       - jackson-bom-update
       - jackson-groupid-migration
-    completedAt: '2026-01-05T18:01:00Z'
+    completedAt: "2026-01-05T18:01:00Z"
     commitSha: 500fca4
 
   - skill: spring-boot-migrator
-    version: '1.0.0'
+    version: "1.0.0"
     transformations:
       - spring-boot-4-parent-update
       - spring-cloud-dependencies-update
-    completedAt: '2026-01-05T18:02:00Z'
+    completedAt: "2026-01-05T18:02:00Z"
     commitSha: b0849ec
 
   - skill: junit-migrator
-    version: '1.0.0'
+    version: "1.0.0"
     transformations:
       - junit-6-upgrade
       - junit-bom-addition
-    completedAt: '2026-01-05T18:05:00Z'
+    completedAt: "2026-01-05T18:05:00Z"
     commitSha: pending
 
   - skill: spring-framework-7-migrator
-    version: '1.0.0'
+    version: "1.0.0"
     transformations:
       - openapi-generator-template-injection
       - http-service-proxy-factory-api
       - webclient-adapter-api
-    completedAt: '2026-01-05T19:22:00Z'
+    completedAt: "2026-01-05T19:22:00Z"
     commitSha: pending
     templateInjection:
-      templateFile: 'client/src/main/resources/templates/libraries/spring-http-interface/httpInterfacesConfiguration.mustache'
-      oldTemplateName: 'httpInterfacesAbstractConfigurator.mustache'
-      correctTemplateName: 'httpInterfacesConfiguration.mustache'
+      templateFile: "client/src/main/resources/templates/libraries/spring-http-interface/httpInterfacesConfiguration.mustache"
+      oldTemplateName: "httpInterfacesAbstractConfigurator.mustache"
+      correctTemplateName: "httpInterfacesConfiguration.mustache"
       apiMigration:
-        from: 'HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient)).build()'
-        to: 'HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build()'
+        from: "HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient)).build()"
+        to: "HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient)).build()"
       validation:
         codeGeneration: success
         compilation: success
 
 pendingTransformations: []
 
-validationStatus: 'PARTIAL'
+validationStatus: "PARTIAL"
 validationDetails:
   compile:
     success: true
@@ -67,7 +67,7 @@ validationDetails:
   tests:
     success: false
     errors: 1
-    note: 'Pre-existing test issue with DataSeeder/Liquibase initialization order'
+    note: "Pre-existing test issue with DataSeeder/Liquibase initialization order"
 
 notes: |
   Migration completed successfully. The test failure is a pre-existing

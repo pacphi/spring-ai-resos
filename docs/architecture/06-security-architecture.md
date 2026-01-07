@@ -16,14 +16,14 @@ See [OAuth2 Flows Diagram](diagrams/oauth2-flows.md) for complete sequence diagr
 
 ## Security Architecture Diagram
 
-```
+```text
 ┌──────────────┐     OAuth2 PKCE        ┌─────────────────────────┐
-│  React SPA   │◄────────────────────────│  Authorization Server   │
-│  (Browser)   │   access_token + id     │  (Backend Port 8080)    │
-└──────┬───────┘                         │  - User Auth            │
-       │                                 │  - JWT Issuance         │
-       │ Authenticated Chat              │  - Token Validation     │
-       ▼                                 └──────────┬──────────────┘
+│  React SPA   │◄───────────────────────│  Authorization Server   │
+│  (Browser)   │   access_token + id    │  (Backend Port 8080)    │
+└──────┬───────┘                        │  - User Auth            │
+       │                                │  - JWT Issuance         │
+       │ Authenticated Chat             │  - Token Validation     │
+       ▼                                └──────────┬──────────────┘
 ┌──────────────┐                                   │
 │  MCP Client  │  OAuth2 client_credentials        │
 │  (Port 8081) │───────────────────────────────────┤
@@ -85,6 +85,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 ```
 
 **Endpoints Provided**:
+
 - `GET /oauth2/authorize` - Authorization code request
 - `POST /oauth2/token` - Token issuance and refresh
 - `POST /oauth2/revoke` - Token revocation
@@ -96,6 +97,7 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 ### JWT Token Configuration
 
 **JWK Source** (RSA Key Generation):
+
 ```java
 @Bean
 public JWKSource<SecurityContext> jwkSource() {
@@ -120,12 +122,14 @@ private static KeyPair generateRsaKey() {
 ```
 
 **Key Features**:
+
 - **Algorithm**: RSA-256 (2048-bit keys)
 - **Key Rotation**: New keys generated on each startup (development)
 - **Production**: Use persistent keys from key store
 - **Public Key Distribution**: Automatic via `/.well-known/jwks.json`
 
 **JWT Decoder**:
+
 ```java
 @Bean
 public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
@@ -174,6 +178,7 @@ public class JwtTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingCont
 ```
 
 **Resulting JWT Payload**:
+
 ```json
 {
   "sub": "admin",
@@ -182,9 +187,14 @@ public class JwtTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingCont
   "scope": ["openid", "profile", "email", "chat.read", "chat.write"],
   "roles": ["ROLE_ADMIN", "ROLE_OPERATOR", "ROLE_USER"],
   "authorities": [
-    "ROLE_ADMIN", "ROLE_OPERATOR", "ROLE_USER",
-    "SCOPE_openid", "SCOPE_profile", "SCOPE_email",
-    "SCOPE_chat.read", "SCOPE_chat.write"
+    "ROLE_ADMIN",
+    "ROLE_OPERATOR",
+    "ROLE_USER",
+    "SCOPE_openid",
+    "SCOPE_profile",
+    "SCOPE_email",
+    "SCOPE_chat.read",
+    "SCOPE_chat.write"
   ],
   "iss": "http://localhost:8080",
   "exp": 1704560400,
@@ -196,6 +206,7 @@ public class JwtTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingCont
 ### OAuth2 Client Registration
 
 **RegisteredClientRepository** (JDBC-backed):
+
 ```java
 @Bean
 public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
@@ -276,6 +287,7 @@ RegisteredClient.withId(UUID.randomUUID().toString())
 **Purpose**: React SPA user authentication
 
 **Key Settings**:
+
 - **requireProofKey**: Enforces PKCE (prevents authorization code interception)
 - **No client secret**: Public client (browser-based)
 - **Refresh token rotation**: New refresh token on each use
@@ -328,6 +340,7 @@ public class AppUserDetailsService implements UserDetailsService {
 ```
 
 **Database Queries**:
+
 ```sql
 -- Load user
 SELECT * FROM app_user WHERE username = ?;
@@ -405,6 +418,7 @@ public SecurityFilterChain resourceServerSecurityFilterChain(HttpSecurity http)
 ```
 
 **Authorization Rules**:
+
 - **GET requests**: Require `backend.read` scope OR any user role
 - **POST/PUT requests**: Require `backend.write` scope OR operator/admin role
 - **DELETE requests**: Require `backend.write` scope OR admin role
@@ -434,6 +448,7 @@ private JwtAuthenticationConverter jwtAuthenticationConverter() {
 ```
 
 **Behavior**:
+
 - Reads `authorities` claim from JWT
 - Converts to Spring Security `GrantedAuthority` objects
 - Used in `@PreAuthorize`, `hasAuthority()` checks
@@ -473,6 +488,7 @@ public class SecurityConfig {
 ```
 
 **Validation Configuration** (`application.yml`):
+
 ```yaml
 spring:
   security:
@@ -483,6 +499,7 @@ spring:
 ```
 
 **Behavior**:
+
 - MCP client sends request with Bearer token
 - Spring Security extracts JWT from `Authorization` header
 - Validates signature using public key from `issuer-uri/.well-known/jwks.json`
@@ -553,6 +570,7 @@ public class ResOsConfig {
 ```
 
 **OAuth2 Client Configuration** (`application.yml`):
+
 ```yaml
 spring:
   security:
@@ -572,6 +590,7 @@ spring:
 ```
 
 **Flow**:
+
 1. MCP Server needs to call backend API
 2. `OAuth2ClientHttpRequestInterceptor` intercepts request
 3. Checks if valid access token exists for "mcp-server" client
@@ -699,11 +718,13 @@ public class McpClientOAuth2Config {
 ```
 
 **Libraries**:
+
 - `org.springaicommunity:mcp-client-security:0.0.5`
 - Provides `OAuth2ClientCredentialsSyncHttpRequestCustomizer`
 - Handles automatic token fetch/refresh for MCP client
 
 **Application Configuration** (`application.yml`):
+
 ```yaml
 spring:
   security:
@@ -792,6 +813,7 @@ public PasswordEncoder passwordEncoder() {
 **Template**: `backend/src/main/resources/templates/login.html` (Thymeleaf)
 
 **Features**:
+
 - Username/password form
 - Error message display
 - CSRF token (automatic)
@@ -806,6 +828,7 @@ public PasswordEncoder passwordEncoder() {
 See [OAuth2 Flows - User Authentication](diagrams/oauth2-flows.md#flow-1-user-authentication-authorization-code--pkce)
 
 **Steps**:
+
 1. User visits http://localhost:8081
 2. React SPA checks auth status: `GET /api/auth/status`
 3. Not authenticated → redirect to OAuth2 login
@@ -826,6 +849,7 @@ See [OAuth2 Flows - User Authentication](diagrams/oauth2-flows.md#flow-1-user-au
 13. All API requests include `Authorization: Bearer {access_token}`
 
 **PKCE Security**:
+
 - Prevents authorization code interception
 - Even if code is stolen, attacker cannot exchange it (needs code_verifier)
 - Essential for public clients (no client secret)
@@ -835,6 +859,7 @@ See [OAuth2 Flows - User Authentication](diagrams/oauth2-flows.md#flow-1-user-au
 See [OAuth2 Flows - Client Credentials](diagrams/oauth2-flows.md#flow-2-mcp-client-to-mcp-server-client-credentials)
 
 **Steps**:
+
 1. User sends chat message to MCP Client
 2. MCP Client needs to call MCP Server tool
 3. Check if valid access token exists
@@ -851,6 +876,7 @@ See [OAuth2 Flows - Client Credentials](diagrams/oauth2-flows.md#flow-2-mcp-clie
 7. Request allowed
 
 **Automatic Handling**:
+
 - `OAuth2AuthorizedClientManager` caches tokens
 - Automatically refreshes when expired
 - No manual token management needed
@@ -858,11 +884,13 @@ See [OAuth2 Flows - Client Credentials](diagrams/oauth2-flows.md#flow-2-mcp-clie
 ### Flow 3: Client Credentials (MCP Server → Backend)
 
 **Same as Flow 2**, but:
+
 - Client: mcp-server
 - Scopes: backend.read, backend.write
 - Target: Backend API
 
 **Interceptor Automation**:
+
 ```java
 RestClient restClient = RestClient.builder()
     .requestInterceptor(new OAuth2ClientHttpRequestInterceptor(
@@ -885,6 +913,7 @@ ResponseEntity<List<Customer>> response = restClient.get()
 ### 1. BCrypt Password Hashing
 
 **Configuration**:
+
 ```java
 @Bean
 public PasswordEncoder passwordEncoder() {
@@ -893,6 +922,7 @@ public PasswordEncoder passwordEncoder() {
 ```
 
 **Usage**:
+
 ```java
 String rawPassword = "admin123";
 String hashed = passwordEncoder.encode(rawPassword);
@@ -900,6 +930,7 @@ String hashed = passwordEncoder.encode(rawPassword);
 ```
 
 **Why Cost 12?**:
+
 - Balance between security and performance
 - ~250ms to hash (acceptable for login)
 - Makes brute-force attacks expensive
@@ -907,21 +938,25 @@ String hashed = passwordEncoder.encode(rawPassword);
 ### 2. JWT with RSA Signing
 
 **Why RSA vs HMAC?**:
+
 - **HMAC**: Symmetric (same secret for sign and verify) - any service can create tokens
 - **RSA**: Asymmetric (private key signs, public key verifies) - only auth server creates tokens
 
 **Security Benefit**:
+
 - Even if resource server compromised, cannot forge tokens
 - Public key can be distributed safely
 
 ### 3. PKCE for Public Clients
 
 **Why PKCE?**:
+
 - React SPA runs in browser (cannot keep secrets)
 - Authorization code could be intercepted (malicious browser extension, XSS)
 - PKCE ensures only the client that requested code can exchange it
 
 **Implementation**:
+
 ```java
 clientSettings.requireProofKey(true)  // Enforce PKCE
 ```
@@ -929,11 +964,13 @@ clientSettings.requireProofKey(true)  // Enforce PKCE
 ### 4. Short-Lived Access Tokens
 
 **Configuration**:
+
 ```java
 tokenSettings.accessTokenTimeToLive(Duration.ofHours(1))
 ```
 
 **Why 1 Hour?**:
+
 - Limits damage if token stolen
 - Forces periodic re-authentication check
 - Refresh tokens available for long sessions
@@ -941,11 +978,13 @@ tokenSettings.accessTokenTimeToLive(Duration.ofHours(1))
 ### 5. Refresh Token Rotation
 
 **Configuration**:
+
 ```java
 tokenSettings.reuseRefreshTokens(false)  // Rotate on use
 ```
 
 **Why Rotate?**:
+
 - One-time use prevents token reuse attacks
 - If refresh token stolen, only works once
 - Detection: Multiple uses of same token = attack
@@ -953,10 +992,12 @@ tokenSettings.reuseRefreshTokens(false)  // Rotate on use
 ### 6. Database-Backed Token Storage
 
 **Tables**:
+
 - `oauth2_authorization` - Active tokens
 - `oauth2_authorization_consent` - User consents
 
 **Benefits**:
+
 - Token revocation possible (delete from table)
 - Audit trail (who has tokens, when issued)
 - Centralized token management
@@ -965,12 +1006,14 @@ tokenSettings.reuseRefreshTokens(false)  // Rotate on use
 ### 7. Scope-Based Authorization
 
 **Backend API**:
+
 ```java
 .requestMatchers(HttpMethod.GET, "/api/**")
     .hasAnyAuthority("SCOPE_backend.read", "ROLE_USER")
 ```
 
 **Why Both Scopes and Roles?**:
+
 - **Scopes**: For service-to-service (mcp-server has backend.read)
 - **Roles**: For user-based access (admin has ROLE_ADMIN)
 - Flexible authorization rules
@@ -993,6 +1036,7 @@ configuration.setAllowCredentials(true);  // Allow cookies
 ### 9. CSRF Protection
 
 **For Browser Requests**:
+
 ```java
 .csrf(csrf -> csrf
     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -1000,11 +1044,13 @@ configuration.setAllowCredentials(true);  // Allow cookies
 ```
 
 **For API Requests**:
+
 ```java
 .csrf(CsrfConfigurer::disable)  // APIs use Bearer tokens, not cookies
 ```
 
 **Why Different?**:
+
 - Browser (cookies) → vulnerable to CSRF → need CSRF tokens
 - API (Bearer tokens) → not vulnerable to CSRF → disable for convenience
 
@@ -1014,30 +1060,31 @@ configuration.setAllowCredentials(true);  // Allow cookies
 
 ### Seeded Users
 
-| Username | Password | Roles | Description |
-|----------|----------|-------|-------------|
-| admin | admin123 | ROLE_ADMIN, ROLE_OPERATOR, ROLE_USER | Full access |
-| operator | operator123 | ROLE_OPERATOR, ROLE_USER | Staff/manager |
-| user | user123 | ROLE_USER | Basic customer |
+| Username | Password    | Roles                                | Description    |
+| -------- | ----------- | ------------------------------------ | -------------- |
+| admin    | admin123    | ROLE_ADMIN, ROLE_OPERATOR, ROLE_USER | Full access    |
+| operator | operator123 | ROLE_OPERATOR, ROLE_USER             | Staff/manager  |
+| user     | user123     | ROLE_USER                            | Basic customer |
 
 **Seed File**: `backend/seed-data/users.csv`
 **Passwords**: BCrypt hashed during seeding
 
 ### Role Permissions
 
-| Role | GET /api/* | POST /api/* | DELETE /api/* | /customers/** |
-|------|-----------|------------|--------------|---------------|
-| ROLE_USER | ✅ | ❌ | ❌ | ❌ |
-| ROLE_OPERATOR | ✅ | ✅ | ❌ | ❌ |
-| ROLE_ADMIN | ✅ | ✅ | ✅ | ✅ |
+| Role          | GET /api/\* | POST /api/\* | DELETE /api/\* | /customers/\*\* |
+| ------------- | ----------- | ------------ | -------------- | --------------- |
+| ROLE_USER     | ✅          | ❌           | ❌             | ❌              |
+| ROLE_OPERATOR | ✅          | ✅           | ❌             | ❌              |
+| ROLE_ADMIN    | ✅          | ✅           | ✅             | ✅              |
 
 **Scope Permissions**:
-| Scope | Allowed Operations |
-|-------|-------------------|
-| backend.read | GET /api/* |
-| backend.write | POST, PUT, DELETE /api/* |
-| mcp.read | GET /mcp/* |
-| mcp.write | POST /mcp/* |
+
+| Scope         | Allowed Operations        |
+| ------------- | ------------------------- |
+| backend.read  | GET /api/\_               |
+| backend.write | POST, PUT, DELETE /api/\_ |
+| mcp.read      | GET /mcp/\_               |
+| mcp.write     | POST /mcp/\_              |
 
 ---
 
@@ -1050,6 +1097,7 @@ configuration.setAllowCredentials(true);  // Allow cookies
 **Size**: ~1-2KB (depends on claims)
 
 **Storage**:
+
 - Browser: SessionStorage or memory (React state)
 - Service: OAuth2AuthorizedClientService (in-memory cache)
 - Database: oauth2_authorization table (for revocation)
@@ -1102,18 +1150,18 @@ http.headers(headers -> headers
 
 ## Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `backend/src/main/java/me/pacphi/ai/resos/security/AuthorizationServerConfig.java` | OAuth2 Auth Server | ~200 |
-| `backend/src/main/java/me/pacphi/ai/resos/security/ResourceServerConfig.java` | API protection | ~100 |
-| `backend/src/main/java/me/pacphi/ai/resos/security/DefaultSecurityConfig.java` | Form login | ~80 |
-| `backend/src/main/java/me/pacphi/ai/resos/security/AppUserDetailsService.java` | User loading | ~60 |
-| `backend/src/main/java/me/pacphi/ai/resos/security/JwtTokenCustomizer.java` | JWT claims | ~50 |
-| `backend/src/main/java/me/pacphi/ai/resos/security/OAuth2ClientSeeder.java` | Client seeding | ~120 |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/SecurityConfig.java` | MCP resource server | ~50 |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsConfig.java` | OAuth2 client | ~150 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/config/SecurityConfig.java` | Frontend security | ~100 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/config/McpClientOAuth2Config.java` | MCP OAuth2 | ~80 |
+| File                                                                               | Purpose             | Lines |
+| ---------------------------------------------------------------------------------- | ------------------- | ----- |
+| `backend/src/main/java/me/pacphi/ai/resos/security/AuthorizationServerConfig.java` | OAuth2 Auth Server  | ~200  |
+| `backend/src/main/java/me/pacphi/ai/resos/security/ResourceServerConfig.java`      | API protection      | ~100  |
+| `backend/src/main/java/me/pacphi/ai/resos/security/DefaultSecurityConfig.java`     | Form login          | ~80   |
+| `backend/src/main/java/me/pacphi/ai/resos/security/AppUserDetailsService.java`     | User loading        | ~60   |
+| `backend/src/main/java/me/pacphi/ai/resos/security/JwtTokenCustomizer.java`        | JWT claims          | ~50   |
+| `backend/src/main/java/me/pacphi/ai/resos/security/OAuth2ClientSeeder.java`        | Client seeding      | ~120  |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/SecurityConfig.java`              | MCP resource server | ~50   |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsConfig.java`                 | OAuth2 client       | ~150  |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/config/SecurityConfig.java`           | Frontend security   | ~100  |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/config/McpClientOAuth2Config.java`    | MCP OAuth2          | ~80   |
 
 ## Related Documentation
 

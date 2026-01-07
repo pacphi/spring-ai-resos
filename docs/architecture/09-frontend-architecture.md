@@ -5,6 +5,7 @@ This document details the React SPA implementation, OAuth2 PKCE authentication f
 ## Overview
 
 **Technology Stack**:
+
 - React 18.3.1
 - Vite 5.4.11
 - React Router (navigation)
@@ -19,7 +20,7 @@ This document details the React SPA implementation, OAuth2 PKCE authentication f
 
 ## Application Structure
 
-```
+```text
 src/main/frontend/
 ├── public/                      # Static assets
 │   └── favicon.ico
@@ -84,6 +85,7 @@ export default App;
 ```
 
 **Responsibilities**:
+
 - Check authentication status
 - Show login page if not authenticated
 - Show chat interface if authenticated
@@ -148,14 +150,10 @@ export function AuthProvider({ children }) {
     loading,
     login,
     logout,
-    checkAuthStatus
+    checkAuthStatus,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
@@ -168,6 +166,7 @@ export function useAuth() {
 ```
 
 **State Management**:
+
 - `user`: Current user object (name, email, roles) or null
 - `loading`: Initial auth check in progress
 - `login()`: Redirect to OAuth2 login
@@ -197,7 +196,7 @@ function ChatPage() {
 
     // Add user message
     const userMessage = { role: 'user', content: question };
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setQuestion('');
     setLoading(true);
     setCurrentResponse('');
@@ -207,9 +206,9 @@ function ChatPage() {
       const response = await fetch('/api/v1/resos/stream/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ question })
+        body: JSON.stringify({ question }),
       });
 
       if (!response.ok) {
@@ -236,22 +235,24 @@ function ChatPage() {
           if (line.startsWith('data: ')) {
             const token = line.substring(6);
             accumulated += token;
-            setCurrentResponse(accumulated);  // Update UI immediately
+            setCurrentResponse(accumulated); // Update UI immediately
           }
         }
       }
 
       // Add complete response as assistant message
       const assistantMessage = { role: 'assistant', content: accumulated };
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
       setCurrentResponse('');
-
     } catch (error) {
       console.error('Chat error:', error);
-      setMessages(prev => [...prev, {
-        role: 'error',
-        content: 'Failed to get response. Please try again.'
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'error',
+          content: 'Failed to get response. Please try again.',
+        },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -266,15 +267,10 @@ function ChatPage() {
             {msg.role === 'assistant' && <strong>Assistant:</strong>}
             <ReactMarkdown
               components={{
-                code({node, inline, className, children, ...props}) {
+                code({ node, inline, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || '');
                   return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      {...props}
-                    >
+                    <SyntaxHighlighter style={vscDarkPlus} language={match[1]} PreTag="div" {...props}>
                       {String(children).replace(/\n$/, '')}
                     </SyntaxHighlighter>
                   ) : (
@@ -282,7 +278,7 @@ function ChatPage() {
                       {children}
                     </code>
                   );
-                }
+                },
               }}
             >
               {msg.content}
@@ -319,6 +315,7 @@ export default ChatPage;
 ```
 
 **Features**:
+
 - **Markdown Rendering**: ReactMarkdown for formatted responses
 - **Code Highlighting**: Syntax highlighter for code blocks
 - **Streaming Display**: Tokens appear in real-time
@@ -332,6 +329,7 @@ export default ChatPage;
 ### Login Process
 
 **Step 1: User Clicks Login**:
+
 ```javascript
 const login = () => {
   window.location.href = '/oauth2/authorization/frontend-app';
@@ -339,7 +337,8 @@ const login = () => {
 ```
 
 **Step 2: Spring Security Redirects**:
-```
+
+```text
 1. Generate PKCE parameters:
    - code_verifier: Random 43-128 char string
    - code_challenge: Base64URL(SHA256(code_verifier))
@@ -356,19 +355,22 @@ const login = () => {
 ```
 
 **Step 3: User Authenticates**:
+
 - Auth server shows login page
 - User enters username/password
 - Auth server validates credentials (BCrypt check)
 - Generates authorization code
 
 **Step 4: Authorization Code Redirect**:
-```
+
+```text
 http://localhost:8081/login/oauth2/code/frontend-app
   ?code=AUTHORIZATION_CODE
   &state=random-state-value
 ```
 
 **Step 5: Token Exchange** (Spring Security automatic):
+
 ```http
 POST /oauth2/token HTTP/1.1
 Host: localhost:8080
@@ -382,6 +384,7 @@ grant_type=authorization_code
 ```
 
 **Step 6: Tokens Received**:
+
 ```json
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -394,6 +397,7 @@ grant_type=authorization_code
 ```
 
 **Step 7: Session Established**:
+
 - Spring Security creates session cookie
 - User redirected to `/` (chat interface)
 - Subsequent requests include session cookie
@@ -402,6 +406,7 @@ grant_type=authorization_code
 ### Auth Status Endpoint
 
 **Backend** (`AuthController.java`):
+
 ```java
 @RestController
 @RequestMapping("/api/auth")
@@ -439,6 +444,7 @@ public class AuthController {
 ```
 
 **React Usage**:
+
 ```javascript
 // Check if authenticated
 const response = await fetch('/api/auth/status');
@@ -459,14 +465,15 @@ if (authenticated) {
 ### Fetch API with Streaming
 
 **React Implementation**:
+
 ```javascript
 const streamChat = async (question) => {
   const response = await fetch('/api/v1/resos/stream/chat', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ question })
+    body: JSON.stringify({ question }),
   });
 
   if (!response.ok) {
@@ -508,7 +515,8 @@ const streamChat = async (question) => {
 ```
 
 **SSE Event Format**:
-```
+
+```text
 data: Here
 data:  are
 data:  the
@@ -524,12 +532,13 @@ Each `data:` line is one event, received separately.
 ### EventSource API (Alternative)
 
 **Simpler for GET requests**:
+
 ```javascript
 const eventSource = new EventSource('/api/stream/chat?question=test');
 
 eventSource.onmessage = (event) => {
   const token = event.data;
-  setResponse(prev => prev + token);
+  setResponse((prev) => prev + token);
 };
 
 eventSource.onerror = (error) => {
@@ -554,11 +563,12 @@ eventSource.addEventListener('complete', () => {
 ### Frontend Maven Plugin
 
 **Configuration** (`mcp-client/pom.xml`):
+
 ```xml
 <plugin>
     <groupId>com.github.eirslett</groupId>
     <artifactId>frontend-maven-plugin</artifactId>
-    <version>1.15.2</version>
+    <version>2.0.0</version>
     <configuration>
         <nodeVersion>${node.version}</nodeVersion>
         <npmVersion>${npm.version}</npmVersion>
@@ -597,6 +607,7 @@ eventSource.addEventListener('complete', () => {
 ```
 
 **Build Process**:
+
 1. **generate-resources** phase:
    - Install Node.js v23.4.0 to `src/main/frontend/node/`
    - Install npm 10.9.2
@@ -604,6 +615,7 @@ eventSource.addEventListener('complete', () => {
    - Run `npm run build` (Vite production build)
 2. **Output**: `src/main/frontend/dist/` (Vite build output)
 3. **Copy to Resources**:
+
    ```xml
    <plugin>
        <groupId>org.apache.maven.plugins</groupId>
@@ -627,6 +639,7 @@ eventSource.addEventListener('complete', () => {
        </executions>
    </plugin>
    ```
+
 4. **Spring Boot Serves**: Static files from `classpath:/static/`
 
 ### Vite Configuration
@@ -644,17 +657,17 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8081',
-        changeOrigin: true
+        changeOrigin: true,
       },
       '/oauth2': {
         target: 'http://localhost:8081',
-        changeOrigin: true
+        changeOrigin: true,
       },
       '/login': {
         target: 'http://localhost:8081',
-        changeOrigin: true
-      }
-    }
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     outDir: 'dist',
@@ -664,20 +677,22 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          markdown: ['react-markdown', 'react-syntax-highlighter']
-        }
-      }
-    }
-  }
+          markdown: ['react-markdown', 'react-syntax-highlighter'],
+        },
+      },
+    },
+  },
 });
 ```
 
 **Dev Server Features**:
+
 - **Port 5173**: Vite dev server with HMR
 - **Proxy**: API calls proxied to Spring Boot backend (port 8081)
 - **HMR**: Hot Module Replacement for instant updates
 
 **Production Build**:
+
 - **Code Splitting**: vendor.js, markdown.js, app.js
 - **Minification**: Terser for JavaScript
 - **Tree Shaking**: Remove unused code
@@ -725,6 +740,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 ```
 
 **Why Needed**:
+
 - Vite dev server runs on port 5173
 - Spring Boot backend on port 8081
 - Cross-origin requests (different ports)
@@ -737,6 +753,7 @@ public CorsConfigurationSource corsConfigurationSource() {
 ### Development Mode
 
 **Terminal 1: Spring Boot Backend**:
+
 ```bash
 cd mcp-client
 mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
@@ -744,6 +761,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
 ```
 
 **Terminal 2: Vite Dev Server**:
+
 ```bash
 cd mcp-client/src/main/frontend
 npm run dev
@@ -753,6 +771,7 @@ npm run dev
 **Access**: http://localhost:5173 (proxies API calls to 8081)
 
 **Benefits**:
+
 - Hot Module Replacement (instant React updates)
 - Fast refresh
 - No Maven rebuild for frontend changes
@@ -768,6 +787,7 @@ java -jar target/spring-ai-resos-mcp-frontend-1.0.0-SNAPSHOT.jar
 **Access**: http://localhost:8081 (Spring Boot serves static files)
 
 **Benefits**:
+
 - Single JAR deployment
 - No separate frontend server
 - Simplified deployment
@@ -779,6 +799,7 @@ java -jar target/spring-ai-resos-mcp-frontend-1.0.0-SNAPSHOT.jar
 ### CSS Variables
 
 **index.css**:
+
 ```css
 :root {
   --bg-primary: #ffffff;
@@ -788,7 +809,7 @@ java -jar target/spring-ai-resos-mcp-frontend-1.0.0-SNAPSHOT.jar
   --accent: #007bff;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --bg-primary: #1a1a1a;
   --bg-secondary: #2a2a2a;
   --text-primary: #e0e0e0;
@@ -805,10 +826,9 @@ body {
 ### Theme Toggle
 
 **App.jsx**:
+
 ```javascript
-const [theme, setTheme] = useState(
-  localStorage.getItem('theme') || 'light'
-);
+const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
 const toggleTheme = () => {
   const newTheme = theme === 'light' ? 'dark' : 'light';
@@ -831,6 +851,7 @@ useEffect(() => {
 ### React State Hooks
 
 **useState for Local State**:
+
 ```javascript
 const [messages, setMessages] = useState([]);
 const [loading, setLoading] = useState(false);
@@ -838,20 +859,23 @@ const [error, setError] = useState(null);
 ```
 
 **useContext for Global State**:
+
 ```javascript
 const { user, login, logout } = useAuth();
 ```
 
 **useEffect for Side Effects**:
+
 ```javascript
 useEffect(() => {
   checkAuthStatus();
-}, []);  // Run on mount
+}, []); // Run on mount
 ```
 
 ### No External State Management
 
 **Why no Redux/Zustand?**:
+
 - Simple application (limited state)
 - Context API sufficient for auth state
 - Local state for chat (messages)
@@ -894,6 +918,7 @@ useEffect(() => {
 ```
 
 **Dependencies**:
+
 - **react**: UI framework
 - **react-markdown**: Markdown rendering (for AI responses)
 - **react-syntax-highlighter**: Code block highlighting
@@ -942,20 +967,21 @@ npm run lint
 ### XSS Prevention
 
 **ReactMarkdown** automatically sanitizes HTML:
+
 ```javascript
-<ReactMarkdown>
-  {userResponse}  // Safe, HTML escaped
-</ReactMarkdown>
+<ReactMarkdown>{userResponse} // Safe, HTML escaped</ReactMarkdown>
 ```
 
 **Dangerous Pattern** (don't do this):
+
 ```javascript
-<div dangerouslySetInnerHTML={{__html: userResponse}} />  // ❌ XSS risk
+<div dangerouslySetInnerHTML={{ __html: userResponse }} /> // ❌ XSS risk
 ```
 
 ### CSRF Protection
 
 **Backend** (cookie-based CSRF token):
+
 ```java
 .csrf(csrf -> csrf
     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -979,14 +1005,14 @@ Content-Security-Policy:
 
 ## Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `mcp-client/src/main/frontend/src/App.jsx` | Main application shell | ~100 |
-| `mcp-client/src/main/frontend/src/AuthContext.jsx` | Authentication state | ~80 |
-| `mcp-client/src/main/frontend/src/components/ChatPage.jsx` | Chat interface | ~200 |
-| `mcp-client/src/main/frontend/vite.config.js` | Vite configuration | ~40 |
-| `mcp-client/src/main/frontend/package.json` | npm dependencies | ~30 |
-| `mcp-client/pom.xml` | Frontend Maven plugin config | ~50 |
+| File                                                       | Purpose                      | Lines |
+| ---------------------------------------------------------- | ---------------------------- | ----- |
+| `mcp-client/src/main/frontend/src/App.jsx`                 | Main application shell       | ~100  |
+| `mcp-client/src/main/frontend/src/AuthContext.jsx`         | Authentication state         | ~80   |
+| `mcp-client/src/main/frontend/src/components/ChatPage.jsx` | Chat interface               | ~200  |
+| `mcp-client/src/main/frontend/vite.config.js`              | Vite configuration           | ~40   |
+| `mcp-client/src/main/frontend/package.json`                | npm dependencies             | ~30   |
+| `mcp-client/pom.xml`                                       | Frontend Maven plugin config | ~50   |
 
 ## Related Documentation
 

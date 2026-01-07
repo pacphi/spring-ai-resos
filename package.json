@@ -1,0 +1,46 @@
+{
+  "name": "spring-ai-resos",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Quality tooling for Spring AI ResOs multi-module Java project",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "format:md": "prettier --write \"**/*.md\"",
+    "format:yaml": "prettier --write \"**/*.{yml,yaml}\"",
+    "format:json": "prettier --write \"**/*.json\" --ignore-path .prettierignore",
+    "lint": "pnpm run lint:md && pnpm run lint:yaml",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#**/node_modules\"",
+    "lint:yaml": "yamllint -c .yamllint \"**/*.yml\" \"**/*.yaml\"",
+    "lint:links": "lychee --config .lychee.toml .",
+    "lint:links:md": "lychee --config .lychee.toml \"**/*.md\"",
+    "csv:validate": "node scripts/validate-csv.mjs",
+    "check": "pnpm run format:check && pnpm run lint",
+    "fix": "pnpm run format && pnpm run lint:md -- --fix",
+    "quality": "pnpm run check && pnpm run lint:links && pnpm run csv:validate",
+    "precommit": "pnpm run format:check && pnpm run lint:md",
+    "frontend:install": "pnpm --dir mcp-client/src/main/frontend install",
+    "frontend:audit": "pnpm --dir mcp-client/src/main/frontend audit",
+    "frontend:outdated": "pnpm --dir mcp-client/src/main/frontend outdated",
+    "frontend:update": "pnpm --dir mcp-client/src/main/frontend update",
+    "frontend:update:interactive": "pnpm --dir mcp-client/src/main/frontend update --interactive",
+    "frontend:update:latest": "pnpm --dir mcp-client/src/main/frontend update --latest",
+    "frontend:build": "pnpm --dir mcp-client/src/main/frontend run build",
+    "frontend:dev": "pnpm --dir mcp-client/src/main/frontend run dev",
+    "frontend:lint": "pnpm --dir mcp-client/src/main/frontend run lint",
+    "deps:audit": "pnpm audit && pnpm run frontend:audit",
+    "deps:outdated": "pnpm outdated && pnpm run frontend:outdated",
+    "install:all": "pnpm install && pnpm run frontend:install"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "markdownlint-cli2": "^0.17.2",
+    "yaml-lint": "^1.7.0",
+    "csv-parse": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@9.15.4"
+}

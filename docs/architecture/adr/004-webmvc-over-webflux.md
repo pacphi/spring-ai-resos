@@ -1,6 +1,7 @@
 # ADR-004: WebMVC over WebFlux
 
 ## Status
+
 **Accepted** - Migrated in Phase 0
 
 ## Context
@@ -56,6 +57,7 @@ The initial WebFlux implementation faced these challenges:
 1. **Artifact Changes**:
 
    **MCP Server**:
+
    ```xml
    <!-- BEFORE -->
    <dependency>
@@ -75,6 +77,7 @@ The initial WebFlux implementation faced these challenges:
    ```
 
    **MCP Client**:
+
    ```xml
    <!-- BEFORE -->
    <dependency>
@@ -99,22 +102,23 @@ The initial WebFlux implementation faced these challenges:
 
 2. **Code Patterns Migration**:
 
-   | WebFlux (Reactive) | WebMVC (Servlet) |
-   |--------------------|------------------|
-   | `@EnableWebFluxSecurity` | `@EnableWebSecurity` |
-   | `SecurityWebFilterChain` | `SecurityFilterChain` |
-   | `ServerHttpSecurity` | `HttpSecurity` |
-   | `.authorizeExchange()` | `.authorizeHttpRequests()` |
-   | `.pathMatchers()` | `.requestMatchers()` |
-   | `Mono<T>` | `T` (direct return) |
-   | `Flux<String>` | `Stream<String>` or `SseEmitter` |
-   | `WebClient` | `RestClient` |
-   | `ReactiveOAuth2AuthorizedClientManager` | `OAuth2AuthorizedClientManager` |
-   | `ServerWebExchange` | `HttpServletRequest` / `HttpServletResponse` |
+   | WebFlux (Reactive)                      | WebMVC (Servlet)                             |
+   | --------------------------------------- | -------------------------------------------- |
+   | `@EnableWebFluxSecurity`                | `@EnableWebSecurity`                         |
+   | `SecurityWebFilterChain`                | `SecurityFilterChain`                        |
+   | `ServerHttpSecurity`                    | `HttpSecurity`                               |
+   | `.authorizeExchange()`                  | `.authorizeHttpRequests()`                   |
+   | `.pathMatchers()`                       | `.requestMatchers()`                         |
+   | `Mono<T>`                               | `T` (direct return)                          |
+   | `Flux<String>`                          | `Stream<String>` or `SseEmitter`             |
+   | `WebClient`                             | `RestClient`                                 |
+   | `ReactiveOAuth2AuthorizedClientManager` | `OAuth2AuthorizedClientManager`              |
+   | `ServerWebExchange`                     | `HttpServletRequest` / `HttpServletResponse` |
 
 3. **Streaming Pattern Change**:
 
    **Before (WebFlux)**:
+
    ```java
    @PostMapping("/chat")
    public Flux<String> chat(@RequestBody Request req) {
@@ -124,6 +128,7 @@ The initial WebFlux implementation faced these challenges:
    ```
 
    **After (WebMVC with SseEmitter)**:
+
    ```java
    @PostMapping(path = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
    public SseEmitter chat(@RequestBody Request req) {
@@ -142,6 +147,7 @@ The initial WebFlux implementation faced these challenges:
 4. **MCP Client Manager Simplification**:
 
    **Before (Custom Async Manager)**:
+
    ```java
    @Component
    public class McpAsyncClientManager {
@@ -159,6 +165,7 @@ The initial WebFlux implementation faced these challenges:
    ```
 
    **After (Autoconfigured Sync Manager)**:
+
    ```java
    @Component
    public class McpSyncClientManager {
@@ -245,11 +252,13 @@ The initial WebFlux implementation faced these challenges:
 **Approach**: Keep WebFlux, write custom security filters for SSE.
 
 **Pros**:
+
 - No code migration needed
 - Keep reactive benefits
 - Learn advanced WebFlux patterns
 
 **Cons**:
+
 - Complex custom security configuration
 - SSE transport deprecated by MCP spec
 - Against `mcp-security` library requirements
@@ -263,11 +272,13 @@ The initial WebFlux implementation faced these challenges:
 **Approach**: Use STDIO transport for MCP (no HTTP, no security needed).
 
 **Pros**:
+
 - No HTTP server needed
 - No security complexity
 - Works with Claude Desktop directly
 
 **Cons**:
+
 - Cannot run as web service
 - No browser-based UI possible
 - Cannot deploy to cloud
@@ -280,10 +291,12 @@ The initial WebFlux implementation faced these challenges:
 **Approach**: Use WebFlux for mcp-client, WebMVC for mcp-server.
 
 **Pros**:
+
 - Keep reactive benefits where possible
 - Targeted migration
 
 **Cons**:
+
 - Mixed stack complexity
 - Two security models
 - Confusing for developers
@@ -296,12 +309,14 @@ The initial WebFlux implementation faced these challenges:
 ### Migration Checklist (Completed)
 
 **MCP Server**:
+
 - [x] Update `pom.xml` - swap WebFlux for WebMVC starter
 - [x] Update `ResOsConfig.java` - `WebClient` → `RestClient`
 - [x] Update `SecurityConfig.java` - `@EnableWebFluxSecurity` → `@EnableWebSecurity`
 - [x] Update `application.yml` - remove WebFlux config, HTTP Streamable is default
 
 **MCP Client**:
+
 - [x] Update `pom.xml` - swap WebFlux for Web starter
 - [x] Delete `McpAsyncClientManager.java` - replaced with `McpSyncClientManager`
 - [x] Update `ChatService.java` - callback-based streaming
@@ -339,7 +354,7 @@ The initial WebFlux implementation faced these challenges:
 - [spring-ai-community/mcp-security](https://github.com/spring-ai-community/mcp-security)
 - [MCP Authorization Specification](https://modelcontextprotocol.info/specification/draft/basic/authorization/)
 - [Baeldung: Securing Spring AI MCP Servers With OAuth2](https://www.baeldung.com/spring-ai-mcp-servers-oauth2)
-- [docs/PHASE_0_LESSONS_LEARNED.md](../../../docs/PHASE_0_LESSONS_LEARNED.md)
+- [docs/archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE_0_LESSONS_LEARNED.md](../../archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE_0_LESSONS_LEARNED.md)
 
 ## Decision Date
 
@@ -351,6 +366,6 @@ January 2026 (Phase 0 Migration)
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date     | Change                                  |
+| -------- | --------------------------------------- |
 | Jan 2026 | Migration completed, lessons documented |

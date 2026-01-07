@@ -11,6 +11,7 @@
 Phase 7 focuses on production hardening, deployment improvements, and documentation enhancements to make the Spring AI ResOs project production-ready.
 
 **Dependencies**:
+
 - ✅ Phase 0-6 Complete (OAuth2 security, tests passing)
 - ⏳ Some items in Phase 7 can be done incrementally
 
@@ -38,38 +39,48 @@ Phase 7 focuses on production hardening, deployment improvements, and documentat
 **Current**: Default Spring Security session cookie
 
 **Enhancements**:
+
 - [ ] Add session cookie configuration:
+
   ```yaml
   server:
     servlet:
       session:
         cookie:
-          secure: true       # HTTPS only
-          http-only: true    # Prevent XSS
-          same-site: strict  # Prevent CSRF
+          secure: true # HTTPS only
+          http-only: true # Prevent XSS
+          same-site: strict # Prevent CSRF
   ```
+
 - [ ] Test session cookies in production-like environment (with TLS)
 
 ### 7.1.4 Security Headers
 
 - [ ] Add Content Security Policy (CSP):
+
   ```java
   http.headers(headers -> headers
       .contentSecurityPolicy("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
   );
   ```
+
 - [ ] Add HSTS (HTTP Strict Transport Security):
+
   ```java
   .hsts(hsts -> hsts
       .includeSubDomains(true)
       .maxAgeInSeconds(31536000)  // 1 year
   )
   ```
+
 - [ ] Add X-Frame-Options (prevent clickjacking):
+
   ```java
   .frameOptions(frame -> frame.deny())
   ```
+
 - [ ] Add Referrer-Policy:
+
   ```java
   .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
   ```
@@ -85,6 +96,7 @@ Phase 7 focuses on production hardening, deployment improvements, and documentat
 **Current**: Basic docker-compose.yml exists
 
 **Enhancements**:
+
 - [ ] Add health checks to all services
 - [ ] Configure proper `depends_on` with health conditions
 - [ ] Add resource limits (CPU, memory)
@@ -93,11 +105,12 @@ Phase 7 focuses on production hardening, deployment improvements, and documentat
 - [ ] Set up networks for service isolation
 
 **Example** (docker/docker-compose.yml):
+
 ```yaml
 services:
   backend:
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/actuator/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -116,13 +129,17 @@ services:
 ### 7.2.2 Test Full Stack in Docker
 
 - [ ] Build all Docker images:
+
   ```bash
   docker-compose build
   ```
+
 - [ ] Start full stack:
+
   ```bash
   docker-compose up -d
   ```
+
 - [ ] Verify all services start in correct order
 - [ ] Test health checks
 - [ ] Test end-to-end OAuth2 flow in Docker
@@ -132,6 +149,7 @@ services:
 ### 7.2.3 Environment Variable Management
 
 - [ ] Create `.env.example` template:
+
   ```bash
   # LLM API Keys
   OPENAI_API_KEY=sk-...
@@ -144,6 +162,7 @@ services:
   # Database
   POSTGRES_PASSWORD=change-in-production
   ```
+
 - [ ] Document all required environment variables
 - [ ] Add validation for missing required vars on startup
 
@@ -168,16 +187,19 @@ services:
 ### 7.3.1 Update Main README
 
 **Current README.md needs**:
+
 - [ ] Add section on OAuth2 setup and default credentials
 - [ ] Document environment variable requirements
 - [ ] Add troubleshooting section
 - [ ] Update "How to run" with OAuth2 login flow
 
 **Example Addition**:
+
 ```markdown
 ## Default Login Credentials
 
 For development environment:
+
 - **Admin**: username=`admin`, password=`admin123`
 - **Operator**: username=`operator`, password=`operator123`
 - **User**: username=`user`, password=`user123`
@@ -187,6 +209,7 @@ For development environment:
 ## OAuth2 Setup
 
 The application uses OAuth2 for authentication:
+
 1. Backend (port 8080) is the Authorization Server
 2. Login at http://localhost:8081 redirects to OAuth2 login
 3. After authentication, you'll be redirected back to chat interface
@@ -213,6 +236,7 @@ The application uses OAuth2 for authentication:
 ### 7.3.4 Testing Procedures Documentation
 
 - [ ] Document how to run tests:
+
   ```bash
   # All tests
   mvn test
@@ -220,6 +244,7 @@ The application uses OAuth2 for authentication:
   # Specific module
   cd backend && mvn test
   ```
+
 - [ ] Document expected test results
 - [ ] Add troubleshooting for common test failures
 
@@ -263,18 +288,21 @@ The application uses OAuth2 for authentication:
 Phase 7 is complete when:
 
 **Security**:
+
 - [ ] All security configurations reviewed and hardened
 - [ ] Security headers configured (CSP, HSTS, etc.)
 - [ ] Session cookies configured with secure flags
 - [ ] OWASP dependency scan passes
 
 **Deployment**:
+
 - [ ] Docker Compose full stack runs successfully
 - [ ] All health checks passing
 - [ ] Services start in correct order with dependencies
 - [ ] End-to-end flow works in Docker
 
 **Documentation**:
+
 - [ ] README updated with OAuth2 setup instructions
 - [ ] Environment variables documented
 - [ ] Quick-start guide available
@@ -284,13 +312,13 @@ Phase 7 is complete when:
 
 ## Estimated Effort
 
-| Task | Time Estimate |
-|------|---------------|
-| Security Hardening | 2-3 hours |
-| Docker Enhancements | 3-4 hours |
-| Documentation Updates | 2-3 hours |
-| Testing & Validation | 2-3 hours |
-| **Total** | **9-13 hours** |
+| Task                  | Time Estimate  |
+| --------------------- | -------------- |
+| Security Hardening    | 2-3 hours      |
+| Docker Enhancements   | 3-4 hours      |
+| Documentation Updates | 2-3 hours      |
+| Testing & Validation  | 2-3 hours      |
+| **Total**             | **9-13 hours** |
 
 **Optional Enhancements**: +4-6 hours
 
@@ -299,6 +327,7 @@ Phase 7 is complete when:
 ## Dependencies & Blockers
 
 **Prerequisites**:
+
 - ✅ Phases 0-6 complete (all done)
 - ✅ Integration tests passing (53/53)
 - ✅ Security implementation complete
@@ -312,6 +341,7 @@ Phase 7 is complete when:
 **Priority**: Medium-High
 
 **Rationale**:
+
 - Core functionality works (OAuth2, chat, MCP)
 - Production hardening adds security & reliability
 - Not blocking MVP (chatbot works)
@@ -326,4 +356,4 @@ Phase 7 is complete when:
 - [architecture/06-security-architecture.md](../architecture/06-security-architecture.md) - Current security implementation
 - [architecture/13-deployment.md](../architecture/13-deployment.md) - Deployment guide
 - [architecture/15-future-enhancements.md](../architecture/15-future-enhancements.md) - Broader roadmap
-- [archives/UPDATED_REMAINING_TASKS.md](../archives/UPDATED_REMAINING_TASKS.md) - Original task list (Phases 0-6 complete)
+- [archives/upgrade-to-spring-boot-4-and-spring-ai-2/UPDATED_REMAINING_TASKS.md](../archives/upgrade-to-spring-boot-4-and-spring-ai-2/UPDATED_REMAINING_TASKS.md) - Original task list (Phases 0-6 complete)

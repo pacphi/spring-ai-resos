@@ -5,6 +5,7 @@ This document details the testing approach, TestContainers integration, and test
 ## Testing Philosophy
 
 **Principles**:
+
 - **Test Pyramid**: Many unit tests, fewer integration tests, minimal E2E tests
 - **Fast Feedback**: Unit tests run in <10s
 - **Realistic Integration**: Use TestContainers for database tests
@@ -17,7 +18,7 @@ This document details the testing approach, TestContainers integration, and test
 
 ### Test Organization
 
-```
+```text
 backend/src/test/java/me/pacphi/ai/resos/
 ├── security/
 │   ├── AuthorizationServerIntegrationTest.java
@@ -52,6 +53,7 @@ backend/src/test/java/me/pacphi/ai/resos/
 **Purpose**: Test Spring Data JDBC repositories with real database
 
 **Example** (`CustomerRepositoryTest.java`):
+
 ```java
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -120,6 +122,7 @@ class CustomerRepositoryTest {
 ```
 
 **Key Annotations**:
+
 - `@DataJdbcTest`: Spring Data JDBC test slice
 - `@Testcontainers`: Enable TestContainers support
 - `@AutoConfigureTestDatabase(Replace.NONE)`: Use TestContainers, not embedded H2
@@ -128,6 +131,7 @@ class CustomerRepositoryTest {
 ### Service Tests
 
 **Example** (`ChatServiceTest.java`):
+
 ```java
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
@@ -174,6 +178,7 @@ class ChatServiceTest {
 ```
 
 **Libraries**:
+
 - **Mockito**: Mocking framework
 - **Awaitility**: Async assertions
 - **AssertJ**: Fluent assertions
@@ -187,6 +192,7 @@ class ChatServiceTest {
 **Purpose**: Test complete Spring Boot application with all beans
 
 **Example** (`BackendApplicationTest.java`):
+
 ```java
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -380,6 +386,7 @@ class ResOsServiceTest {
 ### PostgreSQL Container
 
 **Dependency**:
+
 ```xml
 <dependency>
     <groupId>org.testcontainers</groupId>
@@ -389,6 +396,7 @@ class ResOsServiceTest {
 ```
 
 **Usage**:
+
 ```java
 @Container
 static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16")
@@ -406,6 +414,7 @@ static void registerProperties(DynamicPropertyRegistry registry) {
 ```
 
 **Benefits**:
+
 - Real PostgreSQL (not H2)
 - Isolated per test class
 - Automatic cleanup
@@ -414,6 +423,7 @@ static void registerProperties(DynamicPropertyRegistry registry) {
 ### Reusable Container (Singleton)
 
 **For faster test execution**:
+
 ```java
 public class PostgresTestContainer {
 
@@ -460,20 +470,20 @@ spring:
 
   liquibase:
     enabled: true
-    contexts: test  # Only run test changesets
+    contexts: test # Only run test changesets
 
   h2:
     console:
-      enabled: false  # No H2 console in tests
+      enabled: false # No H2 console in tests
 
 app:
   seed:
     csv:
-      enabled: false  # Disable CSV seeding in tests (use test data instead)
+      enabled: false # Disable CSV seeding in tests (use test data instead)
 
   entity:
     schema-generation:
-      enabled: true  # Enable for schema creation
+      enabled: true # Enable for schema creation
 
 logging:
   level:
@@ -526,6 +536,7 @@ public class TestDataFactory {
 ```
 
 **Usage in Tests**:
+
 ```java
 @Test
 void testBookingCreation() {
@@ -546,6 +557,7 @@ void testBookingCreation() {
 ### Testing OAuth2 Flows
 
 **Mock Security Context**:
+
 ```java
 @Test
 @WithMockUser(username = "admin", authorities = {"ROLE_ADMIN", "SCOPE_backend.read"})
@@ -571,6 +583,7 @@ void testUnauthenticatedAccessDenied() throws Exception {
 ### JWT Token Testing
 
 **Custom Annotation**:
+
 ```java
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -600,27 +613,27 @@ void testAdminWithScope() throws Exception {
 
 **Target Coverage**: 80%
 
-| Component | Coverage | Status |
-|-----------|----------|--------|
-| Repositories | 90% | ✅ |
-| CSV Mappers | 85% | ✅ |
-| Security Config | 75% | ⚠️ Needs improvement |
-| Controllers | 60% | ⚠️ Many stubs |
-| Services | 70% | ⚠️ Needs expansion |
+| Component       | Coverage | Status               |
+| --------------- | -------- | -------------------- |
+| Repositories    | 90%      | ✅                   |
+| CSV Mappers     | 85%      | ✅                   |
+| Security Config | 75%      | ⚠️ Needs improvement |
+| Controllers     | 60%      | ⚠️ Many stubs        |
+| Services        | 70%      | ⚠️ Needs expansion   |
 
 ### Integration Tests
 
 **Target Coverage**: Key flows tested
 
-| Flow | Status |
-|------|--------|
-| OAuth2 Client Credentials | ✅ Tested |
+| Flow                      | Status        |
+| ------------------------- | ------------- |
+| OAuth2 Client Credentials | ✅ Tested     |
 | OAuth2 Authorization Code | ⏳ Needs test |
-| JWT Token Validation | ✅ Tested |
-| MCP Tool Invocation | ⏳ Needs test |
-| Chat Streaming | ⏳ Needs test |
-| Database Migrations | ✅ Tested |
-| CSV Data Seeding | ✅ Tested |
+| JWT Token Validation      | ✅ Tested     |
+| MCP Tool Invocation       | ⏳ Needs test |
+| Chat Streaming            | ⏳ Needs test |
+| Database Migrations       | ✅ Tested     |
+| CSV Data Seeding          | ✅ Tested     |
 
 ---
 
@@ -794,6 +807,7 @@ void testPkceAuthorizationCodeFlow() {
 ### Load Testing (JMeter)
 
 **Test Plan**:
+
 ```xml
 <ThreadGroup>
     <numThreads>50</numThreads>
@@ -816,11 +830,13 @@ void testPkceAuthorizationCodeFlow() {
 ```
 
 **Metrics**:
+
 - Throughput: Requests per second
 - Latency: p50, p95, p99
 - Error rate: % of failed requests
 
 **Baseline** (local, H2):
+
 - Throughput: ~500 req/s
 - p50 Latency: 20ms
 - p95 Latency: 50ms
@@ -856,41 +872,41 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main, feature/* ]
+    branches: [main, feature/*]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-    - name: Set up JDK 25
-      uses: actions/setup-java@v4
-      with:
-        java-version: '25'
-        distribution: 'temurin'
-        cache: 'maven'
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'liberica'
+          cache: 'maven'
 
-    - name: Build with Maven
-      run: mvn clean install -B
+      - name: Build with Maven
+        run: mvn clean install -B
 
-    - name: Run tests
-      run: mvn test -B
+      - name: Run tests
+        run: mvn test -B
 
-    - name: Generate coverage report
-      run: mvn jacoco:report
+      - name: Generate coverage report
+        run: mvn jacoco:report
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./target/site/jacoco/jacoco.xml
-        fail_ci_if_error: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./target/site/jacoco/jacoco.xml
+          fail_ci_if_error: true
 
-    - name: Verify no security vulnerabilities
-      run: mvn org.owasp:dependency-check-maven:check
+      - name: Verify no security vulnerabilities
+        run: mvn org.owasp:dependency-check-maven:check
 ```
 
 **Test Execution Time**: ~5 minutes (with TestContainers)
@@ -946,6 +962,7 @@ public class TestDatabaseConfig {
 ### JaCoCo (Code Coverage)
 
 **Configuration** (`pom.xml`):
+
 ```xml
 <plugin>
     <groupId>org.jacoco</groupId>
@@ -989,6 +1006,7 @@ public class TestDatabaseConfig {
 ```
 
 **Commands**:
+
 ```bash
 # Run tests with coverage
 mvn clean test
@@ -1020,6 +1038,7 @@ mvn jacoco:check
 ### Failure Handling
 
 **Retry Failed Tests**:
+
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -1031,6 +1050,7 @@ mvn jacoco:check
 ```
 
 **Quarantine Flaky Tests**:
+
 ```java
 @Category(FlakyTest.class)
 @Test
@@ -1046,12 +1066,12 @@ mvn test -Dgroups='!FlakyTest'
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `backend/src/test/java/me/pacphi/ai/resos/security/` | Security tests |
+| File                                                                 | Purpose            |
+| -------------------------------------------------------------------- | ------------------ |
+| `backend/src/test/java/me/pacphi/ai/resos/security/`                 | Security tests     |
 | `backend/src/test/java/me/pacphi/ai/resos/test/TestDataFactory.java` | Test data creation |
-| `backend/src/test/resources/application-test.yml` | Test configuration |
-| `.github/workflows/ci.yml` | GitHub Actions CI |
+| `backend/src/test/resources/application-test.yml`                    | Test configuration |
+| `.github/workflows/ci.yml`                                           | GitHub Actions CI  |
 
 ## Related Documentation
 

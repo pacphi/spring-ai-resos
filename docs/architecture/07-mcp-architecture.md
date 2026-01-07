@@ -12,6 +12,7 @@ This document details the Model Context Protocol (MCP) integration, tool provide
 - **Security**: How requests are authenticated and authorized
 
 **Benefits**:
+
 - Standardized protocol (not proprietary)
 - Multiple transport options (HTTP, STDIO)
 - Language-agnostic (JSON-based)
@@ -108,6 +109,7 @@ public class ResOsService {
 **Automatic Registration**:
 
 Spring AI MCP Server starter automatically:
+
 1. Scans application context for `@Tool` annotated methods
 2. Extracts method signatures and parameter types
 3. Reads `@ToolParam` descriptions
@@ -152,15 +154,16 @@ Spring AI MCP Server starter automatically:
 
 **Auto-Exposed by Spring AI**:
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/mcp/info` | GET | Server information |
-| `/mcp/tools` | GET | List available tools |
-| `/mcp/tools/{toolName}` | POST | Invoke specific tool |
-| `/mcp/resources` | GET | List available resources (if any) |
-| `/mcp/prompts` | GET | List available prompts (if any) |
+| Endpoint                | Method | Purpose                           |
+| ----------------------- | ------ | --------------------------------- |
+| `/mcp/info`             | GET    | Server information                |
+| `/mcp/tools`            | GET    | List available tools              |
+| `/mcp/tools/{toolName}` | POST   | Invoke specific tool              |
+| `/mcp/resources`        | GET    | List available resources (if any) |
+| `/mcp/prompts`          | GET    | List available prompts (if any)   |
 
 **Example Request**:
+
 ```http
 POST /mcp/tools/getCustomers HTTP/1.1
 Host: localhost:8082
@@ -176,6 +179,7 @@ Content-Type: application/json
 ```
 
 **Example Response**:
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -200,6 +204,7 @@ Content-Type: application/json
 See [ResOsConfig Details](03-module-architecture.md#backend-api-client-configuration) in Module Architecture.
 
 **Key Components**:
+
 - **RestClient**: JDK HttpClient-based HTTP client
 - **OAuth2 Interceptor**: Automatically adds Bearer tokens
 - **DefaultApi**: Type-safe interface from OpenAPI generation
@@ -237,6 +242,7 @@ public class McpSyncClientManager {
 ```
 
 **Why ObjectProvider?**:
+
 - Lazy initialization (clients created on demand)
 - Graceful handling if no clients configured
 - Spring Boot autoconfiguration compatible
@@ -244,16 +250,17 @@ public class McpSyncClientManager {
 ### MCP Client Configuration
 
 **application.yml**:
+
 ```yaml
 spring:
   ai:
     mcp:
       client:
-        type: SYNC  # Servlet-based (not ASYNC/WebFlux)
-        initialized: false  # Lazy init per request
+        type: SYNC # Servlet-based (not ASYNC/WebFlux)
+        initialized: false # Lazy init per request
         http:
           connections:
-            butler:  # Connection name
+            butler: # Connection name
               url: ${MCP_SERVER_URL:http://localhost:8082}
 ```
 
@@ -283,6 +290,7 @@ public McpSyncClientCustomizer mcpSyncClientCustomizer(
 ```
 
 **Behavior**:
+
 - Every MCP request automatically includes `Authorization: Bearer {token}`
 - Token fetched/refreshed automatically
 - No manual token management
@@ -336,6 +344,7 @@ public class ChatService {
 ```
 
 **Process**:
+
 1. User asks question
 2. ChatService creates `SyncMcpToolCallbackProvider` with MCP clients
 3. ChatClient sends prompt to LLM with available tools
@@ -382,6 +391,7 @@ private String buildSystemPrompt() {
 ```
 
 **Key Elements**:
+
 - **Current date**: Helps AI understand temporal context
 - **Format guidance**: Ensures consistent date handling
 - **Tool overview**: Reminds AI what's available
@@ -396,6 +406,7 @@ private String buildSystemPrompt() {
 See [ADR-005: HTTP Streamable Transport](adr/005-http-streamable-transport.md)
 
 **Advantages**:
+
 - MCP spec standard (SSE deprecated)
 - OAuth2 Bearer tokens work naturally
 - Spring Security integration seamless
@@ -403,6 +414,7 @@ See [ADR-005: HTTP Streamable Transport](adr/005-http-streamable-transport.md)
 - Standard HTTP request/response
 
 **vs SSE (Deprecated)**:
+
 - SSE: Unidirectional (server → client only)
 - HTTP Streamable: Bidirectional (request + response)
 - SSE: OAuth2 difficult (no standard header)
@@ -411,6 +423,7 @@ See [ADR-005: HTTP Streamable Transport](adr/005-http-streamable-transport.md)
 ### Configuration
 
 **MCP Server** (`mcp-server/src/main/resources/application.yml`):
+
 ```yaml
 spring:
   ai:
@@ -422,12 +435,13 @@ spring:
 ```
 
 **MCP Client** (`mcp-client/src/main/resources/application.yml`):
+
 ```yaml
 spring:
   ai:
     mcp:
       client:
-        type: SYNC  # Servlet-based, not reactive
+        type: SYNC # Servlet-based, not reactive
         initialized: false
         http:
           connections:
@@ -438,6 +452,7 @@ spring:
 ### Request Format
 
 **Tool List Request**:
+
 ```http
 GET /mcp/tools HTTP/1.1
 Host: localhost:8082
@@ -446,6 +461,7 @@ Accept: application/json
 ```
 
 **Tool List Response**:
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -478,6 +494,7 @@ Content-Type: application/json
 ```
 
 **Tool Invocation Request**:
+
 ```http
 POST /mcp/tools/getCustomers HTTP/1.1
 Host: localhost:8082
@@ -493,6 +510,7 @@ Content-Type: application/json
 ```
 
 **Tool Invocation Response**:
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -519,6 +537,7 @@ Content-Type: application/json
 **Purpose**: Convert MCP tools into Spring AI tool callbacks
 
 **Usage in ChatService**:
+
 ```java
 // Get MCP clients
 List<McpSyncClient> mcpClients = mcpSyncClientManager.newMcpSyncClients();
@@ -540,6 +559,7 @@ chatClient.prompt()
 ```
 
 **What it Does**:
+
 1. Connects to MCP server(s) (one or more)
 2. Discovers available tools via `GET /mcp/tools`
 3. Creates Spring AI `ToolCallback` for each MCP tool
@@ -549,6 +569,7 @@ chatClient.prompt()
 ### Tool Callback Example
 
 **LLM Request**:
+
 ```json
 {
   "role": "assistant",
@@ -566,6 +587,7 @@ chatClient.prompt()
 ```
 
 **Callback Execution**:
+
 ```java
 ToolCallback callback = new ToolCallback("getCustomers", (args) -> {
     // Parse arguments
@@ -587,6 +609,7 @@ ToolCallback callback = new ToolCallback("getCustomers", (args) -> {
 ```
 
 **LLM Receives Result**:
+
 ```json
 {
   "role": "tool",
@@ -596,7 +619,8 @@ ToolCallback callback = new ToolCallback("getCustomers", (args) -> {
 ```
 
 **LLM Generates Response**:
-```
+
+```text
 I found 50 customers. Here are a few notable ones:
 
 1. **John Doe** (john@example.com)
@@ -652,6 +676,7 @@ public class SecurityConfig {
 ```
 
 **Configuration** (`application.yml`):
+
 ```yaml
 spring:
   security:
@@ -680,6 +705,7 @@ spring:
 Library: `org.springaicommunity:mcp-client-security:0.0.5`
 
 **Configuration** (`McpClientOAuth2Config`):
+
 ```java
 @Bean
 public McpSyncClientCustomizer mcpSyncClientCustomizer(
@@ -704,6 +730,7 @@ public McpSyncClientCustomizer mcpSyncClientCustomizer(
 ```
 
 **Automatic Behavior**:
+
 1. MCP Client about to send HTTP request to MCP Server
 2. `requestCustomizer` checks for valid access token
 3. If none or expired, fetches new token from auth server
@@ -747,6 +774,7 @@ public McpSyncClientCustomizer mcpSyncClientCustomizer(
 29. **React UI → User**: Display token
 
 **Security Checkpoints**:
+
 - ✅ User authenticated at MCP Client (session cookie)
 - ✅ MCP Client → MCP Server (client credentials JWT)
 - ✅ MCP Server → Backend (client credentials JWT)
@@ -775,6 +803,7 @@ public List<Customer> getCustomers(...) {
 ```
 
 **MCP Server Error Response**:
+
 ```json
 {
   "error": {
@@ -786,7 +815,8 @@ public List<Customer> getCustomers(...) {
 
 **LLM Handles Error**:
 LLM receives error and generates appropriate response:
-```
+
+```text
 I apologize, but I'm unable to access customer data at the moment.
 There appears to be an authentication issue with the backend service.
 Please try again later or contact support if the issue persists.
@@ -795,18 +825,21 @@ Please try again later or contact support if the issue persists.
 ### OAuth2 Token Errors
 
 **Expired Token**:
+
 - `OAuth2AuthorizedClientManager` detects expiration
 - Automatically fetches new token
 - Retries request
 - Transparent to tool implementation
 
 **Invalid Client Credentials**:
-```
+
+```text
 OAuth2AuthenticationException: invalid_client
   Invalid client or Invalid client credentials
 ```
 
 **Resolution**:
+
 - Check client ID and secret match OAuth2 server
 - Verify client registered in database
 - Check scopes are correct
@@ -820,16 +853,13 @@ MCP Server can also run with Claude Desktop using STDIO transport:
 ### Configuration
 
 **claude_desktop_config.json**:
+
 ```json
 {
   "mcpServers": {
     "spring-ai-resos": {
       "command": "java",
-      "args": [
-        "-Dspring.profiles.active=dev",
-        "-jar",
-        "/path/to/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
-      ]
+      "args": ["-Dspring.profiles.active=dev", "-jar", "/path/to/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"]
     }
   }
 }
@@ -903,7 +933,8 @@ public List<Customer> getCustomers(Integer limit, ...) {
 ## MCP Server Startup
 
 **Log Output**:
-```
+
+```text
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
 ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
@@ -924,7 +955,8 @@ INFO  SpringAiResOsMcpServerApplication - Started in 3.2 seconds
 ```
 
 **Tool Registration**:
-```
+
+```text
 Registered Tools:
   - getTables
   - getCustomers
@@ -942,21 +974,23 @@ Registered Tools:
 ### Tool Invocation Latency
 
 **Breakdown** (typical):
-| Step | Time | Notes |
-|------|------|-------|
-| MCP Client → MCP Server | 5ms | HTTP connection + OAuth2 token validation |
-| MCP Server → Backend API | 10ms | HTTP connection + OAuth2 token validation |
-| Backend API → Database | 20ms | Query execution |
-| Database → Backend API | 10ms | Result serialization |
-| Backend API → MCP Server | 5ms | Response transfer |
-| MCP Server → MCP Client | 5ms | Response transfer |
-| **Total** | **~55ms** | Excludes LLM inference time |
+
+| Step                     | Time      | Notes                                     |
+| ------------------------ | --------- | ----------------------------------------- |
+| MCP Client → MCP Server  | 5ms       | HTTP connection + OAuth2 token validation |
+| MCP Server → Backend API | 10ms      | HTTP connection + OAuth2 token validation |
+| Backend API → Database   | 20ms      | Query execution                           |
+| Database → Backend API   | 10ms      | Result serialization                      |
+| Backend API → MCP Server | 5ms       | Response transfer                         |
+| MCP Server → MCP Client  | 5ms       | Response transfer                         |
+| **Total**                | **~55ms** | Excludes LLM inference time               |
 
 **LLM Inference**: 100ms - 5 seconds (dominates latency)
 
 ### Token Caching
 
 **OAuth2AuthorizedClientManager Caching**:
+
 - Access tokens cached until expiry (1 hour)
 - No redundant token requests
 - Refresh tokens used automatically when access token expires
@@ -972,6 +1006,7 @@ Registered Tools:
 **Symptom**: `Port 8082 already in use`
 
 **Solution**:
+
 ```bash
 # Find process using port
 lsof -i :8082
@@ -985,6 +1020,7 @@ kill -9 <PID>
 **Symptom**: `401 Unauthorized` on MCP requests
 
 **Debug**:
+
 1. Check issuer URI matches:
    - MCP Server: `spring.security.oauth2.resourceserver.jwt.issuer-uri`
    - Auth Server: `app.security.issuer-uri`
@@ -997,6 +1033,7 @@ kill -9 <PID>
 **Symptom**: MCP Client sees 0 tools
 
 **Debug**:
+
 1. Check MCP Server logs for `Registered @Tool methods: N`
 2. Verify `ResOsService` is a `@Component`
 3. Check package scanning includes `me.pacphi.ai.resos.mcp`
@@ -1008,6 +1045,7 @@ kill -9 <PID>
 **Symptom**: Tool execution fails with "Failed to fetch customers"
 
 **Debug**:
+
 1. Check `RESOS_API_ENDPOINT` environment variable
 2. Verify backend running on port 8080
 3. Check OAuth2 client credentials (mcp-server client)
@@ -1018,14 +1056,14 @@ kill -9 <PID>
 
 ## Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsService.java` | Tool provider | ~150 |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsConfig.java` | Backend API client | ~150 |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/SecurityConfig.java` | OAuth2 security | ~50 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/McpSyncClientManager.java` | Client wrapper | ~30 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/config/McpClientOAuth2Config.java` | OAuth2 config | ~80 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatService.java` | AI orchestration | ~120 |
+| File                                                                            | Purpose            | Lines |
+| ------------------------------------------------------------------------------- | ------------------ | ----- |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsService.java`             | Tool provider      | ~150  |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsConfig.java`              | Backend API client | ~150  |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/SecurityConfig.java`           | OAuth2 security    | ~50   |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/McpSyncClientManager.java` | Client wrapper     | ~30   |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/config/McpClientOAuth2Config.java` | OAuth2 config      | ~80   |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatService.java`          | AI orchestration   | ~120  |
 
 ## Related Documentation
 

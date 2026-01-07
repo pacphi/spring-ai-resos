@@ -1,6 +1,7 @@
 # ADR-005: HTTP Streamable Transport for MCP
 
 ## Status
+
 **Accepted** - Implemented in MCP Server and Client
 
 ## Context
@@ -35,6 +36,7 @@ The MCP specification evolved significantly:
 The first implementation used SSE transport with WebFlux:
 
 **Problems Encountered**:
+
 - `spring-ai-community/mcp-security` library doesn't support SSE
 - OAuth2 Bearer token authentication difficult with SSE
 - WebFlux + OAuth2 + SSE combination poorly documented
@@ -72,8 +74,8 @@ The first implementation used SSE transport with WebFlux:
        mcp:
          client:
            type: SYNC
-           initialized: false  # Lazy initialization
-           http:  # Changed from 'sse'
+           initialized: false # Lazy initialization
+           http: # Changed from 'sse'
              connections:
                butler:
                  url: http://localhost:8082
@@ -95,7 +97,8 @@ The first implementation used SSE transport with WebFlux:
    ```
 
 4. **Tool Invocation Flow**:
-   ```
+
+   ```text
    MCP Client → HTTP POST /mcp/tools/{toolName}
        Headers: Authorization: Bearer {jwt}
        Body: { "arguments": {...} }
@@ -175,11 +178,13 @@ The first implementation used SSE transport with WebFlux:
 **Approach**: Use SSE transport with custom OAuth2 handling.
 
 **Pros**:
+
 - True server-to-client streaming
 - Lower latency for streams
 - Simpler client (EventSource API)
 
 **Cons**:
+
 - Unidirectional (server→client only)
 - Deprecated by MCP specification
 - `mcp-security` library doesn't support it
@@ -193,12 +198,14 @@ The first implementation used SSE transport with WebFlux:
 **Approach**: Use standard input/output for MCP communication.
 
 **Pros**:
+
 - No HTTP server needed
 - No security concerns (local only)
 - Works with Claude Desktop directly
 - Lower latency
 
 **Cons**:
+
 - Local desktop only (no cloud deployment)
 - Cannot run web-based chatbot
 - No browser access
@@ -211,11 +218,13 @@ The first implementation used SSE transport with WebFlux:
 **Approach**: Use WebSockets for bidirectional communication.
 
 **Pros**:
+
 - True bidirectional streaming
 - Persistent connection
 - Lower latency than HTTP
 
 **Cons**:
+
 - Not part of MCP specification
 - Custom protocol implementation needed
 - More complex than HTTP
@@ -228,11 +237,13 @@ The first implementation used SSE transport with WebFlux:
 **Approach**: Use gRPC for efficient RPC.
 
 **Pros**:
+
 - Efficient binary protocol
 - Bidirectional streaming
 - Strong typing
 
 **Cons**:
+
 - Not part of MCP specification
 - Incompatible with MCP protocol
 - No Spring AI MCP starter support
@@ -245,12 +256,14 @@ The first implementation used SSE transport with WebFlux:
 ### MCP Server Endpoint Structure
 
 **Auto-exposed by Spring AI**:
+
 - `GET /mcp/info` - Server information
 - `GET /mcp/tools` - List available tools
 - `POST /mcp/tools/{toolName}` - Invoke specific tool
 - `GET /mcp/resources` - List available resources (if any)
 
 **Security Applied**:
+
 ```java
 @Configuration
 @EnableWebSecurity
@@ -273,6 +286,7 @@ public class SecurityConfig {
 ### MCP Client Request Example
 
 **HTTP Request**:
+
 ```http
 POST /mcp/tools/getCustomers HTTP/1.1
 Host: localhost:8082
@@ -288,6 +302,7 @@ Content-Type: application/json
 ```
 
 **HTTP Response**:
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -321,6 +336,7 @@ public class ResOsService {
 ```
 
 Spring AI automatically:
+
 1. Scans for `@Tool` methods
 2. Generates JSON Schema from signatures
 3. Exposes HTTP endpoints under `/mcp/tools/{methodName}`
@@ -329,6 +345,7 @@ Spring AI automatically:
 ### Error Handling
 
 **Client-side**:
+
 ```java
 try {
     var result = mcpClient.invoke("getCustomers", arguments);
@@ -340,6 +357,7 @@ try {
 ```
 
 **Server-side**:
+
 ```java
 @Tool
 public List<Customer> getCustomers(...) {
@@ -354,14 +372,14 @@ public List<Customer> getCustomers(...) {
 
 ## Performance Characteristics
 
-| Metric | HTTP Streamable | SSE | WebSocket |
-|--------|----------------|-----|-----------|
-| Connection per request | Yes | No (persistent) | No (persistent) |
-| Bidirectional | Yes | No | Yes |
-| OAuth2 support | Excellent | Poor | Good |
-| MCP spec compliance | ✅ Standard | ⚠️ Deprecated | ❌ Not supported |
-| Spring AI support | ✅ Full | ⚠️ Limited | ❌ None |
-| Latency overhead | ~5-10ms | ~1ms | ~1ms |
+| Metric                 | HTTP Streamable | SSE             | WebSocket        |
+| ---------------------- | --------------- | --------------- | ---------------- |
+| Connection per request | Yes             | No (persistent) | No (persistent)  |
+| Bidirectional          | Yes             | No              | Yes              |
+| OAuth2 support         | Excellent       | Poor            | Good             |
+| MCP spec compliance    | ✅ Standard     | ⚠️ Deprecated   | ❌ Not supported |
+| Spring AI support      | ✅ Full         | ⚠️ Limited      | ❌ None          |
+| Latency overhead       | ~5-10ms         | ~1ms            | ~1ms             |
 
 **For MCP use case (infrequent tool calls)**: HTTP Streamable's connection overhead is negligible.
 
@@ -396,6 +414,6 @@ January 2026 (Phase 0 Migration)
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date     | Change                                          |
+| -------- | ----------------------------------------------- |
 | Jan 2026 | Initial decision, SSE→HTTP Streamable migration |

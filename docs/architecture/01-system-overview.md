@@ -13,6 +13,7 @@ Spring AI ResOs is an **AI-powered restaurant reservation chatbot** that demonst
 ### The Problem
 
 Traditional restaurant reservation systems require users to:
+
 1. Navigate complex web forms
 2. Manually search through availability calendars
 3. Fill out multiple fields for booking details
@@ -70,6 +71,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 **Actor**: Restaurant customer (via chatbot)
 
 **Flow**:
+
 1. Customer asks: "Do you have any tables for 6 people this Saturday?"
 2. AI determines intent: check table availability
 3. System calls `getTables()` tool via MCP
@@ -83,6 +85,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 **Actor**: Restaurant operator (ROLE_OPERATOR)
 
 **Flow**:
+
 1. Operator asks: "Show me all bookings for tomorrow"
 2. AI calls `getBookings(date=tomorrow)` with OAuth2 credentials
 3. Backend validates operator role, returns booking list
@@ -95,6 +98,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 **Actor**: Restaurant administrator (ROLE_ADMIN)
 
 **Flow**:
+
 1. Admin asks: "What's our average customer rating this month?"
 2. AI calls `getFeedback(customQuery="created_at >= '2026-01-01'")`
 3. Backend aggregates ratings, returns statistics
@@ -107,6 +111,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 **Actor**: Customer service rep (ROLE_USER)
 
 **Flow**:
+
 1. Rep asks: "Find customer john@example.com"
 2. AI calls `getCustomers(customQuery="email = 'john@example.com'")`
 3. Backend returns customer profile with booking history
@@ -119,12 +124,14 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Security
 
 **OAuth2 at Every Layer**:
+
 - Frontend: Authorization Code + PKCE for browser security
 - Service-to-Service: Client Credentials for backend communication
 - JWT Tokens: RSA-256 signed, role and scope claims
 - Database-Backed: Token storage enables revocation
 
 **Key Security Features**:
+
 - BCrypt password hashing (strength 12)
 - PKCE prevents authorization code interception
 - Scope-based API authorization (backend.read, backend.write)
@@ -134,12 +141,14 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Scalability
 
 **Stateless Design**:
+
 - All services are horizontally scalable
 - No server-side session state (JWT tokens)
 - Database connection pooling
 - OAuth2 tokens cached until expiry
 
 **Performance Characteristics**:
+
 - Startup time: ~2-3 seconds per service
 - Request latency: ~50-200ms (excluding LLM)
 - Concurrent users: Limited by LLM API rate limits, not architecture
@@ -148,17 +157,20 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Maintainability
 
 **API-First Development**:
+
 - OpenAPI spec drives all code generation
 - Zero drift between contract and implementation
 - Compile-time type safety throughout
 
 **Zero-Boilerplate Patterns**:
+
 - Entities generated from OpenAPI models
 - Database schema generated from entities
 - OAuth2 clients auto-configured
 - MCP tools auto-discovered from `@Tool` annotations
 
 **Comprehensive Documentation**:
+
 - Architecture decision records (ADRs)
 - Mermaid diagrams for all flows
 - Migration guides for Spring Boot 4
@@ -167,12 +179,14 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Observability
 
 **Current Implementation**:
+
 - Spring Boot Actuator endpoints
 - Structured logging with correlation IDs
 - Health checks for all services
 - Git commit info in artifacts
 
 **Recommended Enhancements** (see [Future Enhancements](15-future-enhancements.md)):
+
 - OpenTelemetry for distributed tracing
 - Prometheus metrics export
 - Grafana dashboards
@@ -183,6 +197,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Frontend Layer (React SPA)
 
 **Responsibilities**:
+
 - User authentication via OAuth2 PKCE
 - Chat interface with markdown rendering
 - SSE consumption for streaming responses
@@ -196,6 +211,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### AI & Integration Layer
 
 **MCP Client**:
+
 - Spring AI ChatClient orchestration
 - LLM provider abstraction (OpenAI, Groq, etc.)
 - Tool callback management
@@ -203,6 +219,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 - OAuth2 client credentials for MCP server
 
 **MCP Server**:
+
 - Tool provider via Model Context Protocol
 - HTTP Streamable transport
 - OAuth2 resource server (validates tokens)
@@ -216,6 +233,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Backend Layer
 
 **Authorization Server**:
+
 - JWT token issuance (RSA-256)
 - User authentication (BCrypt)
 - OAuth2 client registration
@@ -223,6 +241,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 - Token validation endpoints
 
 **ResOs API**:
+
 - Restaurant reservation CRUD operations
 - Customer management
 - Booking and order management
@@ -236,6 +255,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 ### Data Layer
 
 **Database**:
+
 - Relational data persistence
 - Liquibase schema management
 - OAuth2 token storage
@@ -250,6 +270,7 @@ The AI assistant understands the intent, calls the appropriate backend tools, an
 For the complete architecture diagram, see [High-Level Architecture](diagrams/high-level-architecture.md).
 
 **Key Architectural Patterns**:
+
 1. **Three-Tier OAuth2**: Authorization Server → Resource Server → OAuth2 Client
 2. **MCP Integration**: LLM ↔ MCP Client ↔ MCP Server ↔ Backend API
 3. **Code Generation**: OpenAPI → Client → Entities → Schema
@@ -260,13 +281,13 @@ For the complete architecture diagram, see [High-Level Architecture](diagrams/hi
 
 For detailed rationale, see [Architectural Decision Records](adr/):
 
-| Decision | Rationale | Impact |
-|----------|-----------|--------|
-| **OpenAPI-First** ([ADR-001](adr/001-openapi-first.md)) | Single source of truth | Zero API drift |
-| **Spring Data JDBC** ([ADR-002](adr/002-spring-data-jdbc.md)) | Lightweight ORM | Faster startup, simpler model |
-| **Dynamic Liquibase** ([ADR-003](adr/003-dynamic-liquibase.md)) | Avoid duplicate schemas | Zero manual SQL |
-| **WebMVC over WebFlux** ([ADR-004](adr/004-webmvc-over-webflux.md)) | OAuth2 compatibility | Better security integration |
-| **HTTP Streamable** ([ADR-005](adr/005-http-streamable-transport.md)) | MCP spec compliance | Standard transport |
+| Decision                                                              | Rationale               | Impact                        |
+| --------------------------------------------------------------------- | ----------------------- | ----------------------------- |
+| **OpenAPI-First** ([ADR-001](adr/001-openapi-first.md))               | Single source of truth  | Zero API drift                |
+| **Spring Data JDBC** ([ADR-002](adr/002-spring-data-jdbc.md))         | Lightweight ORM         | Faster startup, simpler model |
+| **Dynamic Liquibase** ([ADR-003](adr/003-dynamic-liquibase.md))       | Avoid duplicate schemas | Zero manual SQL               |
+| **WebMVC over WebFlux** ([ADR-004](adr/004-webmvc-over-webflux.md))   | OAuth2 compatibility    | Better security integration   |
+| **HTTP Streamable** ([ADR-005](adr/005-http-streamable-transport.md)) | MCP spec compliance     | Standard transport            |
 
 ## Quick Start
 
@@ -296,25 +317,28 @@ mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
 
 ### Default Credentials
 
-| Username | Password | Roles |
-|----------|----------|-------|
-| admin | admin123 | ROLE_ADMIN, ROLE_OPERATOR, ROLE_USER |
-| operator | operator123 | ROLE_OPERATOR, ROLE_USER |
-| user | user123 | ROLE_USER |
+| Username | Password    | Roles                                |
+| -------- | ----------- | ------------------------------------ |
+| admin    | admin123    | ROLE_ADMIN, ROLE_OPERATOR, ROLE_USER |
+| operator | operator123 | ROLE_OPERATOR, ROLE_USER             |
+| user     | user123     | ROLE_USER                            |
 
 ## Next Steps
 
 **For New Developers**:
+
 1. Read [Module Architecture](03-module-architecture.md) to understand the 6-module structure
 2. Review [Build Workflow](10-build-workflow.md) for build commands and profiles
 3. Explore [Code Generation Pipeline](04-code-generation.md) to see how code is generated
 
 **For Architects**:
+
 1. Review [Security Architecture](06-security-architecture.md) for OAuth2 design
 2. Study [Migration Patterns](11-migration-patterns.md) for Spring Boot 4 lessons
 3. Read [Design Patterns](12-design-patterns.md) for reusable patterns
 
 **For Operations**:
+
 1. Check [Deployment](13-deployment.md) for Docker Compose setup
 2. Review [Testing](14-testing.md) for integration testing strategy
 3. See [Future Enhancements](15-future-enhancements.md) for observability recommendations

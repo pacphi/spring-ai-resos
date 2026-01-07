@@ -56,11 +56,11 @@ graph TB
 
 ### File Locations
 
-| File | Purpose |
-|------|---------|
-| `docker/docker-compose.yml` | Full-stack deployment |
+| File                                         | Purpose                   |
+| -------------------------------------------- | ------------------------- |
+| `docker/docker-compose.yml`                  | Full-stack deployment     |
 | `backend/docker/docker-compose.postgres.yml` | PostgreSQL + backend only |
-| `backend/Dockerfile.test` | Backend container image |
+| `backend/Dockerfile.test`                    | Backend container image   |
 
 ### Services Defined
 
@@ -75,7 +75,7 @@ services:
     image: spring-ai-resos-backend:latest
     container_name: resos-backend
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       - SPRING_PROFILES_ACTIVE=postgres,dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/resos
@@ -89,13 +89,14 @@ services:
     volumes:
       - liquibase-changelog:/tmp/liquibase
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/actuator/health']
       interval: 30s
       timeout: 10s
       retries: 3
 ```
 
 **Key Configuration**:
+
 - **Profiles**: `postgres,dev` - enables PostgreSQL and development settings
 - **Database URL**: Uses Docker network hostname `postgres:5432`
 - **Issuer URI**: Internal network hostname for OAuth2
@@ -110,7 +111,7 @@ services:
     image: postgres:16
     container_name: resos-postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_DB=resos
       - POSTGRES_USER=resos
@@ -120,13 +121,14 @@ services:
     networks:
       - resos-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U resos"]
+      test: ['CMD-SHELL', 'pg_isready -U resos']
       interval: 10s
       timeout: 5s
       retries: 5
 ```
 
 **Key Configuration**:
+
 - **Image**: PostgreSQL 16 (latest stable)
 - **Persistent Volume**: `postgres-data` for database files
 - **Health Check**: `pg_isready` command
@@ -142,7 +144,7 @@ services:
     image: spring-ai-resos-mcp-server:latest
     container_name: resos-mcp-server
     ports:
-      - "8082:8082"
+      - '8082:8082'
     environment:
       - SPRING_PROFILES_ACTIVE=dev
       - RESOS_API_ENDPOINT=http://backend:8080/api/v1/resos
@@ -155,6 +157,7 @@ services:
 ```
 
 **Key Configuration**:
+
 - **Backend URL**: Internal network hostname `backend:8080`
 - **OAuth2**: Connects to backend for token validation and API calls
 - **Secret**: OAuth2 client secret from environment variable
@@ -170,7 +173,7 @@ services:
     image: spring-ai-resos-mcp-frontend:latest
     container_name: resos-mcp-client
     ports:
-      - "8081:8081"
+      - '8081:8081'
     environment:
       - SPRING_PROFILES_ACTIVE=openai,dev
       - SPRING_AI_OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -185,6 +188,7 @@ services:
 ```
 
 **Key Configuration**:
+
 - **LLM API Key**: OpenAI API key from environment
 - **MCP Server URL**: Internal network hostname `mcp-server:8082`
 - **Auth Server**: Backend for OAuth2 authentication
@@ -198,7 +202,7 @@ services:
     image: adminer:latest
     container_name: resos-adminer
     ports:
-      - "8083:8080"
+      - '8083:8080'
     environment:
       - ADMINER_DEFAULT_SERVER=postgres
     depends_on:
@@ -230,18 +234,19 @@ volumes:
 ```
 
 **Purpose**:
+
 - `postgres-data`: Persist database files across container restarts
 - `liquibase-changelog`: Persist generated schema changelogs
 
 ## Port Mapping
 
-| Service | Container Port | Host Port | Purpose |
-|---------|---------------|-----------|---------|
-| Backend | 8080 | 8080 | OAuth2 Auth Server + ResOs API |
-| MCP Client | 8081 | 8081 | React SPA + Chat API |
-| MCP Server | 8082 | 8082 | MCP Tool Provider |
-| PostgreSQL | 5432 | 5432 | Database connections |
-| Adminer | 8080 | 8083 | Database admin UI |
+| Service    | Container Port | Host Port | Purpose                        |
+| ---------- | -------------- | --------- | ------------------------------ |
+| Backend    | 8080           | 8080      | OAuth2 Auth Server + ResOs API |
+| MCP Client | 8081           | 8081      | React SPA + Chat API           |
+| MCP Server | 8082           | 8082      | MCP Tool Provider              |
+| PostgreSQL | 5432           | 5432      | Database connections           |
+| Adminer    | 8080           | 8083      | Database admin UI              |
 
 ## Deployment Commands
 
@@ -329,14 +334,14 @@ APP_SECURITY_ISSUER_URI=https://your-domain.com
 
 ```dockerfile
 # Build stage
-FROM eclipse-temurin:25-jdk as builder
+FROM bellsoft/liberica-openjdk-debian:25 as builder
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:25-jre
+FROM bellsoft/liberica-runtime-container:jre-25
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
@@ -344,6 +349,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
 **Benefits**:
+
 - Smaller final image (JRE only)
 - Layer caching for faster rebuilds
 - Security: No build tools in production image
@@ -382,7 +388,7 @@ curl http://localhost:8080/actuator/health
 
 ```yaml
 healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+  test: ['CMD', 'curl', '-f', 'http://localhost:8080/actuator/health']
   interval: 30s
   timeout: 10s
   retries: 3
@@ -390,6 +396,7 @@ healthcheck:
 ```
 
 **Behavior**:
+
 - **start_period**: Grace period for application startup (40s)
 - **interval**: Check every 30 seconds
 - **timeout**: Fail if check takes > 10 seconds
@@ -416,6 +423,7 @@ graph TD
 ```
 
 **Startup Order**:
+
 1. PostgreSQL starts first
 2. Backend starts after PostgreSQL is healthy
 3. MCP Server starts after Backend is healthy
@@ -444,10 +452,10 @@ services:
 services:
   backend:
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 ```
 
 ### Environment-Specific Overrides
@@ -461,6 +469,7 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 ```
 
 **docker-compose.prod.yml**:
+
 ```yaml
 services:
   backend:
@@ -485,6 +494,7 @@ services:
 ```
 
 Access metrics:
+
 ```bash
 curl http://localhost:8080/actuator/prometheus
 ```
@@ -498,7 +508,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - grafana-data:/var/lib/grafana
     depends_on:
@@ -546,9 +556,9 @@ docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' reso
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `docker/docker-compose.yml` | Full stack deployment |
-| `backend/docker/docker-compose.postgres.yml` | Backend + PostgreSQL |
-| `backend/Dockerfile.test` | Backend container image |
-| `.env` | Environment variables (not in git) |
+| File                                         | Purpose                            |
+| -------------------------------------------- | ---------------------------------- |
+| `docker/docker-compose.yml`                  | Full stack deployment              |
+| `backend/docker/docker-compose.postgres.yml` | Backend + PostgreSQL               |
+| `backend/Dockerfile.test`                    | Backend container image            |
+| `.env`                                       | Environment variables (not in git) |

@@ -70,7 +70,6 @@ springdoc:
   writer-with-default-pretty-printer: true
 
 ---
-
 spring:
   config:
     activate:
@@ -84,9 +83,7 @@ spring:
         command: down
         arguments: -v
       timeout: 1m
-
 ---
-
 spring:
   config:
     activate:
@@ -102,9 +99,7 @@ spring:
     compose:
       file:
         - ./docker/docker-compose.postgres.yml
-
 ---
-
 spring:
   config:
     activate:

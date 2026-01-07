@@ -5,6 +5,7 @@ This document provides a comprehensive guide for migrating to Spring Boot 4, Spr
 ## Overview
 
 This project successfully migrated to:
+
 - **Spring Boot**: 3.x → 4.0.1
 - **Spring AI**: 1.x → 2.0.0-M1
 - **Spring Security**: 6.x → 7.0.2
@@ -14,7 +15,7 @@ This project successfully migrated to:
 
 **Total Migration Effort**: ~7 hours (Phase 0: WebFlux → WebMVC)
 
-**Reference**: [docs/PHASE_0_LESSONS_LEARNED.md](../../PHASE_0_LESSONS_LEARNED.md)
+**Reference**: [docs/archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE_0_LESSONS_LEARNED.md](../archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE_0_LESSONS_LEARNED.md)
 
 ---
 
@@ -23,6 +24,7 @@ This project successfully migrated to:
 ### Context
 
 **Why Migrate?**:
+
 - MCP security library (`spring-ai-community/mcp-security`) requires WebMVC
 - SSE transport deprecated in favor of HTTP Streamable
 - OAuth2 integration simpler with WebMVC
@@ -35,6 +37,7 @@ See [ADR-004: WebMVC over WebFlux](adr/004-webmvc-over-webflux.md) for detailed 
 #### MCP Server
 
 **Before**:
+
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
@@ -43,6 +46,7 @@ See [ADR-004: WebMVC over WebFlux](adr/004-webmvc-over-webflux.md) for detailed 
 ```
 
 **After**:
+
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
@@ -56,6 +60,7 @@ See [ADR-004: WebMVC over WebFlux](adr/004-webmvc-over-webflux.md) for detailed 
 #### MCP Client
 
 **Before**:
+
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -68,6 +73,7 @@ See [ADR-004: WebMVC over WebFlux](adr/004-webmvc-over-webflux.md) for detailed 
 ```
 
 **After**:
+
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -85,15 +91,16 @@ See [ADR-004: WebMVC over WebFlux](adr/004-webmvc-over-webflux.md) for detailed 
 
 #### Security Configuration
 
-| WebFlux (Reactive) | WebMVC (Servlet) |
-|--------------------|------------------|
-| `@EnableWebFluxSecurity` | `@EnableWebSecurity` |
-| `SecurityWebFilterChain` | `SecurityFilterChain` |
-| `ServerHttpSecurity` | `HttpSecurity` |
-| `.authorizeExchange()` | `.authorizeHttpRequests()` |
+| WebFlux (Reactive)         | WebMVC (Servlet)              |
+| -------------------------- | ----------------------------- |
+| `@EnableWebFluxSecurity`   | `@EnableWebSecurity`          |
+| `SecurityWebFilterChain`   | `SecurityFilterChain`         |
+| `ServerHttpSecurity`       | `HttpSecurity`                |
+| `.authorizeExchange()`     | `.authorizeHttpRequests()`    |
 | `.pathMatchers("/api/**")` | `.requestMatchers("/api/**")` |
 
 **Before**:
+
 ```java
 @Configuration
 @EnableWebFluxSecurity
@@ -113,6 +120,7 @@ public class SecurityConfig {
 ```
 
 **After**:
+
 ```java
 @Configuration
 @EnableWebSecurity
@@ -133,15 +141,16 @@ public class SecurityConfig {
 
 #### Controller Methods
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `Mono<ResponseEntity<T>>` | `ResponseEntity<T>` |
-| `Flux<String>` | `SseEmitter` (for streaming) |
-| `ServerWebExchange` | `HttpServletRequest` / `HttpServletResponse` |
-| Return `Mono.just(value)` | Return `value` directly |
-| `@AuthenticationPrincipal Principal principal` | Same (unchanged) |
+| WebFlux                                        | WebMVC                                       |
+| ---------------------------------------------- | -------------------------------------------- |
+| `Mono<ResponseEntity<T>>`                      | `ResponseEntity<T>`                          |
+| `Flux<String>`                                 | `SseEmitter` (for streaming)                 |
+| `ServerWebExchange`                            | `HttpServletRequest` / `HttpServletResponse` |
+| Return `Mono.just(value)`                      | Return `value` directly                      |
+| `@AuthenticationPrincipal Principal principal` | Same (unchanged)                             |
 
 **Before**:
+
 ```java
 @GetMapping("/user")
 public Mono<ResponseEntity<Map<String, Object>>> getCurrentUser(
@@ -161,6 +170,7 @@ public Mono<ResponseEntity<Map<String, Object>>> getCurrentUser(
 ```
 
 **After**:
+
 ```java
 @GetMapping("/user")
 public ResponseEntity<Map<String, Object>> getCurrentUser(
@@ -183,15 +193,16 @@ public ResponseEntity<Map<String, Object>> getCurrentUser(
 
 #### HTTP Clients
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `WebClient` | `RestClient` |
-| `WebClient.Builder` | `RestClient.Builder` |
-| `ReactorClientHttpConnector` | `JdkClientHttpRequestFactory` |
-| `.bodyValue(obj)` | `.body(obj)` |
-| `.retrieve().bodyToMono(T.class)` | `.retrieve().body(T.class)` |
+| WebFlux                           | WebMVC                        |
+| --------------------------------- | ----------------------------- |
+| `WebClient`                       | `RestClient`                  |
+| `WebClient.Builder`               | `RestClient.Builder`          |
+| `ReactorClientHttpConnector`      | `JdkClientHttpRequestFactory` |
+| `.bodyValue(obj)`                 | `.body(obj)`                  |
+| `.retrieve().bodyToMono(T.class)` | `.retrieve().body(T.class)`   |
 
 **Before**:
+
 ```java
 @Bean
 public WebClient webClient(WebClient.Builder builder) {
@@ -209,6 +220,7 @@ Mono<Customer> customer = webClient.get()
 ```
 
 **After**:
+
 ```java
 @Bean
 public RestClient restClient(RestClient.Builder builder,
@@ -231,13 +243,14 @@ Customer customer = restClient.get()
 
 #### OAuth2 Managers
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `ReactiveOAuth2AuthorizedClientManager` | `OAuth2AuthorizedClientManager` |
-| `ReactiveClientRegistrationRepository` | `ClientRegistrationRepository` |
+| WebFlux                                              | WebMVC                               |
+| ---------------------------------------------------- | ------------------------------------ |
+| `ReactiveOAuth2AuthorizedClientManager`              | `OAuth2AuthorizedClientManager`      |
+| `ReactiveClientRegistrationRepository`               | `ClientRegistrationRepository`       |
 | `ServerOAuth2AuthorizedClientExchangeFilterFunction` | `OAuth2ClientHttpRequestInterceptor` |
 
 **Before**:
+
 ```java
 @Bean
 public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
@@ -261,6 +274,7 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 ```
 
 **After**:
+
 ```java
 @Bean
 public OAuth2AuthorizedClientManager authorizedClientManager(
@@ -284,18 +298,20 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 ```
 
 **Key Changes**:
+
 - Remove "Reactive" prefix from class names
 - Use `OAuth2AuthorizedClientService` instead of `ServerOAuth2AuthorizedClientRepository`
 
 #### Streaming Responses
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `Flux<String>` | `SseEmitter` or `StreamingResponseBody` |
-| Return Flux directly | Create SseEmitter, send via callbacks |
-| `.subscribe()` for side effects | `.subscribe()` bridges to callbacks |
+| WebFlux                         | WebMVC                                  |
+| ------------------------------- | --------------------------------------- |
+| `Flux<String>`                  | `SseEmitter` or `StreamingResponseBody` |
+| Return Flux directly            | Create SseEmitter, send via callbacks   |
+| `.subscribe()` for side effects | `.subscribe()` bridges to callbacks     |
 
 **Before**:
+
 ```java
 @PostMapping("/chat")
 public Flux<String> chat(@RequestBody Request req) {
@@ -305,6 +321,7 @@ public Flux<String> chat(@RequestBody Request req) {
 ```
 
 **After**:
+
 ```java
 @PostMapping(path = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter chat(@RequestBody Request req) {
@@ -327,6 +344,7 @@ public SseEmitter chat(@RequestBody Request req) {
 ```
 
 **Service Layer**:
+
 ```java
 // ChatService bridges Flux to callbacks
 public void streamResponse(String question,
@@ -355,6 +373,7 @@ public void streamResponse(String question,
 ### Import Updates
 
 **Before**:
+
 ```java
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -362,6 +381,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 ```
 
 **After**:
+
 ```java
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.annotation.JsonProperty;
@@ -369,6 +389,7 @@ import tools.jackson.core.JsonProcessingException;
 ```
 
 **Automated Fix**:
+
 ```bash
 # Find and replace across codebase
 find . -name "*.java" -type f -exec sed -i '' 's/com\.fasterxml\.jackson/tools.jackson/g' {} +
@@ -377,6 +398,7 @@ find . -name "*.java" -type f -exec sed -i '' 's/com\.fasterxml\.jackson/tools.j
 ### Dependency Management
 
 **Parent POM**:
+
 ```xml
 <dependencyManagement>
     <dependencies>
@@ -392,6 +414,7 @@ find . -name "*.java" -type f -exec sed -i '' 's/com\.fasterxml\.jackson/tools.j
 ```
 
 **Module Dependencies** (change groupId):
+
 ```xml
 <dependency>
     <groupId>tools.jackson.core</groupId>  <!-- Changed -->
@@ -402,6 +425,7 @@ find . -name "*.java" -type f -exec sed -i '' 's/com\.fasterxml\.jackson/tools.j
 ### OpenAPI Generator Configuration
 
 **Must use Jakarta EE**:
+
 ```xml
 <configOptions>
     <useJakartaEe>true</useJakartaEe>  <!-- Essential for Jackson 3.x -->
@@ -415,6 +439,7 @@ find . -name "*.java" -type f -exec sed -i '' 's/com\.fasterxml\.jackson/tools.j
 **Problem**: Some transitive dependencies bring Jackson 2.x
 
 **Solution**: Exclude explicitly
+
 ```xml
 <dependency>
     <groupId>some-library</groupId>
@@ -429,6 +454,7 @@ find . -name "*.java" -type f -exec sed -i '' 's/com\.fasterxml\.jackson/tools.j
 ```
 
 **Check for Conflicts**:
+
 ```bash
 mvn dependency:tree | grep jackson-databind
 # Should only see tools.jackson, not com.fasterxml
@@ -457,6 +483,7 @@ public SecurityFilterChain defaultChain(HttpSecurity http) { ... }
 ```
 
 **Why Ordering Matters**:
+
 - First matching chain handles request
 - Auth server chain matches `/oauth2/**`
 - Resource server chain matches `/api/**`
@@ -466,15 +493,16 @@ public SecurityFilterChain defaultChain(HttpSecurity http) { ... }
 
 ### Deprecated Methods Removed
 
-| Spring Security 6.x | Spring Security 7.x |
-|---------------------|---------------------|
-| `.and()` chaining | Lambda DSL only |
-| `.authorizeRequests()` | `.authorizeHttpRequests()` |
-| `.antMatchers()` | `.requestMatchers()` |
-| `.mvcMatchers()` | `.requestMatchers()` |
-| `.regexMatchers()` | `.requestMatchers()` with regex |
+| Spring Security 6.x    | Spring Security 7.x             |
+| ---------------------- | ------------------------------- |
+| `.and()` chaining      | Lambda DSL only                 |
+| `.authorizeRequests()` | `.authorizeHttpRequests()`      |
+| `.antMatchers()`       | `.requestMatchers()`            |
+| `.mvcMatchers()`       | `.requestMatchers()`            |
+| `.regexMatchers()`     | `.requestMatchers()` with regex |
 
 **Before** (deprecated):
+
 ```java
 http
     .authorizeRequests()
@@ -488,6 +516,7 @@ http
 ```
 
 **After** (lambda DSL):
+
 ```java
 http
     .authorizeHttpRequests(requests -> requests
@@ -503,12 +532,14 @@ http
 **Integration Package**: `org.springframework.security.oauth2.server.authorization`
 
 **Key Changes**:
+
 - JDBC repositories now required for production (in-memory for dev only)
 - `RegisteredClientRepository` replaces `ClientDetailsService`
 - `OAuth2AuthorizationService` for token storage
 - `AuthorizationServerSettings` for issuer configuration
 
 **Configuration**:
+
 ```java
 @Bean
 @Order(1)
@@ -538,6 +569,7 @@ public SecurityFilterChain authServerChain(HttpSecurity http) throws Exception {
 **Migration**: OpenFeign → Spring HTTP Interface
 
 **Why**:
+
 - Spring HTTP Interface is official Spring 6+ feature
 - Better integration with RestClient
 - No runtime proxying (compile-time generation)
@@ -546,6 +578,7 @@ public SecurityFilterChain authServerChain(HttpSecurity http) throws Exception {
 ### OpenAPI Generator Configuration
 
 **Before** (OpenFeign):
+
 ```xml
 <configOptions>
     <library>feign</library>
@@ -553,6 +586,7 @@ public SecurityFilterChain authServerChain(HttpSecurity http) throws Exception {
 ```
 
 **After** (Spring HTTP Interface):
+
 ```xml
 <configOptions>
     <library>spring-http-interface</library>
@@ -562,6 +596,7 @@ public SecurityFilterChain authServerChain(HttpSecurity http) throws Exception {
 ### Generated Code Differences
 
 **OpenFeign**:
+
 ```java
 @FeignClient(name = "resos-api", url = "${resos.api.url}")
 public interface DefaultApi {
@@ -575,6 +610,7 @@ public interface DefaultApi {
 ```
 
 **Spring HTTP Interface**:
+
 ```java
 public interface DefaultApi {
 
@@ -589,6 +625,7 @@ public interface DefaultApi {
 ### Client Configuration
 
 **OpenFeign** (automatic):
+
 ```yaml
 feign:
   client:
@@ -599,6 +636,7 @@ feign:
 ```
 
 **Spring HTTP Interface** (manual RestClient):
+
 ```java
 @Bean
 public RestClient restClient() {
@@ -622,6 +660,7 @@ public DefaultApi defaultApi(RestClient restClient) {
 ```
 
 **Benefits of Spring HTTP Interface**:
+
 - Native Spring support (no third-party library)
 - Works with RestClient (Spring 6+)
 - Better error handling
@@ -636,6 +675,7 @@ public DefaultApi defaultApi(RestClient restClient) {
 **Initial Approach**: Custom `McpAsyncClientManager` with manual client construction
 
 **Problems**:
+
 - Tightly coupled to WebFlux `WebClient`
 - Used deprecated `WebFluxSseClientTransport`
 - Complex property injection
@@ -644,6 +684,7 @@ public DefaultApi defaultApi(RestClient restClient) {
 ### Migration
 
 **Before** (Complex Custom Manager):
+
 ```java
 @Component
 public class McpAsyncClientManager {
@@ -672,6 +713,7 @@ public class McpAsyncClientManager {
 ```
 
 **After** (Simple Autoconfigured Manager):
+
 ```java
 @Component
 public class McpSyncClientManager {
@@ -689,6 +731,7 @@ public class McpSyncClientManager {
 ```
 
 **Configuration** (application.yml):
+
 ```yaml
 spring:
   ai:
@@ -702,6 +745,7 @@ spring:
 ```
 
 **Benefits**:
+
 - 90% less code (100 lines → 10 lines)
 - Spring Boot autoconfiguration handles everything
 - No manual transport creation
@@ -716,10 +760,11 @@ spring:
 ### MCP Server
 
 **Before** (WebFlux with SSE):
+
 ```yaml
 spring:
   main:
-    web-application-type: none  # STDIO mode
+    web-application-type: none # STDIO mode
 
   ai:
     mcp:
@@ -728,6 +773,7 @@ spring:
 ```
 
 **After** (WebMVC with HTTP Streamable):
+
 ```yaml
 spring:
   # Removed: web-application-type (HTTP enabled by default)
@@ -749,6 +795,7 @@ spring:
 ### MCP Client
 
 **Before** (WebFlux with SSE):
+
 ```yaml
 spring:
   ai:
@@ -762,6 +809,7 @@ spring:
 ```
 
 **After** (WebMVC with HTTP):
+
 ```yaml
 spring:
   ai:
@@ -769,7 +817,7 @@ spring:
       client:
         type: SYNC
         initialized: false
-        http:  # Changed from 'sse' to 'http'
+        http: # Changed from 'sse' to 'http'
           connections:
             butler:
               url: http://localhost:8082
@@ -784,12 +832,14 @@ spring:
 **Problem**: Adding `spring-boot-starter-oauth2-client` brings Spring Security, which protects ALL endpoints by default with 302 redirects.
 
 **Symptom**:
-```
+
+```text
 Expected: 200 OK from /mcp/tools
 Actual: 302 Found → /login
 ```
 
 **Solution**: Create explicit `SecurityFilterChain`:
+
 ```java
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -809,11 +859,13 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 **Problem**: Spring AI BOM doesn't include all MCP artifacts in milestone versions.
 
 **Symptom**:
-```
+
+```text
 [ERROR] Failed to execute goal ... could not resolve dependencies for me.pacphi:spring-ai-resos-mcp-server
 ```
 
 **Solution**: Add explicit version
+
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
@@ -827,20 +879,25 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 **Problem**: Compilation errors for `reactor.core.publisher.Mono` even after removing webflux.
 
 **Symptom**:
-```
+
+```text
 [ERROR] cannot find symbol
   symbol:   class Mono
   location: package reactor.core.publisher
 ```
 
 **Solution**:
+
 1. Search for reactive imports:
+
    ```bash
    grep -r "import reactor" src/main/java/
    ```
+
 2. Replace with blocking alternatives
 3. Delete old files entirely (don't comment out)
 4. Verify no WebFlux dependencies:
+
    ```bash
    mvn dependency:tree | grep webflux
    ```
@@ -850,15 +907,18 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 **Problem**: Guessing artifact names based on conventions.
 
 **Symptoms**:
+
 - ❌ `spring-ai-mcp-server-webmvc-spring-boot-starter` (doesn't exist)
 - ❌ `spring-ai-mcp-client-spring-boot-starter` (ambiguous)
 
 **Solution**: Always verify in Maven Central:
+
 1. Search: https://central.sonatype.com/
 2. Check Spring AI GitHub: https://github.com/spring-projects/spring-ai
 3. Read documentation: https://docs.spring.io/spring-ai/reference/
 
 **Correct Names**:
+
 - ✅ `spring-ai-starter-mcp-server-webmvc`
 - ✅ `spring-ai-starter-mcp-client` (servlet-based)
 - ✅ `spring-ai-starter-mcp-client-webflux` (if needed)
@@ -870,11 +930,13 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 ### BOM Update
 
 **Before**:
+
 ```xml
 <junit-jupiter.version>5.11.3</junit-jupiter.version>
 ```
 
 **After**:
+
 ```xml
 <junit-jupiter.version>6.0.0</junit-jupiter.version>
 ```
@@ -882,6 +944,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 ### Import Changes
 
 **Mostly unchanged**, but verify:
+
 ```java
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -891,6 +954,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 ### TestContainers Integration
 
 **Spring Boot 4 Support**:
+
 ```java
 @SpringBootTest
 @Testcontainers
@@ -986,6 +1050,7 @@ class BackendIntegrationTest {
 **Don't Assume**: Naming conventions vary
 
 **Do**:
+
 - Search Maven Central
 - Check official documentation
 - Look at Spring AI GitHub repository
@@ -996,6 +1061,7 @@ class BackendIntegrationTest {
 **Recommendation**: If building new MCP project with OAuth2 security, start with WebMVC.
 
 **Rationale**:
+
 - Better library support
 - Simpler security configuration
 - More examples and documentation
@@ -1020,6 +1086,7 @@ class BackendIntegrationTest {
 **This Document Exists Because**: Future projects/teams can learn from this migration
 
 **Recommendation**: Document your migrations with:
+
 - Before/after code examples
 - Rationale for changes
 - Gotchas and solutions
@@ -1030,6 +1097,7 @@ class BackendIntegrationTest {
 **Don't**: Change everything at once
 
 **Do**: Migrate module-by-module:
+
 1. Update dependencies
 2. Compile (fix errors)
 3. Run tests (fix failures)
@@ -1039,6 +1107,7 @@ class BackendIntegrationTest {
 ### 7. Use Version Control
 
 **Git Strategy**:
+
 ```bash
 git checkout -b feature/spring-boot-4-migration
 git commit -m "Phase 0: Update dependencies"
@@ -1048,6 +1117,7 @@ git commit -m "Phase 2: Migrate MCP server"
 ```
 
 **Benefits**:
+
 - Easy rollback if issues
 - Clear migration history
 - Review changes in isolation
@@ -1058,19 +1128,20 @@ git commit -m "Phase 2: Migrate MCP server"
 
 ### By Component
 
-| Component | Effort | Notes |
-|-----------|--------|-------|
-| **Research** | 2 hours | Understanding new APIs, finding correct artifacts |
-| **Dependency Updates** | 1 hour | Update POMs, resolve conflicts |
-| **Security Migration** | 2 hours | SecurityFilterChain, OAuth2 config |
-| **Controller Migration** | 1 hour | Mono/Flux → blocking types |
-| **HTTP Client Migration** | 1 hour | WebClient → RestClient |
-| **Configuration Updates** | 30 min | application.yml changes |
-| **Testing** | 2 hours | Fix test failures, integration testing |
-| **Documentation** | 1 hour | Update docs, create migration guide |
-| **Total** | **~10.5 hours** | For 3-module project |
+| Component                 | Effort          | Notes                                             |
+| ------------------------- | --------------- | ------------------------------------------------- |
+| **Research**              | 2 hours         | Understanding new APIs, finding correct artifacts |
+| **Dependency Updates**    | 1 hour          | Update POMs, resolve conflicts                    |
+| **Security Migration**    | 2 hours         | SecurityFilterChain, OAuth2 config                |
+| **Controller Migration**  | 1 hour          | Mono/Flux → blocking types                        |
+| **HTTP Client Migration** | 1 hour          | WebClient → RestClient                            |
+| **Configuration Updates** | 30 min          | application.yml changes                           |
+| **Testing**               | 2 hours         | Fix test failures, integration testing            |
+| **Documentation**         | 1 hour          | Update docs, create migration guide               |
+| **Total**                 | **~10.5 hours** | For 3-module project                              |
 
 **Factors Affecting Time**:
+
 - Team familiarity with Spring Boot 4
 - Number of custom security filters
 - Amount of WebFlux-specific code
@@ -1116,26 +1187,26 @@ git commit -m "Phase 2: Migrate MCP server"
 
 ### Community Resources
 
-- [Baeldung: Spring Boot 4](https://www.baeldung.com/spring-boot-4)
+- [Spring Boot 4.0 Migration Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 - [Baeldung: Securing Spring AI MCP Servers](https://www.baeldung.com/spring-ai-mcp-servers-oauth2)
 - [spring-ai-community/mcp-security](https://github.com/spring-ai-community/mcp-security)
 
 ### Internal Documentation
 
-- [docs/PHASE_0_LESSONS_LEARNED.md](../../PHASE_0_LESSONS_LEARNED.md) - Real migration lessons
-- [docs/SECURITY_IMPLEMENTATION_PLAN.md](../../SECURITY_IMPLEMENTATION_PLAN.md) - Security architecture
+- [docs/archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE_0_LESSONS_LEARNED.md](../archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE_0_LESSONS_LEARNED.md) - Real migration lessons
+- [docs/archives/upgrade-to-spring-boot-4-and-spring-ai-2/SECURITY_IMPLEMENTATION_PLAN.md](../archives/upgrade-to-spring-boot-4-and-spring-ai-2/SECURITY_IMPLEMENTATION_PLAN.md) - Security architecture
 
 ---
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `pom.xml` | Parent POM with version updates |
-| `backend/pom.xml` | Backend dependencies |
-| `mcp-server/pom.xml` | MCP server artifacts |
-| `mcp-client/pom.xml` | MCP client artifacts |
-| `.github/workflows/ci.yml` | CI/CD with JDK 25 |
+| File                       | Purpose                         |
+| -------------------------- | ------------------------------- |
+| `pom.xml`                  | Parent POM with version updates |
+| `backend/pom.xml`          | Backend dependencies            |
+| `mcp-server/pom.xml`       | MCP server artifacts            |
+| `mcp-client/pom.xml`       | MCP client artifacts            |
+| `.github/workflows/ci.yml` | CI/CD with JDK 25               |
 
 ## Related Documentation
 

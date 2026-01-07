@@ -109,6 +109,7 @@ sequenceDiagram
 ### Phase 1: Request Initiation
 
 **User Interaction**:
+
 ```javascript
 // React component
 const handleSubmit = async (question) => {
@@ -116,9 +117,9 @@ const handleSubmit = async (question) => {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`
+      Authorization: `Bearer ${authToken}`,
     },
-    body: JSON.stringify({ question })
+    body: JSON.stringify({ question }),
   });
 
   const reader = response.body.getReader();
@@ -127,6 +128,7 @@ const handleSubmit = async (question) => {
 ```
 
 **Backend Controller**:
+
 ```java
 @PostMapping(path = "/stream/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter streamChat(@RequestBody Inquiry inquiry) {
@@ -152,6 +154,7 @@ public SseEmitter streamChat(@RequestBody Inquiry inquiry) {
 ### Phase 2: Tool Callback Setup
 
 **ChatService Orchestration**:
+
 ```java
 public void streamResponseToQuestion(
         String question,
@@ -181,6 +184,7 @@ public void streamResponseToQuestion(
 ```
 
 **System Prompt**:
+
 ```java
 private String buildSystemPrompt() {
     return String.format("""
@@ -198,6 +202,7 @@ private String buildSystemPrompt() {
 ### Phase 3: LLM Processing & Tool Call Decision
 
 **LLM Receives**:
+
 ```json
 {
   "model": "gpt-4o-mini",
@@ -227,13 +232,14 @@ private String buildSystemPrompt() {
           }
         }
       }
-    },
+    }
     // ... other tools (getTables, getFeedback, etc.)
   ]
 }
 ```
 
 **LLM Decides to Call Tool**:
+
 ```json
 {
   "role": "assistant",
@@ -253,6 +259,7 @@ private String buildSystemPrompt() {
 ### Phase 4: Tool Execution
 
 **MCP Client Request**:
+
 ```http
 POST http://localhost:8082/mcp/tools/getCustomers HTTP/1.1
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -267,6 +274,7 @@ Content-Type: application/json
 ```
 
 **MCP Server Tool Method**:
+
 ```java
 @Tool(description = "Fetch customer records with optional filtering and pagination")
 public List<Customer> getCustomers(
@@ -284,6 +292,7 @@ public List<Customer> getCustomers(
 ```
 
 **Backend API Call**:
+
 ```http
 GET http://localhost:8080/api/v1/resos/customers?limit=100&skip=0 HTTP/1.1
 Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -291,6 +300,7 @@ Accept: application/json
 ```
 
 **Database Query**:
+
 ```sql
 SELECT id, name, email, phone, created_at, last_booking_at,
        booking_count, total_spent, metadata
@@ -300,6 +310,7 @@ LIMIT 100 OFFSET 0;
 ```
 
 **Response Chain**:
+
 1. Database → Backend: Customer records as entities
 2. Backend → MCP Server: Customer records as POJOs (JSON)
 3. MCP Server → MCP Client: Tool result
@@ -308,6 +319,7 @@ LIMIT 100 OFFSET 0;
 ### Phase 5: Response Generation & Streaming
 
 **LLM Receives Tool Result**:
+
 ```json
 {
   "role": "tool",
@@ -317,7 +329,8 @@ LIMIT 100 OFFSET 0;
 ```
 
 **LLM Generates Response**:
-```
+
+```text
 Here are all the customers in the system:
 
 1. **John Doe** (john@example.com)
@@ -333,7 +346,8 @@ Here are all the customers in the system:
 
 **Streaming to UI**:
 Each token is sent via SSE as it's generated:
-```
+
+```text
 data: Here
 data:  are
 data:  all
@@ -375,6 +389,7 @@ public class ResOsService {
 ```
 
 Spring AI MCP Server automatically:
+
 1. Scans for `@Tool` methods
 2. Generates JSON Schema from method signatures
 3. Exposes tools via MCP protocol
@@ -385,6 +400,7 @@ Spring AI MCP Server automatically:
 ### Tool Execution Errors
 
 **Backend API Error**:
+
 ```java
 try {
     return resOsApi.customersGet(limit, skip, sort, customQuery);
@@ -396,6 +412,7 @@ try {
 ```
 
 **MCP Server Error Response**:
+
 ```json
 {
   "error": {
@@ -407,7 +424,8 @@ try {
 
 **LLM Handles Error**:
 LLM receives error and generates appropriate response:
-```
+
+```text
 I apologize, but I'm unable to fetch customer data at the moment.
 There appears to be an authentication issue. Please try again later.
 ```
@@ -415,6 +433,7 @@ There appears to be an authentication issue. Please try again later.
 ### Streaming Errors
 
 **SSE Error Handling**:
+
 ```java
 chatService.streamResponseToQuestion(
     question,
@@ -428,6 +447,7 @@ chatService.streamResponseToQuestion(
 ```
 
 **UI Error Display**:
+
 ```javascript
 try {
   // Stream consumption
@@ -439,21 +459,21 @@ try {
 
 ## Performance Considerations
 
-| Layer | Optimization |
-|-------|--------------|
-| **LLM Streaming** | Token-by-token prevents buffering delays |
-| **OAuth2 Tokens** | Cached until expiry (automatic via OAuth2AuthorizedClientManager) |
-| **HTTP Connections** | RestClient with connection pooling |
-| **Database Queries** | Pagination limits result sizes |
-| **SSE** | Asynchronous, non-blocking I/O |
+| Layer                | Optimization                                                      |
+| -------------------- | ----------------------------------------------------------------- |
+| **LLM Streaming**    | Token-by-token prevents buffering delays                          |
+| **OAuth2 Tokens**    | Cached until expiry (automatic via OAuth2AuthorizedClientManager) |
+| **HTTP Connections** | RestClient with connection pooling                                |
+| **Database Queries** | Pagination limits result sizes                                    |
+| **SSE**              | Asynchronous, non-blocking I/O                                    |
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatService.java` | Orchestration |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatController.java` | SSE endpoint |
+| File                                                                            | Purpose            |
+| ------------------------------------------------------------------------------- | ------------------ |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatService.java`          | Orchestration      |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatController.java`       | SSE endpoint       |
 | `mcp-client/src/main/java/me/pacphi/ai/resos/service/McpSyncClientManager.java` | MCP client wrapper |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsService.java` | Tool definitions |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsConfig.java` | Backend API client |
-| `mcp-client/src/main/frontend/src/App.jsx` | React UI |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsService.java`             | Tool definitions   |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/ResOsConfig.java`              | Backend API client |
+| `mcp-client/src/main/frontend/src/App.jsx`                                      | React UI           |

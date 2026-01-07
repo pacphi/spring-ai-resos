@@ -11,6 +11,7 @@ This document outlines recommended enhancements, known limitations, and technica
 **Status**: Many controllers are stubs
 
 **Current**:
+
 ```java
 @PostMapping
 public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
@@ -19,6 +20,7 @@ public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
 ```
 
 **Needed**:
+
 ```java
 @PostMapping
 public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
@@ -30,6 +32,7 @@ public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
 ```
 
 **Endpoints to Implement**:
+
 - `POST /api/v1/resos/bookings` - Create booking
 - `PUT /api/v1/resos/bookings/{id}` - Update booking
 - `DELETE /api/v1/resos/bookings/{id}` - Cancel booking
@@ -42,12 +45,14 @@ public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
 #### 1.2 Validation & Error Handling
 
 **Add**:
+
 - Bean validation on controller inputs
 - Global exception handler
 - Standardized error response format
 - Field-level error messages
 
 **Example**:
+
 ```java
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -147,6 +152,7 @@ public class BookingService {
 **Purpose**: Cache frequently accessed data (customers, tables, opening hours)
 
 **Configuration**:
+
 ```java
 @Configuration
 @EnableCaching
@@ -169,6 +175,7 @@ public class CacheConfig {
 ```
 
 **Usage**:
+
 ```java
 @Cacheable(value = "customers", key = "#id")
 public Customer getCustomerById(UUID id) {
@@ -190,6 +197,7 @@ public void updateCustomer(UUID id, Customer customer) {
 #### 2.2 Database Query Optimization
 
 **Add Indexes**:
+
 ```sql
 CREATE INDEX idx_booking_date ON booking(booking_date);
 CREATE INDEX idx_booking_status ON booking(status);
@@ -200,12 +208,14 @@ CREATE INDEX idx_oauth2_auth_principal ON oauth2_authorization(principal_name);
 ```
 
 **Composite Indexes**:
+
 ```sql
 CREATE INDEX idx_booking_date_status ON booking(booking_date, status);
 CREATE INDEX idx_feedback_customer_date ON feedback(customer_id, created_at);
 ```
 
 **Query Optimization**:
+
 ```java
 // BEFORE: N+1 query
 List<BookingEntity> bookings = bookingRepository.findAll();
@@ -228,6 +238,7 @@ List<BookingWithCustomer> findBookingsWithCustomers(@Param("startDate") LocalDat
 #### 2.3 Connection Pool Tuning
 
 **Monitoring**:
+
 ```yaml
 management:
   metrics:
@@ -236,6 +247,7 @@ management:
 ```
 
 **Tuning**:
+
 - Monitor `hikaricp.connections.active`
 - Monitor `hikaricp.connections.pending`
 - Adjust `maximum-pool-size` based on load
@@ -250,6 +262,7 @@ management:
 #### 3.1 Distributed Tracing (OpenTelemetry)
 
 **Dependencies**:
+
 ```xml
 <dependency>
     <groupId>io.opentelemetry.instrumentation</groupId>
@@ -258,6 +271,7 @@ management:
 ```
 
 **Configuration**:
+
 ```yaml
 spring:
   application:
@@ -266,7 +280,7 @@ spring:
 management:
   tracing:
     sampling:
-      probability: 1.0  # 100% sampling (dev), 0.1 (prod)
+      probability: 1.0 # 100% sampling (dev), 0.1 (prod)
   otlp:
     tracing:
       endpoint: http://localhost:4318/v1/traces
@@ -281,6 +295,7 @@ management:
 #### 3.2 Prometheus Metrics
 
 **Enable**:
+
 ```yaml
 management:
   endpoints:
@@ -294,6 +309,7 @@ management:
 ```
 
 **Custom Metrics**:
+
 ```java
 @Component
 public class ChatMetrics {
@@ -318,6 +334,7 @@ public class ChatMetrics {
 ```
 
 **Grafana Dashboards**:
+
 - Chat requests per minute
 - Tool invocation frequency
 - Average response time
@@ -329,6 +346,7 @@ public class ChatMetrics {
 #### 3.3 Structured Logging (JSON)
 
 **Dependency**:
+
 ```xml
 <dependency>
     <groupId>net.logstash.logback</groupId>
@@ -337,6 +355,7 @@ public class ChatMetrics {
 ```
 
 **Logback Configuration** (`logback-spring.xml`):
+
 ```xml
 <configuration>
     <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
@@ -359,6 +378,7 @@ public class ChatMetrics {
 ```
 
 **Output**:
+
 ```json
 {
   "@timestamp": "2026-01-06T10:30:45.123Z",
@@ -384,6 +404,7 @@ public class ChatMetrics {
 #### 4.1 Rate Limiting
 
 **Dependencies**:
+
 ```xml
 <dependency>
     <groupId>com.bucket4j</groupId>
@@ -392,6 +413,7 @@ public class ChatMetrics {
 ```
 
 **Implementation**:
+
 ```java
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
@@ -427,6 +449,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 #### 4.2 Read Replicas
 
 **Configuration**:
+
 ```java
 @Configuration
 public class DataSourceConfig {
@@ -473,6 +496,7 @@ public class DataSourceConfig {
 ```
 
 **Usage**:
+
 ```java
 @Transactional(readOnly = true)  // Uses replica
 public List<Customer> getAllCustomers() {
@@ -496,6 +520,7 @@ public Customer createCustomer(Customer customer) {
 **Current**: Tokens stored in database but no revocation API
 
 **Add**:
+
 ```java
 @RestController
 @RequestMapping("/api/auth")
@@ -529,6 +554,7 @@ public class TokenController {
 #### 5.2 API Rate Limiting by Client
 
 **Per-Client Limits**:
+
 ```java
 @Component
 public class ClientRateLimiter {
@@ -551,6 +577,7 @@ public class ClientRateLimiter {
 #### 5.3 Security Headers
 
 **Add**:
+
 ```java
 http.headers(headers -> headers
     .contentSecurityPolicy("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
@@ -571,6 +598,7 @@ http.headers(headers -> headers
 #### 6.1 Docker Compose for Local Development
 
 **Simplified Setup**:
+
 ```yaml
 # docker-compose.dev.yml
 services:
@@ -581,12 +609,13 @@ services:
       POSTGRES_USER: resos
       POSTGRES_PASSWORD: dev
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   # No application containers (run via Maven for HMR)
 ```
 
 **Usage**:
+
 ```bash
 # Start database only
 docker-compose -f docker-compose.dev.yml up -d
@@ -600,6 +629,7 @@ cd backend && mvn spring-boot:run
 #### 6.2 Test Data Generator
 
 **CLI Tool**:
+
 ```bash
 # Generate 1000 test customers
 java -jar data-generator.jar customers --count 1000
@@ -615,12 +645,14 @@ java -jar data-generator.jar bookings --start 2026-01-01 --end 2026-01-31
 #### 6.3 OpenAPI Documentation Enhancement
 
 **Add**:
+
 - Request/response examples
 - Error response documentation
 - Authentication examples
 - Try-it-out with OAuth2 token
 
 **Swagger UI Configuration**:
+
 ```java
 @Bean
 public OpenAPI openAPI() {
@@ -645,31 +677,34 @@ public OpenAPI openAPI() {
 
 ### Current Limitations
 
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| **InMemoryChatMemory** | Lost on restart, not shared across instances | Use Redis-backed memory |
-| **No Caching Layer** | Every request hits database | Add Redis caching |
-| **No Distributed Tracing** | Hard to debug multi-service issues | Add OpenTelemetry |
-| **Many Controller Stubs** | Limited API functionality | Implement remaining endpoints |
-| **No Email Notifications** | No booking confirmations | Add email service (SendGrid, SES) |
-| **No Payment Integration** | Cannot process payments | Add Stripe/PayPal |
-| **No WebSocket Support** | Only HTTP for MCP | Add WebSocket transport (if needed) |
-| **No Multi-Tenancy** | Single restaurant only | Add tenant isolation |
+| Limitation                 | Impact                                       | Workaround                          |
+| -------------------------- | -------------------------------------------- | ----------------------------------- |
+| **InMemoryChatMemory**     | Lost on restart, not shared across instances | Use Redis-backed memory             |
+| **No Caching Layer**       | Every request hits database                  | Add Redis caching                   |
+| **No Distributed Tracing** | Hard to debug multi-service issues           | Add OpenTelemetry                   |
+| **Many Controller Stubs**  | Limited API functionality                    | Implement remaining endpoints       |
+| **No Email Notifications** | No booking confirmations                     | Add email service (SendGrid, SES)   |
+| **No Payment Integration** | Cannot process payments                      | Add Stripe/PayPal                   |
+| **No WebSocket Support**   | Only HTTP for MCP                            | Add WebSocket transport (if needed) |
+| **No Multi-Tenancy**       | Single restaurant only                       | Add tenant isolation                |
 
 ### Scale Limitations
 
 **Current Architecture Scales To**:
+
 - **Users**: 1,000 concurrent users
 - **Requests**: 500 req/s per instance
 - **Database**: 10,000 bookings/day
 - **Chat**: 50 concurrent chat sessions
 
 **Bottlenecks**:
+
 1. **LLM API Rate Limits**: OpenAI tier limits (e.g., 500 req/min)
 2. **Database Connections**: HikariCP pool size × instances
 3. **Memory**: InMemoryChatMemory grows unbounded
 
 **Solutions**:
+
 - LLM: Queue system, multiple API keys, local Ollama
 - Database: Read replicas, connection pool tuning
 - Memory: Redis-backed chat memory, TTL expiration
@@ -697,29 +732,29 @@ public OpenAPI openAPI() {
 
 ### Medium Priority
 
-4. **Improve Test Coverage**
+1. **Improve Test Coverage**
    - **Current**: ~60% overall
    - **Target**: 80% line coverage
    - **Effort**: 3-4 days
 
-5. **Add API Request Validation**
+2. **Add API Request Validation**
    - **Current**: Limited validation
    - **Impact**: Invalid data in database
    - **Effort**: 1-2 days
 
-6. **Logging Strategy Refinement**
+3. **Logging Strategy Refinement**
    - **Current**: Inconsistent log levels
    - **Impact**: Hard to debug
    - **Effort**: 1 day
 
 ### Low Priority
 
-7. **Javadoc Completion**
+1. **Javadoc Completion**
    - **Current**: Minimal Javadocs
    - **Impact**: Developer onboarding harder
    - **Effort**: 2 days
 
-8. **Performance Benchmarks**
+2. **Performance Benchmarks**
    - **Current**: No baseline metrics
    - **Impact**: Cannot measure improvements
    - **Effort**: 1-2 days
@@ -805,18 +840,21 @@ public OpenAPI openAPI() {
 ### Recommended Timeline
 
 **Month 1: Core Completion**
+
 - Week 1: Implement remaining controllers
 - Week 2: Add validation and error handling
 - Week 3: Complete integration tests
 - Week 4: Security testing and hardening
 
 **Month 2: Performance & Monitoring**
+
 - Week 1: Add caching layer (Redis)
 - Week 2: Optimize database queries
 - Week 3: Implement distributed tracing
 - Week 4: Set up monitoring and dashboards
 
 **Month 3: Production Readiness**
+
 - Week 1: Load testing and tuning
 - Week 2: Security audit and fixes
 - Week 3: Documentation completion
@@ -831,30 +869,33 @@ public OpenAPI openAPI() {
 ### LLM API Costs
 
 **OpenAI Pricing** (as of 2026):
+
 - gpt-4o-mini: $0.15/1M input tokens, $0.60/1M output tokens
 - Typical chat: 500 input + 300 output tokens
 - Cost per chat: $0.00025 (~$0.25 per 1000 chats)
 
 **Monthly Costs** (1000 users, 10 chats/user/month):
+
 - Total chats: 10,000/month
 - Cost: ~$2.50/month
 
 **Optimization**:
+
 - Use cheaper models (gpt-3.5-turbo, Ollama local)
 - Implement caching (common questions)
 - Use smaller context windows
 
 ### Infrastructure Costs (AWS example)
 
-| Service | Spec | Cost/Month |
-|---------|------|------------|
-| **ECS Fargate** | 2 vCPU, 4GB RAM × 3 instances | $140 |
-| **RDS PostgreSQL** | db.t3.medium (2 vCPU, 4GB) | $60 |
-| **ElastiCache Redis** | cache.t3.micro | $15 |
-| **Application Load Balancer** | 1 ALB | $20 |
-| **CloudWatch** | Logs + metrics | $10 |
-| **S3** | Static assets | $5 |
-| **Total** | | **~$250/month** |
+| Service                       | Spec                          | Cost/Month      |
+| ----------------------------- | ----------------------------- | --------------- |
+| **ECS Fargate**               | 2 vCPU, 4GB RAM × 3 instances | $140            |
+| **RDS PostgreSQL**            | db.t3.medium (2 vCPU, 4GB)    | $60             |
+| **ElastiCache Redis**         | cache.t3.micro                | $15             |
+| **Application Load Balancer** | 1 ALB                         | $20             |
+| **CloudWatch**                | Logs + metrics                | $10             |
+| **S3**                        | Static assets                 | $5              |
+| **Total**                     |                               | **~$250/month** |
 
 **Plus**: LLM API costs (~$2.50/month)
 
@@ -864,18 +905,18 @@ public OpenAPI openAPI() {
 
 ## Recommendation Priority Matrix
 
-| Enhancement | Business Value | Technical Complexity | Priority |
-|-------------|----------------|---------------------|----------|
-| Complete Controllers | High | Low | **High** |
-| Error Handling | High | Low | **High** |
-| Integration Tests | High | Medium | **High** |
-| Redis Caching | Medium | Low | **Medium** |
-| Distributed Tracing | Medium | Medium | **Medium** |
-| Query Optimization | Medium | Medium | **Medium** |
-| Rate Limiting | Medium | Low | **Medium** |
-| Token Revocation | Low | Low | **Low** |
-| Read Replicas | Low | High | **Low** |
-| Multi-Tenancy | Low | High | **Low** |
+| Enhancement          | Business Value | Technical Complexity | Priority   |
+| -------------------- | -------------- | -------------------- | ---------- |
+| Complete Controllers | High           | Low                  | **High**   |
+| Error Handling       | High           | Low                  | **High**   |
+| Integration Tests    | High           | Medium               | **High**   |
+| Redis Caching        | Medium         | Low                  | **Medium** |
+| Distributed Tracing  | Medium         | Medium               | **Medium** |
+| Query Optimization   | Medium         | Medium               | **Medium** |
+| Rate Limiting        | Medium         | Low                  | **Medium** |
+| Token Revocation     | Low            | Low                  | **Low**    |
+| Read Replicas        | Low            | High                 | **Low**    |
+| Multi-Tenancy        | Low            | High                 | **Low**    |
 
 **Recommendation**: Focus on High priority items first (foundation), then Medium (performance and monitoring), finally Low (nice-to-have).
 
@@ -886,6 +927,7 @@ public OpenAPI openAPI() {
 ### Application Metrics
 
 **Target**:
+
 - **Availability**: 99.9% uptime (8.7 hours downtime/year)
 - **Response Time**: p95 < 200ms (excluding LLM)
 - **Error Rate**: < 0.1%
@@ -894,6 +936,7 @@ public OpenAPI openAPI() {
 ### Performance Metrics
 
 **Target**:
+
 - **Throughput**: 1000 req/s (with caching)
 - **Database Queries**: < 10 queries per request
 - **Connection Pool**: < 50% utilization
@@ -902,6 +945,7 @@ public OpenAPI openAPI() {
 ### Security Metrics
 
 **Target**:
+
 - **Zero Known Vulnerabilities**: OWASP scan clean
 - **Token Lifetime**: < 1 hour for access tokens
 - **Password Strength**: 80+ bits entropy (BCrypt cost 12)

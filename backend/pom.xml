@@ -113,31 +113,83 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Build Docker test image for TestContainers -->
+            <!-- Remove existing Docker image before rebuild (optional cleanup) -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
                 <executions>
                     <execution>
-                        <id>docker-build-test-image</id>
-                        <!-- Build after JAR is packaged, before tests run in mcp-client -->
-                        <phase>package</phase>
+                        <id>docker-remove-existing-image</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>docker</executable>
+                            <executable>/bin/bash</executable>
                             <workingDirectory>${project.basedir}</workingDirectory>
                             <arguments>
-                                <argument>build</argument>
-                                <argument>-f</argument>
-                                <argument>Dockerfile.test</argument>
-                                <argument>-t</argument>
-                                <argument>spring-ai-resos-backend:test</argument>
-                                <argument>.</argument>
+                                <argument>-c</argument>
+                                <argument>
+                                    if docker image inspect spring-ai-resos-backend:test &gt;/dev/null 2&gt;&amp;1; then
+                                        echo "Removing existing Docker image spring-ai-resos-backend:test..."
+                                        docker rmi -f spring-ai-resos-backend:test || true
+                                    else
+                                        echo "No existing Docker image to remove."
+                                    fi
+                                </argument>
                             </arguments>
+                            <successCodes>
+                                <successCode>0</successCode>
+                                <successCode>1</successCode>
+                            </successCodes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Build Docker test image using Google Jib (no Dockerfile needed) -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <from>
+                        <image>bellsoft/liberica-openjdk-debian:25</image>
+                    </from>
+                    <to>
+                        <image>spring-ai-resos-backend:test</image>
+                    </to>
+                    <container>
+                        <jvmFlags>
+                            <jvmFlag>-Dspring.profiles.active=dev</jvmFlag>
+                            <jvmFlag>-Djava.security.egd=file:///dev/urandom</jvmFlag>
+                        </jvmFlags>
+                        <environment>
+                            <CSV_BASE_PATH>/app/seed-data</CSV_BASE_PATH>
+                        </environment>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                        <workingDirectory>/app</workingDirectory>
+                    </container>
+                    <extraDirectories>
+                        <paths>
+                            <path>
+                                <from>${project.basedir}/seed-data</from>
+                                <into>/app/seed-data</into>
+                            </path>
+                        </paths>
+                    </extraDirectories>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-build-test-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <!-- Build to local Docker daemon -->
+                            <goal>dockerBuild</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -9,7 +9,7 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yml
-    drop-first: true  # Drop all database objects before migration (clean slate)
+    drop-first: true # Drop all database objects before migration (clean slate)
 
   sql:
     init:
@@ -30,10 +30,10 @@ oauth2:
 # Security Configuration for Tests
 app:
   security:
-    issuer-uri: http://localhost:8080  # Fixed port for tests
+    issuer-uri: http://localhost:8080 # Fixed port for tests
     token:
-      access-token-ttl: PT5M  # 5 minutes for faster tests
-      refresh-token-ttl: PT1H  # 1 hour for tests
+      access-token-ttl: PT5M # 5 minutes for faster tests
+      refresh-token-ttl: PT1H # 1 hour for tests
   entity:
     base-package: me.pacphi.ai.resos.jdbc
   seed:

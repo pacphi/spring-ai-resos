@@ -135,6 +135,7 @@ sequenceDiagram
 ### Access Token (JWT)
 
 **Header**:
+
 ```json
 {
   "alg": "RS256",
@@ -144,6 +145,7 @@ sequenceDiagram
 ```
 
 **Payload** (custom claims added by JwtTokenCustomizer):
+
 ```json
 {
   "sub": "admin",
@@ -164,6 +166,7 @@ sequenceDiagram
 ### Refresh Token
 
 Opaque string (not JWT):
+
 - Stored in database (`oauth2_authorization` table)
 - Longer lifetime (hours to days)
 - Can be revoked
@@ -172,6 +175,7 @@ Opaque string (not JWT):
 ### ID Token (OIDC)
 
 JWT containing user identity:
+
 ```json
 {
   "sub": "admin",
@@ -197,7 +201,7 @@ spring:
         registration:
           frontend-app:
             client-id: frontend-app
-            client-authentication-method: none  # Public client
+            client-authentication-method: none # Public client
             authorization-grant-type: authorization_code
             redirect-uri: http://localhost:8081/login/oauth2/code/frontend-app
             post-logout-redirect-uri: http://localhost:8081/
@@ -303,32 +307,32 @@ flowchart TD
 
 ### Authorization Server Endpoints
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /oauth2/authorize` | Authorization code request |
-| `POST /oauth2/token` | Token issuance and refresh |
-| `POST /oauth2/revoke` | Token revocation |
-| `GET /.well-known/openid-configuration` | OpenID Connect discovery |
-| `GET /.well-known/jwks.json` | Public keys for JWT verification |
-| `POST /oauth2/introspect` | Token introspection |
-| `GET /userinfo` | OIDC user info endpoint |
+| Endpoint                                | Purpose                          |
+| --------------------------------------- | -------------------------------- |
+| `GET /oauth2/authorize`                 | Authorization code request       |
+| `POST /oauth2/token`                    | Token issuance and refresh       |
+| `POST /oauth2/revoke`                   | Token revocation                 |
+| `GET /.well-known/openid-configuration` | OpenID Connect discovery         |
+| `GET /.well-known/jwks.json`            | Public keys for JWT verification |
+| `POST /oauth2/introspect`               | Token introspection              |
+| `GET /userinfo`                         | OIDC user info endpoint          |
 
 ### Authentication Endpoints
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /login` | Login page (Thymeleaf template) |
-| `POST /login` | Form submission |
-| `POST /logout` | User logout |
-| `GET /api/auth/user` | Current user info (mcp-client) |
-| `GET /api/auth/status` | Auth status check (mcp-client) |
+| Endpoint               | Purpose                         |
+| ---------------------- | ------------------------------- |
+| `GET /login`           | Login page (Thymeleaf template) |
+| `POST /login`          | Form submission                 |
+| `POST /logout`         | User logout                     |
+| `GET /api/auth/user`   | Current user info (mcp-client)  |
+| `GET /api/auth/status` | Auth status check (mcp-client)  |
 
 ## Critical Files
 
-| File | Purpose |
-|------|---------|
+| File                                                                               | Purpose                   |
+| ---------------------------------------------------------------------------------- | ------------------------- |
 | `backend/src/main/java/me/pacphi/ai/resos/security/AuthorizationServerConfig.java` | Auth server configuration |
-| `backend/src/main/java/me/pacphi/ai/resos/security/JwtTokenCustomizer.java` | Custom JWT claims |
-| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/SecurityConfig.java` | Resource server config |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/config/McpClientOAuth2Config.java` | OAuth2 client config |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/config/SecurityConfig.java` | Frontend security |
+| `backend/src/main/java/me/pacphi/ai/resos/security/JwtTokenCustomizer.java`        | Custom JWT claims         |
+| `mcp-server/src/main/java/me/pacphi/ai/resos/mcp/SecurityConfig.java`              | Resource server config    |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/config/McpClientOAuth2Config.java`    | OAuth2 client config      |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/config/SecurityConfig.java`           | Frontend security         |

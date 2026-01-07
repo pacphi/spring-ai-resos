@@ -11,6 +11,7 @@ This document details the Maven multi-module build process, dependency managemen
 **Packaging**: `pom`
 
 **Parent Inheritance**:
+
 ```xml
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -20,6 +21,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **Modules**:
+
 ```xml
 <modules>
     <module>client</module>
@@ -34,12 +36,14 @@ This document details the Maven multi-module build process, dependency managemen
 ### Maven Reactor Build Order
 
 **Determined by**:
+
 1. Module dependencies (explicit `<dependency>`)
 2. Dependency plugin references (e.g., unpacking)
 3. Exec plugin dependencies
 
 **Actual Order**:
-```
+
+```text
 [INFO] Reactor Build Order:
 [INFO]
 [INFO] spring-ai-resos-codegen
@@ -51,6 +55,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **Why This Order?**:
+
 1. **codegen**: No dependencies
 2. **client**: No dependencies (but depends on codegen for exec plugin)
 3. **entities**: Depends on client (source unpacking) and codegen (transformation)
@@ -116,6 +121,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **Benefits**:
+
 - Consistent versions across modules
 - No version conflicts
 - Easier upgrades (change BOM version only)
@@ -153,6 +159,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **Reference in Child POMs**:
+
 ```xml
 <dependency>
     <groupId>org.liquibase</groupId>
@@ -188,6 +195,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **What It Does**:
+
 - Creates executable JAR (fat JAR with all dependencies)
 - Sets Main-Class in MANIFEST.MF
 - Preserves original JAR as `.jar.original`
@@ -220,6 +228,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **Output**: `git.properties` file with:
+
 - Commit ID
 - Branch name
 - Build time
@@ -255,6 +264,7 @@ This document details the Maven multi-module build process, dependency managemen
 ```
 
 **Commands**:
+
 ```bash
 # Check formatting
 mvn spotless:check
@@ -288,6 +298,7 @@ mvn spotless:apply
 **Output**: `bom.xml` (Software Bill of Materials)
 
 **Purpose**:
+
 - Security scanning (Snyk, OWASP Dependency-Check)
 - License compliance
 - Vulnerability tracking
@@ -325,6 +336,7 @@ mvn spotless:apply
 ### Development Profiles
 
 **dev** (H2, OAuth2 seeding, CSV seeding):
+
 ```yaml
 # backend/src/main/resources/application-dev.yml
 spring:
@@ -349,6 +361,7 @@ app:
 ```
 
 **postgres** (PostgreSQL database):
+
 ```yaml
 # backend/src/main/resources/application-postgres.yml
 spring:
@@ -360,6 +373,7 @@ spring:
 ```
 
 **test** (Test data seeding):
+
 ```yaml
 # backend/src/main/resources/application-test.yml
 app:
@@ -374,6 +388,7 @@ app:
 ### LLM Provider Profiles
 
 **openai**:
+
 ```yaml
 # mcp-client/src/main/resources/application-openai.yml
 spring:
@@ -386,6 +401,7 @@ spring:
 ```
 
 **groq-cloud**:
+
 ```yaml
 # mcp-client/src/main/resources/application-groq-cloud.yml
 spring:
@@ -399,6 +415,7 @@ spring:
 ```
 
 **ollama**:
+
 ```yaml
 # mcp-client/src/main/resources/application-ollama.yml
 spring:
@@ -482,34 +499,37 @@ mvn clean install -rf :spring-ai-resos-backend
 
 ### Standard Maven Lifecycle
 
-| Phase | Purpose | Key Actions |
-|-------|---------|-------------|
-| **validate** | Validate project structure | POM validation |
-| **initialize** | Initialize build state | Git commit ID generation |
-| **generate-sources** | Generate source code | OpenAPI client, entity transformation |
-| **process-sources** | Process source files | Copy resources |
-| **generate-resources** | Generate resources | Spring banner, frontend build |
-| **process-resources** | Copy resources | application.yml to target/ |
-| **compile** | Compile source code | javac |
-| **process-classes** | Post-process classes | Bytecode enhancement (if any) |
-| **generate-test-sources** | Generate test sources | (none) |
-| **process-test-sources** | Process test sources | (none) |
-| **test-compile** | Compile tests | Test classes |
-| **test** | Run tests | JUnit, integration tests |
-| **package** | Create JAR/WAR | Executable JAR creation |
-| **verify** | Verify package | Integration tests |
-| **install** | Install to local repo | ~/.m2/repository |
-| **deploy** | Deploy to remote repo | Maven Central, GitHub Packages |
+| Phase                     | Purpose                    | Key Actions                           |
+| ------------------------- | -------------------------- | ------------------------------------- |
+| **validate**              | Validate project structure | POM validation                        |
+| **initialize**            | Initialize build state     | Git commit ID generation              |
+| **generate-sources**      | Generate source code       | OpenAPI client, entity transformation |
+| **process-sources**       | Process source files       | Copy resources                        |
+| **generate-resources**    | Generate resources         | Spring banner, frontend build         |
+| **process-resources**     | Copy resources             | application.yml to target/            |
+| **compile**               | Compile source code        | javac                                 |
+| **process-classes**       | Post-process classes       | Bytecode enhancement (if any)         |
+| **generate-test-sources** | Generate test sources      | (none)                                |
+| **process-test-sources**  | Process test sources       | (none)                                |
+| **test-compile**          | Compile tests              | Test classes                          |
+| **test**                  | Run tests                  | JUnit, integration tests              |
+| **package**               | Create JAR/WAR             | Executable JAR creation               |
+| **verify**                | Verify package             | Integration tests                     |
+| **install**               | Install to local repo      | ~/.m2/repository                      |
+| **deploy**                | Deploy to remote repo      | Maven Central, GitHub Packages        |
 
 ### Custom Phases
 
 **client module**:
+
 - **generate-sources**: OpenAPI Generator creates client code
 
 **entities module**:
+
 - **generate-sources**: Unpack client sources, run EntityGenerator
 
 **mcp-client module**:
+
 - **generate-resources**: Install Node.js, npm install, npm build
 - **process-resources**: Copy React build to static/
 
@@ -520,55 +540,62 @@ mvn clean install -rf :spring-ai-resos-backend
 ### Timing Breakdown
 
 **First Build** (no cache):
-| Module | Phase | Time |
-|--------|-------|------|
-| codegen | compile | 5s |
-| client | generate-sources | 15s (OpenAPI Generator) |
-| client | compile | 8s |
-| entities | generate-sources | 5s (unpack + transform) |
-| entities | compile | 3s |
-| backend | compile | 12s |
-| backend | test | 15s (integration tests) |
-| mcp-server | compile | 10s |
+
+| Module     | Phase              | Time                    |
+| ---------- | ------------------ | ----------------------- |
+| codegen    | compile            | 5s                      |
+| client     | generate-sources   | 15s (OpenAPI Generator) |
+| client     | compile            | 8s                      |
+| entities   | generate-sources   | 5s (unpack + transform) |
+| entities   | compile            | 3s                      |
+| backend    | compile            | 12s                     |
+| backend    | test               | 15s (integration tests) |
+| mcp-server | compile            | 10s                     |
 | mcp-client | generate-resources | 35s (Node + npm + Vite) |
-| mcp-client | compile | 8s |
-| **Total** | | **~116s** (1m 56s) |
+| mcp-client | compile            | 8s                      |
+| **Total**  |                    | **~116s** (1m 56s)      |
 
 **Incremental Build** (cache warm):
-| Scenario | Time |
-|----------|------|
-| No changes | 8s (validation only) |
-| Backend Java change | 20s (backend only) |
-| React change | 40s (frontend build only) |
+
+| Scenario            | Time                               |
+| ------------------- | ---------------------------------- |
+| No changes          | 8s (validation only)               |
+| Backend Java change | 20s (backend only)                 |
+| React change        | 40s (frontend build only)          |
 | OpenAPI spec change | 90s (client, entities, dependents) |
 
 ### Optimization Strategies
 
 **1. Parallel Build**:
+
 ```bash
 mvn clean install -T 1C  # 1 thread per core
 # 4-core machine: ~70s (vs 116s sequential)
 ```
 
 **2. Skip Tests**:
+
 ```bash
 mvn clean install -DskipTests
 # Saves ~30s
 ```
 
 **3. Offline Mode**:
+
 ```bash
 mvn clean install -o
 # Skips dependency updates, saves ~5s
 ```
 
 **4. Module-Specific**:
+
 ```bash
 cd backend && mvn package
 # Only builds backend (~20s vs 116s full build)
 ```
 
 **5. Frontend Cache**:
+
 ```bash
 # Keep node_modules/ in src/main/frontend/
 # Maven won't delete it, npm install reuses cache
@@ -585,6 +612,7 @@ cd backend && mvn package
 3. **Maven Central**: `https://repo1.maven.org/maven2/`
 
 **Configuration**:
+
 ```xml
 <repositories>
     <repository>
@@ -614,7 +642,8 @@ mvn dependency:tree -Dverbose -Dincludes=tools.jackson.core:jackson-databind
 ```
 
 **Example Output**:
-```
+
+```text
 [INFO] me.pacphi:spring-ai-resos-backend:jar:1.0.0-SNAPSHOT
 [INFO] +- org.springframework.boot:spring-boot-starter-web:jar:4.0.1:compile
 [INFO] |  +- org.springframework:spring-web:jar:7.0.2:compile
@@ -643,33 +672,33 @@ mvn versions:display-plugin-updates
 
 ### Backend
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `SPRING_PROFILES_ACTIVE` | `dev` | Active Spring profiles |
-| `SPRING_DATASOURCE_URL` | H2 in-memory | Database connection |
-| `SPRING_DATASOURCE_USERNAME` | `sa` | Database user |
-| `SPRING_DATASOURCE_PASSWORD` | (empty) | Database password |
-| `APP_SECURITY_ISSUER_URI` | `http://localhost:8080` | OAuth2 issuer |
-| `CSV_BASE_PATH` | `./seed-data` | Seed data location |
+| Variable                     | Default                 | Purpose                |
+| ---------------------------- | ----------------------- | ---------------------- |
+| `SPRING_PROFILES_ACTIVE`     | `dev`                   | Active Spring profiles |
+| `SPRING_DATASOURCE_URL`      | H2 in-memory            | Database connection    |
+| `SPRING_DATASOURCE_USERNAME` | `sa`                    | Database user          |
+| `SPRING_DATASOURCE_PASSWORD` | (empty)                 | Database password      |
+| `APP_SECURITY_ISSUER_URI`    | `http://localhost:8080` | OAuth2 issuer          |
+| `CSV_BASE_PATH`              | `./seed-data`           | Seed data location     |
 
 ### MCP Server
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `RESOS_API_ENDPOINT` | `https://api.resos.com/v1` | Backend API URL |
-| `AUTH_SERVER_URL` | `http://localhost:8080` | OAuth2 auth server |
-| `MCP_SERVER_SECRET` | `mcp-server-secret` | OAuth2 client secret |
+| Variable             | Default                    | Purpose              |
+| -------------------- | -------------------------- | -------------------- |
+| `RESOS_API_ENDPOINT` | `https://api.resos.com/v1` | Backend API URL      |
+| `AUTH_SERVER_URL`    | `http://localhost:8080`    | OAuth2 auth server   |
+| `MCP_SERVER_SECRET`  | `mcp-server-secret`        | OAuth2 client secret |
 
 ### MCP Client
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `OPENAI_API_KEY` | (required) | OpenAI API key |
-| `GROQ_API_KEY` | (required) | Groq Cloud API key |
-| `OPENROUTER_API_KEY` | (required) | OpenRouter API key |
-| `MCP_SERVER_URL` | `http://localhost:8082` | MCP server URL |
-| `AUTH_SERVER_URL` | `http://localhost:8080` | OAuth2 auth server |
-| `MCP_CLIENT_SECRET` | `mcp-client-secret` | OAuth2 client secret |
+| Variable             | Default                 | Purpose              |
+| -------------------- | ----------------------- | -------------------- |
+| `OPENAI_API_KEY`     | (required)              | OpenAI API key       |
+| `GROQ_API_KEY`       | (required)              | Groq Cloud API key   |
+| `OPENROUTER_API_KEY` | (required)              | OpenRouter API key   |
+| `MCP_SERVER_URL`     | `http://localhost:8082` | MCP server URL       |
+| `AUTH_SERVER_URL`    | `http://localhost:8080` | OAuth2 auth server   |
+| `MCP_CLIENT_SECRET`  | `mcp-client-secret`     | OAuth2 client secret |
 
 ---
 
@@ -678,7 +707,8 @@ mvn versions:display-plugin-updates
 ### JAR Structure
 
 **Executable JAR** (backend example):
-```
+
+```text
 spring-ai-resos-backend-1.0.0-SNAPSHOT.jar
 ├── BOOT-INF/
 │   ├── classes/                  # Compiled application classes
@@ -703,6 +733,7 @@ spring-ai-resos-backend-1.0.0-SNAPSHOT.jar
 **Size**: ~80MB (includes all dependencies)
 
 **Execution**:
+
 ```bash
 java -jar spring-ai-resos-backend-1.0.0-SNAPSHOT.jar
 ```
@@ -710,7 +741,8 @@ java -jar spring-ai-resos-backend-1.0.0-SNAPSHOT.jar
 ### Library JAR
 
 **client module**:
-```
+
+```text
 spring-ai-resos-client-1.0.0-SNAPSHOT.jar
 ├── me/pacphi/ai/resos/
 │   ├── api/                      # DefaultApi interface
@@ -737,37 +769,38 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-    - name: Set up JDK 25
-      uses: actions/setup-java@v4
-      with:
-        java-version: '25'
-        distribution: 'temurin'
-        cache: 'maven'
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'liberica'
+          cache: 'maven'
 
-    - name: Build with Maven
-      run: mvn clean install -B -DskipTests
+      - name: Build with Maven
+        run: mvn clean install -B -DskipTests
 
-    - name: Run tests
-      run: mvn test -B
+      - name: Run tests
+        run: mvn test -B
 
-    - name: Upload coverage
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./target/site/jacoco/jacoco.xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./target/site/jacoco/jacoco.xml
 ```
 
 **Key Changes for Spring Boot 4**:
+
 - JDK 25 required
 - Maven 3.9.11+ recommended
 - Cache Maven dependencies for faster builds
@@ -783,6 +816,7 @@ jobs:
 **Cause**: Jackson 2.x vs 3.x conflict
 
 **Solution**:
+
 ```bash
 # Check for Jackson 2.x dependencies
 mvn dependency:tree | grep fasterxml
@@ -805,6 +839,7 @@ mvn dependency:tree | grep fasterxml
 **Cause**: Invalid OpenAPI specification
 
 **Solution**:
+
 ```bash
 # Validate OpenAPI spec
 npx @redocly/cli lint client/src/main/resources/openapi/resos-openapi-modified.yml
@@ -818,6 +853,7 @@ cat client/target/openapi-generator-maven-plugin.log
 **Cause**: Node.js version mismatch
 
 **Solution**:
+
 ```xml
 <!-- Update node version in parent POM -->
 <node.version>v23.4.0</node.version>
@@ -838,6 +874,7 @@ mvn clean  # Remove all target/ directories
 ```
 
 **When**:
+
 - After switching branches
 - Before building from scratch
 - After dependency changes
@@ -888,6 +925,7 @@ mvn versions:display-dependency-updates
 ### IntelliJ IDEA
 
 **Import Project**:
+
 1. File → Open → Select `pom.xml`
 2. Choose "Open as Project"
 3. Wait for Maven import
@@ -895,6 +933,7 @@ mvn versions:display-dependency-updates
 5. Mark `target/generated-sources/` as Generated Sources Root
 
 **Run Configurations**:
+
 - **Backend**: Main class `SpringAiResOsBackendApplication`, VM options `-Dspring.profiles.active=dev`
 - **MCP Server**: Main class `SpringAiResOsMcpServerApplication`, Env vars `RESOS_API_ENDPOINT=http://localhost:8080/api/v1/resos`
 - **MCP Client**: Main class `SpringAiResOsFrontendApplication`, VM options `-Dspring.profiles.active=openai,dev`
@@ -902,11 +941,13 @@ mvn versions:display-dependency-updates
 ### VS Code
 
 **Extensions**:
+
 - Java Extension Pack
 - Spring Boot Extension Pack
 - Maven for Java
 
 **settings.json**:
+
 ```json
 {
   "java.configuration.updateBuildConfiguration": "automatic",
@@ -923,7 +964,7 @@ mvn versions:display-dependency-updates
 
 After `mvn clean install`:
 
-```
+```text
 ~/.m2/repository/me/pacphi/
 ├── spring-ai-resos-codegen/
 │   └── 1.0.0-SNAPSHOT/
@@ -954,14 +995,14 @@ After `mvn clean install`:
 
 ## Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `/pom.xml` | Parent POM with BOM management | ~345 |
-| `client/pom.xml` | OpenAPI Generator configuration | ~120 |
-| `entities/pom.xml` | Entity transformation build | ~100 |
-| `backend/pom.xml` | Backend dependencies | ~200 |
-| `mcp-server/pom.xml` | MCP server dependencies | ~150 |
-| `mcp-client/pom.xml` | Frontend build integration | ~250 |
+| File                 | Purpose                         | Lines |
+| -------------------- | ------------------------------- | ----- |
+| `/pom.xml`           | Parent POM with BOM management  | ~345  |
+| `client/pom.xml`     | OpenAPI Generator configuration | ~120  |
+| `entities/pom.xml`   | Entity transformation build     | ~100  |
+| `backend/pom.xml`    | Backend dependencies            | ~200  |
+| `mcp-server/pom.xml` | MCP server dependencies         | ~150  |
+| `mcp-client/pom.xml` | Frontend build integration      | ~250  |
 
 ## Related Documentation
 

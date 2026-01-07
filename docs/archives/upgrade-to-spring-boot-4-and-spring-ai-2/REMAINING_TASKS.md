@@ -292,16 +292,16 @@
 
 ## Estimated Effort
 
-| Phase | Estimated Time |
-|-------|---------------|
-| Phase 1: Database Schema | 2-3 hours |
-| Phase 2: Backend Security | 4-6 hours |
-| Phase 3: MCP-Server Security | 1-2 hours |
-| Phase 4: MCP-Client OAuth2 | 2-3 hours |
-| Phase 5: React SPA | 2-3 hours |
-| Phase 6: Integration Testing | 3-4 hours |
-| Phase 7: Docker Deployment | 2-3 hours |
-| **Total** | **16-24 hours** |
+| Phase                        | Estimated Time  |
+| ---------------------------- | --------------- |
+| Phase 1: Database Schema     | 2-3 hours       |
+| Phase 2: Backend Security    | 4-6 hours       |
+| Phase 3: MCP-Server Security | 1-2 hours       |
+| Phase 4: MCP-Client OAuth2   | 2-3 hours       |
+| Phase 5: React SPA           | 2-3 hours       |
+| Phase 6: Integration Testing | 3-4 hours       |
+| Phase 7: Docker Deployment   | 2-3 hours       |
+| **Total**                    | **16-24 hours** |
 
 ---
 

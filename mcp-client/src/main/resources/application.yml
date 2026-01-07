@@ -7,10 +7,10 @@ spring:
       client:
         name: ${spring.application.name}
         request-timeout: 30s
-        type: SYNC  # Changed from ASYNC to SYNC for WebMVC
+        type: SYNC # Changed from ASYNC to SYNC for WebMVC
         # Don't initialize clients at startup - let McpSyncClientManager handle per-request init
         initialized: false
-        http:  # Changed from 'sse' to 'http' for WebMVC HTTP Streamable transport
+        http: # Changed from 'sse' to 'http' for WebMVC HTTP Streamable transport
           connections:
             butler:
               url: ${SPRING_AI_RESOS_SERVER_URL:http://localhost:8082}
@@ -91,7 +91,6 @@ spring.security.oauth2.client:
       token-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/token
 
 ---
-
 spring:
   config:
     activate:
@@ -108,9 +107,7 @@ spring:
         base_url: ${EMBEDDING_BASEURL:https://api.openai.com}
         options:
           model: ${EMBEDDING_MODEL:text-embedding-ada-002}
-
 ---
-
 spring:
   config:
     activate:
@@ -141,9 +138,7 @@ spring:
       embedding:
         options:
           model: ${EMBEDDING_MODEL:text-embedding-ada-002}
-
 ---
-
 spring:
   config:
     activate:
@@ -171,7 +166,6 @@ spring:
 #            - x-ai/grok-2-1212
 
 ---
-
 spring:
   config:
     activate:
@@ -191,9 +185,7 @@ spring:
       embedding:
         options:
           model: ${EMBEDDING_MODEL:nomic-embed-text}
-
 ---
-
 spring:
   config:
     activate:

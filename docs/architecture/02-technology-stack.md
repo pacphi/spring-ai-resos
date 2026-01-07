@@ -6,34 +6,35 @@ This document provides a comprehensive breakdown of all technologies, frameworks
 
 ### Core Platform
 
-| Category | Technology | Version | Purpose |
-|----------|-----------|---------|---------|
-| **Language** | Java | 25 | Runtime environment with latest features |
-| **Build Tool** | Maven | 3.9.11 | Multi-module project management |
-| **Framework** | Spring Boot | 4.0.1 | Application framework |
-| **AI Framework** | Spring AI | 2.0.0-M1 | AI integration and tool management |
-| **Cloud** | Spring Cloud | 2025.1.0 | Cloud-native patterns |
+| Category         | Technology   | Version  | Purpose                                  |
+| ---------------- | ------------ | -------- | ---------------------------------------- |
+| **Language**     | Java         | 25       | Runtime environment with latest features |
+| **Build Tool**   | Maven        | 3.9.11   | Multi-module project management          |
+| **Framework**    | Spring Boot  | 4.0.1    | Application framework                    |
+| **AI Framework** | Spring AI    | 2.0.0-M1 | AI integration and tool management       |
+| **Cloud**        | Spring Cloud | 2025.1.0 | Cloud-native patterns                    |
 
 ### Spring Ecosystem
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Spring Security** | 7.0.2 | Authentication and authorization |
-| **Spring Authorization Server** | 1.4.0 | OAuth2 and OIDC provider |
-| **Spring Data JDBC** | 4.0.0 | Lightweight data persistence |
-| **Spring Web MVC** | 7.0.2 | Servlet-based web framework |
-| **Spring Boot Actuator** | 4.0.1 | Production-ready features |
+| Component                       | Version | Purpose                          |
+| ------------------------------- | ------- | -------------------------------- |
+| **Spring Security**             | 7.0.2   | Authentication and authorization |
+| **Spring Authorization Server** | 1.4.0   | OAuth2 and OIDC provider         |
+| **Spring Data JDBC**            | 4.0.0   | Lightweight data persistence     |
+| **Spring Web MVC**              | 7.0.2   | Servlet-based web framework      |
+| **Spring Boot Actuator**        | 4.0.1   | Production-ready features        |
 
 ### AI & MCP Stack
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Spring AI BOM** | 2.0.0-M1 | AI dependency management |
-| **MCP Server WebMVC** | 2.0.0-M1 | Model Context Protocol server |
-| **MCP Client** | 2.0.0-M1 | Model Context Protocol client |
-| **MCP Client Security** | 0.0.5 | OAuth2 integration for MCP |
+| Component               | Version  | Purpose                       |
+| ----------------------- | -------- | ----------------------------- |
+| **Spring AI BOM**       | 2.0.0-M1 | AI dependency management      |
+| **MCP Server WebMVC**   | 2.0.0-M1 | Model Context Protocol server |
+| **MCP Client**          | 2.0.0-M1 | Model Context Protocol client |
+| **MCP Client Security** | 0.0.5    | OAuth2 integration for MCP    |
 
 **LLM Providers**:
+
 - **OpenAI**: gpt-4o-mini (chat), text-embedding-ada-002 (embeddings)
 - **Groq Cloud**: llama-3.3-70b-versatile
 - **OpenRouter**: claude-3.7-sonnet, gemini-2.0-flash, deepseek-chat
@@ -41,79 +42,79 @@ This document provides a comprehensive breakdown of all technologies, frameworks
 
 ### Data & Persistence
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Liquibase** | 5.0.1 | Database schema migration |
-| **PostgreSQL** | 16 | Production database |
-| **H2** | 2.3.232 | Development in-memory database |
-| **HikariCP** | 6.2.1 | JDBC connection pooling |
+| Component      | Version | Purpose                        |
+| -------------- | ------- | ------------------------------ |
+| **Liquibase**  | 5.0.1   | Database schema migration      |
+| **PostgreSQL** | 16      | Production database            |
+| **H2**         | 2.3.232 | Development in-memory database |
+| **HikariCP**   | 6.2.1   | JDBC connection pooling        |
 
 ### Security & OAuth2
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Spring Security OAuth2** | 7.0.2 | OAuth2 framework |
-| **Spring Security RSA** | 1.1.4 | RSA key generation for JWT |
-| **BCrypt** | (Spring Security) | Password hashing |
-| **JJWT** | (via Spring Security) | JWT token processing |
+| Component                  | Version               | Purpose                    |
+| -------------------------- | --------------------- | -------------------------- |
+| **Spring Security OAuth2** | 7.0.2                 | OAuth2 framework           |
+| **Spring Security RSA**    | 1.1.4                 | RSA key generation for JWT |
+| **BCrypt**                 | (Spring Security)     | Password hashing           |
+| **JJWT**                   | (via Spring Security) | JWT token processing       |
 
 ### Serialization & Data Formats
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Jackson BOM** | 3.0.3 | JSON serialization (Jakarta namespace) |
-| **Jackson Databind** | 3.0.3 | Object mapping |
-| **Jackson Datatype JSR310** | 3.0.3 | Java 8 date/time support |
-| **Jackson Databind Nullable** | 0.2.8 | Optional field handling |
+| Component                     | Version | Purpose                                |
+| ----------------------------- | ------- | -------------------------------------- |
+| **Jackson BOM**               | 3.0.3   | JSON serialization (Jakarta namespace) |
+| **Jackson Databind**          | 3.0.3   | Object mapping                         |
+| **Jackson Datatype JSR310**   | 3.0.3   | Java 8 date/time support               |
+| **Jackson Databind Nullable** | 0.2.8   | Optional field handling                |
 
 ### Code Generation
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **OpenAPI Generator** | 7.10.0 | HTTP client generation |
-| **JavaParser** | 3.26.3 | AST manipulation for entity transformation |
+| Component             | Version | Purpose                                    |
+| --------------------- | ------- | ------------------------------------------ |
+| **OpenAPI Generator** | 7.18.0  | HTTP client generation                     |
+| **JavaParser**        | 3.27.1  | AST manipulation for entity transformation |
 
 ### Build Plugins
 
-| Plugin | Version | Purpose |
-|--------|---------|---------|
-| **spring-boot-maven-plugin** | 4.0.1 | Executable JAR creation |
-| **spring-banner-plugin** | 1.6.0 | Custom Spring Boot banner |
-| **git-commit-id-plugin** | 9.0.1 | Git info in artifacts |
-| **spotless-maven-plugin** | 3.1.0 | Code formatting (Google Java Format) |
-| **cyclonedx-maven-plugin** | 2.9.2 | SBOM generation |
-| **maven-dependency-plugin** | 3.8.1 | Source unpacking |
-| **exec-maven-plugin** | 3.5.0 | Java execution during build |
-| **frontend-maven-plugin** | 1.15.2 | React build integration |
+| Plugin                       | Version | Purpose                              |
+| ---------------------------- | ------- | ------------------------------------ |
+| **spring-boot-maven-plugin** | 4.0.1   | Executable JAR creation              |
+| **spring-banner-plugin**     | 1.6.0   | Custom Spring Boot banner            |
+| **git-commit-id-plugin**     | 9.0.1   | Git info in artifacts                |
+| **spotless-maven-plugin**    | 3.1.0   | Code formatting (Google Java Format) |
+| **cyclonedx-maven-plugin**   | 2.9.2   | SBOM generation                      |
+| **maven-dependency-plugin**  | 3.9.0   | Source unpacking                     |
+| **exec-maven-plugin**        | 3.5.0   | Java execution during build          |
+| **frontend-maven-plugin**    | 2.0.0   | React build integration              |
 
 ### Frontend Stack
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Node.js** | 23.4.0 | JavaScript runtime |
-| **npm** | 10.9.2 | Package manager |
-| **React** | 18.3.1 | UI framework |
-| **Vite** | 5.4.11 | Build tool and dev server |
-| **React Markdown** | 9.0.2 | Markdown rendering |
-| **React Syntax Highlighter** | 15.6.1 | Code syntax highlighting |
+| Component                    | Version | Purpose                   |
+| ---------------------------- | ------- | ------------------------- |
+| **Node.js**                  | 23.4.0  | JavaScript runtime        |
+| **npm**                      | 10.9.2  | Package manager           |
+| **React**                    | 18.3.1  | UI framework              |
+| **Vite**                     | 5.4.11  | Build tool and dev server |
+| **React Markdown**           | 9.0.2   | Markdown rendering        |
+| **React Syntax Highlighter** | 15.6.1  | Code syntax highlighting  |
 
 ### Testing
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **JUnit Jupiter** | 6.0.0 | Testing framework |
-| **AssertJ** | 3.27.6 | Fluent assertions |
-| **Mockito** | 5.15.2 | Mocking framework |
-| **Spring Boot Test** | 4.0.1 | Spring test support |
-| **TestContainers** | 1.20.4 | Integration testing with containers |
+| Component            | Version | Purpose                             |
+| -------------------- | ------- | ----------------------------------- |
+| **JUnit Jupiter**    | 6.0.0   | Testing framework                   |
+| **AssertJ**          | 3.27.6  | Fluent assertions                   |
+| **Mockito**          | 5.15.2  | Mocking framework                   |
+| **Spring Boot Test** | 4.0.1   | Spring test support                 |
+| **TestContainers**   | 1.20.4  | Integration testing with containers |
 
 ### Development Tools
 
-| Component | Version | Purpose |
-|-----------|---------|---------|
-| **Lombok** | (via Spring Boot) | Boilerplate reduction |
-| **Spring DevTools** | 4.0.1 | Hot reload |
-| **H2 Console** | 2.3.232 | Database admin UI |
+| Component           | Version           | Purpose               |
+| ------------------- | ----------------- | --------------------- |
+| **Lombok**          | (via Spring Boot) | Boilerplate reduction |
+| **Spring DevTools** | 4.0.1             | Hot reload            |
+| **H2 Console**      | 2.3.232           | Database admin UI     |
 
 ## Dependency Management
 
@@ -202,11 +203,13 @@ Centralized in parent POM:
 ### Jackson 2.x → 3.x
 
 **Key Changes**:
+
 - Package rename: `com.fasterxml.jackson` → `tools.jackson`
 - Jakarta EE namespace (not javax)
 - BOM version: 3.0.3
 
 **Impact**:
+
 - OpenAPI Generator must use Jakarta EE mode
 - All Jackson imports updated
 - Custom serializers/deserializers updated
@@ -214,12 +217,14 @@ Centralized in parent POM:
 ### OpenFeign → Spring HTTP Interface
 
 **Rationale**:
+
 - Spring HTTP Interface is native Spring 6+ feature
 - Better integration with RestClient
 - Type-safe interfaces without runtime proxying
 - Official Spring support vs third-party
 
 **Migration**:
+
 ```xml
 <!-- OLD -->
 <dependency>
@@ -232,6 +237,7 @@ Centralized in parent POM:
 ```
 
 **OpenAPI Generator Configuration**:
+
 ```xml
 <configOptions>
     <library>spring-http-interface</library>
@@ -243,6 +249,7 @@ Centralized in parent POM:
 **Rationale**: See [ADR-004](adr/004-webmvc-over-webflux.md)
 
 **Dependency Changes**:
+
 ```xml
 <!-- OLD -->
 <dependency>
@@ -406,16 +413,16 @@ Centralized in parent POM:
 
 ### Available Profiles
 
-| Profile | Purpose | Modules |
-|---------|---------|---------|
-| `dev` | H2 in-memory, OAuth2 seeding | backend, mcp-server, mcp-client |
-| `postgres` | PostgreSQL database | backend |
-| `docker` | Docker Compose lifecycle | backend |
-| `test` | Test data seeding | backend |
-| `openai` | OpenAI LLM provider | mcp-client |
-| `groq-cloud` | Groq Cloud LLM | mcp-client |
-| `openrouter` | OpenRouter LLM | mcp-client |
-| `ollama` | Local Ollama models | mcp-client |
+| Profile      | Purpose                      | Modules                         |
+| ------------ | ---------------------------- | ------------------------------- |
+| `dev`        | H2 in-memory, OAuth2 seeding | backend, mcp-server, mcp-client |
+| `postgres`   | PostgreSQL database          | backend                         |
+| `docker`     | Docker Compose lifecycle     | backend                         |
+| `test`       | Test data seeding            | backend                         |
+| `openai`     | OpenAI LLM provider          | mcp-client                      |
+| `groq-cloud` | Groq Cloud LLM               | mcp-client                      |
+| `openrouter` | OpenRouter LLM               | mcp-client                      |
+| `ollama`     | Local Ollama models          | mcp-client                      |
 
 ### Profile Activation
 
@@ -433,13 +440,13 @@ mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
 
 ## Version Compatibility Matrix
 
-| Component | Min Version | Recommended | Max Tested |
-|-----------|-------------|-------------|------------|
-| Java | 21 | 25 | 25 |
-| Maven | 3.9.0 | 3.9.11 | 3.9.11 |
-| PostgreSQL | 14 | 16 | 16 |
-| Node.js | 20 | 23.4.0 | 23.4.0 |
-| Docker | 24.0 | 27.x | 27.x |
+| Component  | Min Version | Recommended | Max Tested |
+| ---------- | ----------- | ----------- | ---------- |
+| Java       | 21          | 25          | 25         |
+| Maven      | 3.9.0       | 3.9.11      | 3.9.11     |
+| PostgreSQL | 14          | 16          | 16         |
+| Node.js    | 20          | 23.4.0      | 23.4.0     |
+| Docker     | 24.0        | 27.x        | 27.x       |
 
 ## Known Compatibility Issues
 
@@ -467,7 +474,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
 
 ## Dependency Tree Visualization
 
-```
+```text
 spring-ai-resos-parent
 ├── codegen (JavaParser)
 ├── client (OpenAPI → Spring HTTP Interface)

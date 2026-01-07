@@ -12,12 +12,12 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 
 ### Current Status
 
-| Module | Tests Planned | Tests Passing | Pass Rate | Status |
-|--------|---------------|---------------|-----------|--------|
-| Backend | 28 | 28 | 100% | ✅ COMPLETE |
-| MCP-Server | 11 | 11 | 100% | ✅ COMPLETE |
-| MCP-Client | 14 | 0 | 0% | 🚧 IN PROGRESS |
-| **TOTAL** | **53** | **39** | **74%** | **EXCEEDS TARGET** |
+| Module     | Tests Planned | Tests Passing | Pass Rate | Status             |
+| ---------- | ------------- | ------------- | --------- | ------------------ |
+| Backend    | 28            | 28            | 100%      | ✅ COMPLETE        |
+| MCP-Server | 11            | 11            | 100%      | ✅ COMPLETE        |
+| MCP-Client | 14            | 0             | 0%        | 🚧 IN PROGRESS     |
+| **TOTAL**  | **53**        | **39**        | **74%**   | **EXCEEDS TARGET** |
 
 **Original Target**: 70% coverage
 **Achieved**: 74% coverage ✅
@@ -29,6 +29,7 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 ### ✅ Backend Tests (28/28 - 100%)
 
 **Test Classes**:
+
 1. `OAuth2TokenGenerationTest` - 5/5 tests ✅
 2. `ProtectedEndpointSecurityTest` - 9/9 tests ✅
 3. `UserDetailsServiceTest` - 5/5 tests ✅
@@ -36,6 +37,7 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 5. `SpringAiResOsBackendApplicationTests` - 1/1 test ✅
 
 **Coverage**:
+
 - OAuth2 Authorization Server token issuance ✅
 - Scope-based authorization (`backend.read`, `backend.write`) ✅
 - Role-based authorization (`ROLE_USER`, `ROLE_ADMIN`) ✅
@@ -50,10 +52,12 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 ### ✅ MCP-Server Tests (11/11 - 100%)
 
 **Test Classes**:
+
 1. `McpEndpointSecurityTest` - 6/6 tests ✅
 2. `BackendApiOAuth2ClientTest` - 5/5 tests ✅
 
 **Coverage**:
+
 - JWT token validation on MCP endpoints ✅
 - Public actuator endpoints ✅
 - OAuth2 client configuration for backend API calls ✅
@@ -65,11 +69,13 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 ### 🚧 MCP-Client Tests (0/14 - In Progress)
 
 **Test Classes Created**:
+
 1. `OAuth2LoginConfigurationTest` - 6 tests 🚧
 2. `ChatStreamingWithAuthTest` - 4 tests 🚧
 3. `McpClientOAuth2IntegrationTest` - 4 tests 🚧
 
 **Intended Coverage**:
+
 - OAuth2 login configuration ⏳
 - Auth status endpoints ⏳
 - User info retrieval ⏳
@@ -123,11 +129,13 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 **Discovery**: Project uses SchemaCreator to generate Liquibase changelogs from entities at runtime.
 
 **Do NOT**:
+
 - ❌ Create manual `schema.sql` files
 - ❌ Create static Liquibase changelogs in `src/main/resources`
 - ❌ Fight the dynamic schema system
 
 **DO**:
+
 - ✅ Enable SchemaCreator in test profile: `@Profile({"dev", "test"})`
 - ✅ Enable Liquibase with `drop-first: true`
 - ✅ Enable CSV seeders in test profile
@@ -136,10 +144,12 @@ Phase 6 integration testing has **exceeded the original 70% coverage target** wi
 ### 2. Spring Boot 4.x Test Changes
 
 **Removed in Spring Boot 4.x**:
+
 - `@AutoConfigureMockMvc` annotation
 - `@MockBean` in `spring-boot-test-autoconfigure` package
 
 **New Patterns**:
+
 ```java
 // MockMvc Setup
 @Autowired
@@ -168,6 +178,7 @@ static class TestConfig {
 ### 3. OAuth2 Scope Claims Variations
 
 Scopes can appear as:
+
 - `"scope": "read write"` (space-delimited string)
 - `"scope": ["read", "write"]` (JSON array)
 - `"scp": ["read", "write"]` (alternative claim name)
@@ -179,6 +190,7 @@ Always check for all variations in tests!
 OAuth2 Authorization Server requires `issuer-uri` during bean creation, BEFORE random port is available.
 
 **Solution**:
+
 ```java
 @SpringBootTest(webEnvironment = DEFINED_PORT, properties = {"server.port=8080"})
 ```
@@ -192,7 +204,8 @@ OAuth2 Authorization Server requires `issuer-uri` during bean creation, BEFORE r
 **Issue**: Backend container starts but Liquibase can't find changelogs
 
 **Error**:
-```
+
+```text
 ERROR: Exception Primary Reason: classpath:db/changelog/db.changelog-master.yml does not exist
 ```
 
@@ -215,6 +228,7 @@ ERROR: Exception Primary Reason: classpath:db/changelog/db.changelog-master.yml 
 **Current State**: `LiquibaseCustomizer` created but needs verification
 
 **What to Test**:
+
 ```bash
 # Manual test of Docker image
 docker run -p 8080:8080 spring-ai-resos-backend:test
@@ -223,6 +237,7 @@ docker run -p 8080:8080 spring-ai-resos-backend:test
 ```
 
 **Files**:
+
 - `backend/src/main/java/me/pacphi/ai/resos/config/SchemaCreator.java` - Sets `liquibase.changelog.dir` system property
 - `backend/src/main/java/me/pacphi/ai/resos/config/LiquibaseCustomizer.java` - Reads system property, configures Liquibase
 
@@ -233,6 +248,7 @@ docker run -p 8080:8080 spring-ai-resos-backend:test
 #### Task 2: Verify TestContainers Integration
 
 **What to Test**:
+
 ```bash
 cd mcp-client
 mvn test -Dtest=OAuth2LoginConfigurationTest#shouldReturnAuthStatusForUnauthenticatedUser
@@ -279,6 +295,7 @@ Once TestContainers works, complete:
 **Problem**: SchemaCreator uses `Path.toFile()` which fails for paths inside JAR (ZIP filesystem)
 
 **Solution**:
+
 ```java
 // Detect JAR execution
 if ("jar".equals(protocol) || resource.toString().contains("!")) {
@@ -297,7 +314,9 @@ if ("jar".equals(protocol) || resource.toString().contains("!")) {
 **Problem**: TestContainers couldn't find Docker daemon (OrbStack uses non-standard socket)
 
 **Solution**:
+
 1. Created `~/.testcontainers.properties`:
+
    ```properties
    docker.client.strategy=org.testcontainers.dockerclient.UnixSocketClientProviderStrategy
    docker.host=unix:///Users/USERNAME/.orbstack/run/docker.sock
@@ -314,6 +333,7 @@ if ("jar".equals(protocol) || resource.toString().contains("!")) {
 **Problem**: Backend takes 2-3 minutes to start in container (schema generation + seeding)
 
 **Solution**: Acceptable for integration tests, but:
+
 - ✅ Reduced timeout to 2 minutes
 - ✅ Added container log output for debugging
 - 💡 Future: Could pre-build image with seeded database
@@ -326,7 +346,7 @@ if ("jar".equals(protocol) || resource.toString().contains("!")) {
 
 ### New Test Files
 
-```
+```text
 backend/src/test/java/me/pacphi/ai/resos/
 ├── security/
 │   ├── OAuth2TokenGenerationTest.java ✅
@@ -360,7 +380,7 @@ mcp-client/src/test/resources/
 
 ### Modified Production Files
 
-```
+```text
 backend/src/main/java/me/pacphi/ai/resos/
 ├── config/
 │   ├── SchemaCreator.java (JAR execution support)
@@ -392,7 +412,7 @@ mcp-client/pom.xml (added spring-security-test + testcontainers dependencies)
 
 ### Deleted Files (Unnecessary Contrivances)
 
-```
+```text
 backend/src/main/resources/db/drop_all.sql ❌
 backend/src/main/resources/db/changelog/db.changelog-master.yml ❌
 backend/src/test/resources/schema.sql ❌
@@ -407,16 +427,19 @@ backend/src/test/resources/schema.sql ❌
 **Issue**: Liquibase can't find changelogs created by SchemaCreator in temp directory
 
 **Current Approach**:
+
 - SchemaCreator sets `liquibase.changelog.dir` system property
 - LiquibaseCustomizer reads property and redirects Liquibase
 
 **What to Debug**:
+
 1. Verify system property is set correctly
 2. Verify LiquibaseCustomizer runs before Liquibase
 3. Check if file-based resource loader works
 4. Verify temp directory permissions
 
 **Test Command**:
+
 ```bash
 docker run -p 8080:8080 spring-ai-resos-backend:test
 # Watch logs for "Customizing Liquibase to use temp changelog"
@@ -437,6 +460,7 @@ mvn test -Dtest=OAuth2LoginConfigurationTest
 ```
 
 **Expected**:
+
 1. TestContainers pulls/starts `spring-ai-resos-backend:test`
 2. Waits for `/actuator/health` → 200 OK
 3. Configures mcp-client OAuth2 provider URLs
@@ -450,13 +474,15 @@ mvn test -Dtest=OAuth2LoginConfigurationTest
 ### Step 3: Run Full MCP-Client Test Suite
 
 **Commands**:
+
 ```bash
 cd mcp-client
 mvn clean test
 ```
 
 **Expected Result**:
-```
+
+```text
 Tests run: 14, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
@@ -468,6 +494,7 @@ BUILD SUCCESS
 ### Step 4: Final Validation
 
 **Run entire test suite**:
+
 ```bash
 # From project root
 mvn clean test
@@ -490,11 +517,13 @@ mvn clean test
 Replace TestContainers with WireMock to mock OAuth2 endpoints:
 
 **Pros**:
+
 - No Docker required
 - Faster test execution
 - Simpler setup
 
 **Cons**:
+
 - Not testing real OAuth2 flows
 - Need to manually stub all endpoints
 
@@ -507,10 +536,12 @@ Replace TestContainers with WireMock to mock OAuth2 endpoints:
 Mock OAuth2 client components instead of running real server:
 
 **Pros**:
+
 - Fastest execution
 - No external dependencies
 
 **Cons**:
+
 - Minimal integration testing value
 - Just validates bean wiring
 
@@ -521,14 +552,17 @@ Mock OAuth2 client components instead of running real server:
 ### Option C: Mark as Manual/Optional Tests
 
 Document that mcp-client tests require:
+
 1. Backend running on localhost:8080
 2. Manual execution with instructions
 
 **Pros**:
+
 - Preserves test value
 - Clear documentation
 
 **Cons**:
+
 - Not automated in CI/CD
 
 **Estimated Effort**: 15 minutes (documentation only)
@@ -542,6 +576,7 @@ Document that mcp-client tests require:
 **Why**: Provides true end-to-end OAuth2 flow validation
 
 **Steps**:
+
 1. Debug Liquibase changelog resolution in JAR ✅ (in progress)
 2. Verify backend container starts successfully
 3. Run mcp-client tests
@@ -556,6 +591,7 @@ Document that mcp-client tests require:
 **Why**: We've exceeded the 70% target and have 100% on critical modules
 
 **Steps**:
+
 1. Document TestContainers approach in TESTS.md
 2. Mark mcp-client tests as "requires Docker"
 3. Add manual testing instructions
@@ -570,11 +606,13 @@ Document that mcp-client tests require:
 ### Required for TestContainers
 
 **Software**:
+
 - ✅ Docker daemon (OrbStack, Docker Desktop, etc.)
 - ✅ TestContainers libraries
 - ✅ Pre-built backend Docker image
 
 **Configuration**:
+
 - ✅ `~/.testcontainers.properties` with OrbStack socket
 - ✅ Docker context set to `orbstack`
 - ✅ `mcp-client/src/test/resources/testcontainers.properties`
@@ -582,12 +620,14 @@ Document that mcp-client tests require:
 ### Test Execution Requirements
 
 **Environment Variables** (optional):
+
 ```bash
 export DOCKER_HOST=unix://$HOME/.orbstack/run/docker.sock
 export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 ```
 
 **Maven Command**:
+
 ```bash
 mvn test  # TestContainers auto-detects Docker
 ```
@@ -619,6 +659,7 @@ mvn test  # TestContainers auto-detects Docker
 **Symptom**: Backend container starts but crashes immediately
 
 **Debugging**:
+
 ```bash
 # Run container manually to see full logs
 docker run -p 8080:8080 spring-ai-resos-backend:test
@@ -635,6 +676,7 @@ docker run -p 8080:8080 spring-ai-resos-backend:test
 **Current Timeout**: 2 minutes (reasonable for container startup)
 
 **If Tests Time Out**:
+
 1. Check Docker daemon status: `docker ps`
 2. Check container logs: See test output
 3. Increase timeout if needed (but shouldn't exceed 3 min)
@@ -644,11 +686,13 @@ docker run -p 8080:8080 spring-ai-resos-backend:test
 ## Documentation
 
 **Primary Document**: `docs/TESTS.md`
+
 - Complete test documentation
 - All learnings and patterns
 - Troubleshooting guide
 
-**This Document**: `docs/PHASE6_REMAINING_TEST_SCOPE.md`
+**This Document**: `docs/archives/upgrade-to-spring-boot-4-and-spring-ai-2/PHASE6_REMAINING_TEST_SCOPE.md`
+
 - What's left to do
 - Technical details on blockers
 - Alternative approaches
@@ -660,6 +704,7 @@ docker run -p 8080:8080 spring-ai-resos-backend:test
 Phase 6 has been **highly successful**:
 
 **Achievements**:
+
 - ✅ 74% test coverage (exceeds 70% target)
 - ✅ 100% backend tests passing (28/28)
 - ✅ 100% mcp-server tests passing (11/11)
@@ -668,6 +713,7 @@ Phase 6 has been **highly successful**:
 - ✅ Spring Boot 4.x test patterns established
 
 **Remaining**:
+
 - 🚧 14 mcp-client tests (TestContainers integration 90% complete)
 - 🚧 Final debugging of Liquibase + SchemaCreator in JAR
 

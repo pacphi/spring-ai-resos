@@ -31,8 +31,8 @@
 		<module>codegen</module>
 		<module>entities</module>
 		<module>mcp-server</module>
-		<module>mcp-client</module>
 		<module>backend</module>
+		<module>mcp-client</module>
 	</modules>
 
 	<issueManagement>

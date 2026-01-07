@@ -57,6 +57,7 @@ graph TB
 ## Component Responsibilities
 
 ### Frontend Layer
+
 - **React SPA**: Single-page application providing chat interface
   - OAuth2 PKCE authentication for browser security
   - SSE consumption for streaming responses
@@ -64,6 +65,7 @@ graph TB
   - Dark/light theme support
 
 ### AI & Integration Layer
+
 - **MCP Client**: Spring AI chat orchestration
   - Integrates with multiple LLM providers
   - Manages conversation history
@@ -77,6 +79,7 @@ graph TB
   - OAuth2 client (calls backend API)
 
 ### Backend Layer
+
 - **Authorization Server**: OAuth2 token issuer
   - JWT tokens with RSA-256 signing
   - User authentication and authorization
@@ -90,6 +93,7 @@ graph TB
   - Dynamic Liquibase schema generation
 
 ### Data Layer
+
 - **PostgreSQL/H2**: Relational database
   - OAuth2 token storage
   - User credentials (BCrypt)
@@ -97,6 +101,7 @@ graph TB
   - Customer and feedback data
 
 ### External Services
+
 - **LLM Providers**: AI model backends
   - OpenAI (gpt-4o-mini)
   - Groq Cloud (llama-3.3-70b-versatile)

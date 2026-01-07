@@ -6,7 +6,7 @@ This document summarizes configuring this multi-module Maven project for publica
 
 To configure the multi-module Maven project to exclude the playground module from being published to Maven Central:
 
-1. Add a specific `<modules>` section in the maven-central profile:
+Add a specific `<modules>` section in the Maven-central profile:
 
 ```xml
 <profiles>
@@ -31,7 +31,7 @@ To configure the multi-module Maven project to exclude the playground module fro
 </profiles>
 ```
 
-2. In the playground module's pom.xml, add:
+In the playground module's pom.xml, add:
 
 ```xml
 <properties>
@@ -49,14 +49,15 @@ Here's a detailed guide for setting up a Maven Central account using a GitHub ac
 1. Create an account on [Sonatype's OSSRH Jira](https://issues.sonatype.org/secure/Signup!default.jspa)
 
 2. Create a New Project ticket:
-    - Click "Create" in JIRA
-    - Select "Community Support - Open Source Project Repository Hosting" (OSSRH)
-    - Project: "Community Support - Open Source Project Repository Hosting"
-    - Issue Type: "New Project"
+   - Click "Create" in JIRA
+   - Select "Community Support - Open Source Project Repository Hosting" (OSSRH)
+   - Project: "Community Support - Open Source Project Repository Hosting"
+   - Issue Type: "New Project"
 
 ### 2. Project Information
 
 Provide the following in your ticket:
+
 - Group Id: `io.github.pacphi`
 - Project URL: `https://github.com/pacphi/spring-ai-resos`
 - SCM URL: `https://github.com/pacphi/spring-ai-resos.git`
@@ -102,6 +103,7 @@ Update your project's `pom.xml` with the required elements:
 ### 5. GPG Setup
 
 Generate and distribute your GPG key:
+
 ```bash
 gpg --gen-key
 gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
@@ -110,6 +112,7 @@ gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
 ### 6. Maven Settings
 
 Add your credentials to `~/.m2/settings.xml`:
+
 ```xml
 <settings>
   <servers>
@@ -124,12 +127,13 @@ Add your credentials to `~/.m2/settings.xml`:
 
 ### 7. Token Generation
 
-1. Generate a token from [Sonatype's Publish Portal](https://central.sonatype.org/publish/publish-portal-signup/)
+1. Generate a token from [Sonatype's Central Portal](https://central.sonatype.org/register/central-portal/)
 2. Store the token securely
 
 ### 8. Deployment
 
 Deploy using:
+
 ```bash
 mvn clean deploy -P maven-central
 ```
@@ -147,6 +151,7 @@ mvn clean deploy -P maven-central
 ## Usage
 
 To release the project (excluding playground module):
+
 ```bash
 mvn clean deploy -P maven-central
 ```

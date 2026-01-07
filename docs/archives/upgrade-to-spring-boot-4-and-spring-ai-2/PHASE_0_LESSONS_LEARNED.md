@@ -65,43 +65,44 @@ The official [spring-ai-community/mcp-security](https://github.com/spring-ai-com
 
 ### 1. Security Configuration
 
-| WebFlux (Reactive) | WebMVC (Servlet) |
-|--------------------|------------------|
-| `@EnableWebFluxSecurity` | `@EnableWebSecurity` |
-| `SecurityWebFilterChain` | `SecurityFilterChain` |
-| `ServerHttpSecurity` | `HttpSecurity` |
-| `.authorizeExchange()` | `.authorizeHttpRequests()` |
-| `.pathMatchers()` | `.requestMatchers()` |
+| WebFlux (Reactive)       | WebMVC (Servlet)           |
+| ------------------------ | -------------------------- |
+| `@EnableWebFluxSecurity` | `@EnableWebSecurity`       |
+| `SecurityWebFilterChain` | `SecurityFilterChain`      |
+| `ServerHttpSecurity`     | `HttpSecurity`             |
+| `.authorizeExchange()`   | `.authorizeHttpRequests()` |
+| `.pathMatchers()`        | `.requestMatchers()`       |
 
 ### 2. Controllers
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `Mono<ResponseEntity<T>>` | `ResponseEntity<T>` |
-| `Flux<String>` | `SseEmitter` (for streaming) |
-| `ServerWebExchange` | `HttpServletRequest` / `HttpServletResponse` |
-| Return `Mono.just(value)` | Return `value` directly |
+| WebFlux                   | WebMVC                                       |
+| ------------------------- | -------------------------------------------- |
+| `Mono<ResponseEntity<T>>` | `ResponseEntity<T>`                          |
+| `Flux<String>`            | `SseEmitter` (for streaming)                 |
+| `ServerWebExchange`       | `HttpServletRequest` / `HttpServletResponse` |
+| Return `Mono.just(value)` | Return `value` directly                      |
 
 ### 3. HTTP Clients
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `WebClient` | `RestClient` |
-| `ReactorClientHttpConnector` | `JdkClientHttpRequestFactory` |
-| `WebClient.Builder` | `RestClient.Builder` |
-| Reactive filters | `ClientHttpRequestInterceptor` |
+| WebFlux                      | WebMVC                         |
+| ---------------------------- | ------------------------------ |
+| `WebClient`                  | `RestClient`                   |
+| `ReactorClientHttpConnector` | `JdkClientHttpRequestFactory`  |
+| `WebClient.Builder`          | `RestClient.Builder`           |
+| Reactive filters             | `ClientHttpRequestInterceptor` |
 
 ### 4. OAuth2
 
-| WebFlux | WebMVC |
-|---------|--------|
-| `ReactiveOAuth2AuthorizedClientManager` | `OAuth2AuthorizedClientManager` |
-| `ServerOAuth2AuthorizedClientExchangeFilterFunction` | Custom interceptor (servlet) |
-| `ReactiveClientRegistrationRepository` | `ClientRegistrationRepository` |
+| WebFlux                                              | WebMVC                          |
+| ---------------------------------------------------- | ------------------------------- |
+| `ReactiveOAuth2AuthorizedClientManager`              | `OAuth2AuthorizedClientManager` |
+| `ServerOAuth2AuthorizedClientExchangeFilterFunction` | Custom interceptor (servlet)    |
+| `ReactiveClientRegistrationRepository`               | `ClientRegistrationRepository`  |
 
 ### 5. Streaming Patterns
 
 **WebFlux Reactive Streaming:**
+
 ```java
 public Flux<String> stream() {
     return chatClient.stream().content();
@@ -109,6 +110,7 @@ public Flux<String> stream() {
 ```
 
 **WebMVC Callback-Based Streaming:**
+
 ```java
 public void stream(Consumer<String> onToken, Runnable onComplete, Consumer<Throwable> onError) {
     var stream = chatClient.stream().content();
@@ -117,6 +119,7 @@ public void stream(Consumer<String> onToken, Runnable onComplete, Consumer<Throw
 ```
 
 **WebMVC SseEmitter:**
+
 ```java
 @PostMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 public SseEmitter stream(@RequestBody Request req) {
@@ -139,6 +142,7 @@ public SseEmitter stream(@RequestBody Request req) {
 Created custom `McpAsyncClientManager` that manually constructed MCP clients with custom transports, JSON mappers, and configuration.
 
 **Issues**:
+
 - Tightly coupled to WebFlux `WebClient`
 - Used `WebFluxSseClientTransport` (deprecated)
 - Manually managed client lifecycle
@@ -164,6 +168,7 @@ public class McpSyncClientManager {
 ```
 
 **Benefits**:
+
 - Leverages Spring AI autoconfiguration
 - No manual transport creation
 - Works with application.yml properties
@@ -176,10 +181,11 @@ public class McpSyncClientManager {
 ### MCP Server
 
 **Before (WebFlux):**
+
 ```yaml
 spring:
   main:
-    web-application-type: none  # STDIO mode
+    web-application-type: none # STDIO mode
   ai:
     mcp:
       server:
@@ -187,6 +193,7 @@ spring:
 ```
 
 **After (WebMVC):**
+
 ```yaml
 spring:
   main:
@@ -206,6 +213,7 @@ spring:
 ### MCP Client
 
 **Before (WebFlux):**
+
 ```yaml
 spring:
   ai:
@@ -219,14 +227,15 @@ spring:
 ```
 
 **After (WebMVC):**
+
 ```yaml
 spring:
   ai:
     mcp:
       client:
         type: SYNC
-        initialized: false  # Let manager handle per-request init
-        http:  # Changed from 'sse' to 'http'
+        initialized: false # Let manager handle per-request init
+        http: # Changed from 'sse' to 'http'
           connections:
             butler:
               url: http://localhost:8082
@@ -241,6 +250,7 @@ spring:
 **Problem**: Adding OAuth2 dependencies brings Spring Security, which protects ALL endpoints by default.
 
 **Solution**:
+
 - For mcp-server: Create `SecurityFilterChain` that explicitly permits/protects endpoints
 - For mcp-client: Configure OAuth2 login and client for the frontend SPA
 
@@ -255,6 +265,7 @@ spring:
 **Problem**: Compilation errors for `reactor.core.publisher.Mono` or `Flux` even after removing webflux.
 
 **Solution**:
+
 - Check all Java files for reactive imports
 - Some Spring AI APIs still return `Flux` even in servlet mode (use `.subscribe()` to convert)
 - Delete old files entirely rather than commenting out
@@ -264,6 +275,7 @@ spring:
 **Problem**: Guessing property class names like `McpHttpClientProperties` that don't exist.
 
 **Solution**:
+
 - Check Spring AI source code or documentation
 - Use `ObjectProvider` to safely inject optional beans
 - Let autoconfiguration handle complex setups

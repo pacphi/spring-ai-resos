@@ -5,6 +5,7 @@ This document details the Spring AI 2.0 integration, ChatClient architecture, st
 ## Spring AI 2.0 Overview
 
 **Spring AI** is Spring's framework for building AI-powered applications with:
+
 - Unified API across LLM providers (OpenAI, Anthropic, Groq, Ollama, etc.)
 - Tool/function calling support
 - Conversation memory management
@@ -20,16 +21,17 @@ This document details the Spring AI 2.0 integration, ChatClient architecture, st
 
 ### Supported Providers
 
-| Provider | Model | Profile | API Key Required |
-|----------|-------|---------|------------------|
-| OpenAI | gpt-4o-mini | `openai` | Yes |
-| Groq Cloud | llama-3.3-70b-versatile | `groq-cloud` | Yes |
-| OpenRouter | claude-3.7-sonnet, gemini-2.0-flash, deepseek-chat | `openrouter` | Yes |
-| Ollama | mistral, llama2, etc. | `ollama` | No (local) |
+| Provider   | Model                                              | Profile      | API Key Required |
+| ---------- | -------------------------------------------------- | ------------ | ---------------- |
+| OpenAI     | gpt-4o-mini                                        | `openai`     | Yes              |
+| Groq Cloud | llama-3.3-70b-versatile                            | `groq-cloud` | Yes              |
+| OpenRouter | claude-3.7-sonnet, gemini-2.0-flash, deepseek-chat | `openrouter` | Yes              |
+| Ollama     | mistral, llama2, etc.                              | `ollama`     | No (local)       |
 
 ### Configuration
 
 **OpenAI** (`application-openai.yml`):
+
 ```yaml
 spring:
   ai:
@@ -49,23 +51,25 @@ spring:
 ```
 
 **Groq Cloud** (`application-groq-cloud.yml`):
+
 ```yaml
 spring:
   ai:
-    openai:  # Groq uses OpenAI-compatible API
+    openai: # Groq uses OpenAI-compatible API
       api-key: ${GROQ_API_KEY}
       base-url: https://api.groq.com/openai
       chat:
         options:
           model: llama-3.3-70b-versatile
           temperature: 0.7
-      embedding:  # Groq doesn't have embeddings, use OpenAI
+      embedding: # Groq doesn't have embeddings, use OpenAI
         api-key: ${OPENAI_API_KEY}
         options:
           model: text-embedding-ada-002
 ```
 
 **OpenRouter** (`application-openrouter.yml`):
+
 ```yaml
 spring:
   ai:
@@ -79,6 +83,7 @@ spring:
 ```
 
 **Ollama** (local) (`application-ollama.yml`):
+
 ```yaml
 spring:
   ai:
@@ -109,6 +114,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=ollama,dev
 ```
 
 **Benefits**:
+
 - Same code works with different providers
 - Switch providers without code changes
 - Test with cheap models (Ollama), deploy with powerful models (GPT-4)
@@ -132,6 +138,7 @@ public ChatClient chatClient(ChatClient.Builder builder, ChatMemory chatMemory) 
 ```
 
 **Builder Pattern**:
+
 - Fluent API for building chat requests
 - Advisors for cross-cutting concerns (memory, logging)
 - Tool callbacks for function calling
@@ -212,6 +219,7 @@ public class ChatService {
 ```
 
 **System Prompt Purpose**:
+
 - Provide temporal context (current date)
 - Guide tool usage patterns
 - Set tone and behavior
@@ -219,7 +227,7 @@ public class ChatService {
 
 ### Request Flow
 
-```
+```text
 User Question
     ↓
 ChatService.streamResponseToQuestion()
@@ -247,6 +255,7 @@ Callback invocations
 ### Server-Sent Events (SSE)
 
 **Why SSE?**:
+
 - Real-time token delivery (as LLM generates)
 - Standard browser API (EventSource)
 - Unidirectional (perfect for AI responses)
@@ -298,6 +307,7 @@ public class ChatController {
 ```
 
 **SseEmitter Features**:
+
 - **Timeout**: 5 minutes (300,000ms)
 - **Async**: Non-blocking (Tomcat async I/O)
 - **Error Handling**: `completeWithError()` for exceptions
@@ -317,9 +327,9 @@ const handleSubmit = async (question) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`  // From AuthContext
+        Authorization: `Bearer ${authToken}`, // From AuthContext
       },
-      body: JSON.stringify({ question })
+      body: JSON.stringify({ question }),
     });
 
     if (!res.ok) {
@@ -346,15 +356,14 @@ const handleSubmit = async (question) => {
       const lines = chunk.split('\n');
       for (const line of lines) {
         if (line.startsWith('data: ')) {
-          const token = line.substring(6);  // Remove 'data: ' prefix
+          const token = line.substring(6); // Remove 'data: ' prefix
           accumulatedResponse += token;
-          setResponse(accumulatedResponse);  // Update UI immediately
+          setResponse(accumulatedResponse); // Update UI immediately
         }
       }
     }
 
     setLoading(false);
-
   } catch (error) {
     console.error('Streaming error:', error);
     setError(error.message);
@@ -364,6 +373,7 @@ const handleSubmit = async (question) => {
 ```
 
 **User Experience**:
+
 - Tokens appear in real-time
 - No waiting for complete response
 - Immediate feedback (AI is "thinking")
@@ -388,13 +398,15 @@ public ChatMemory chatMemory() {
 ```
 
 **Behavior**:
+
 - Stores last N messages (user + assistant)
 - Automatically included in each prompt
 - Enables multi-turn conversations
 - LLM has context of previous questions/answers
 
 **Example Conversation**:
-```
+
+```text
 User: Show me all customers
 AI: Here are the customers... [uses getCustomers()]
 
@@ -411,7 +423,8 @@ AI: [remembers previous context] Here are customers with totalSpent > 500...
 ```
 
 **Output** (logs):
-```
+
+```text
 DEBUG ChatClient - System Prompt: You are a helpful assistant...
 DEBUG ChatClient - User Prompt: Show me all customers
 DEBUG ChatClient - Tool Call: getCustomers(limit=100, skip=0)
@@ -420,6 +433,7 @@ DEBUG ChatClient - Response: Here are all the customers in the system...
 ```
 
 **Benefits**:
+
 - Understand AI decision-making
 - Debug tool invocations
 - Monitor token usage
@@ -432,6 +446,7 @@ DEBUG ChatClient - Response: Here are all the customers in the system...
 ### System Prompt Structure
 
 **Components**:
+
 1. **Role Definition**: "You are a helpful assistant for..."
 2. **Temporal Context**: Current date, tomorrow, next week
 3. **Guidelines**: Format requirements, tool usage patterns
@@ -439,6 +454,7 @@ DEBUG ChatClient - Response: Here are all the customers in the system...
 5. **Best Practices**: Query optimization, error handling
 
 **Example**:
+
 ```java
 private String buildSystemPrompt() {
     return String.format("""
@@ -468,6 +484,7 @@ private String buildSystemPrompt() {
 ```
 
 **Advanced Techniques**:
+
 - **Few-shot examples**: Include example Q&A in system prompt
 - **Chain-of-thought**: Ask AI to explain reasoning
 - **Constraints**: Limit response length, format
@@ -481,6 +498,7 @@ private String buildSystemPrompt() {
 **Purpose**: Bridge between MCP clients and Spring AI tool callbacks
 
 **Usage**:
+
 ```java
 // Get MCP clients (autoconfigured)
 List<McpSyncClient> mcpClients = mcpSyncClientManager.newMcpSyncClients();
@@ -495,9 +513,11 @@ List<ToolCallback> callbacks = provider.getToolCallbacks();
 ```
 
 **What It Does**:
+
 1. Connects to MCP server(s)
 2. Calls `GET /mcp/tools` to discover tools
 3. For each tool, creates a `ToolCallback`:
+
    ```java
    ToolCallback callback = new ToolCallback(
        toolName,        // "getCustomers"
@@ -509,9 +529,11 @@ List<ToolCallback> callbacks = provider.getToolCallbacks();
        }
    );
    ```
+
 4. Returns list of callbacks to ChatClient
 
 **ChatClient Integration**:
+
 ```java
 chatClient.prompt()
     .toolCallbacks(callbacks)  // Register all MCP tools
@@ -520,6 +542,7 @@ chatClient.prompt()
 ```
 
 **LLM Receives**:
+
 ```json
 {
   "tools": [
@@ -552,6 +575,7 @@ chatClient.prompt()
 **Solution**: Subscribe to Flux with callbacks
 
 **ChatService Pattern**:
+
 ```java
 public void streamResponseToQuestion(
         String question,
@@ -575,6 +599,7 @@ public void streamResponseToQuestion(
 ```
 
 **Why This Works**:
+
 - `Flux` is reactive, but `subscribe()` bridges to imperative
 - Callbacks run on reactor thread pool
 - SseEmitter is thread-safe
@@ -600,6 +625,7 @@ emitter.completeWithError(new IOException("Connection lost"));
 ```
 
 **Browser Behavior**:
+
 - Keeps connection open until `complete()` or timeout
 - Receives events as `MessageEvent` objects
 - Reconnects automatically on error (with `Last-Event-ID`)
@@ -611,6 +637,7 @@ emitter.completeWithError(new IOException("Connection lost"));
 ### InMemoryChatMemory
 
 **Configuration**:
+
 ```java
 @Bean
 public ChatMemory chatMemory() {
@@ -619,11 +646,13 @@ public ChatMemory chatMemory() {
 ```
 
 **Behavior**:
+
 - Stores messages in-memory (lost on restart)
 - Keyed by conversation ID
 - Default: Last 10 messages
 
 **Message Types**:
+
 - **User messages**: Questions from user
 - **Assistant messages**: AI responses
 - **Tool messages**: Tool execution results
@@ -637,6 +666,7 @@ public ChatMemory chatMemory() {
 ```
 
 **What It Does**:
+
 1. Before sending prompt to LLM:
    - Retrieve last N messages for conversation
    - Prepend to current prompt
@@ -645,6 +675,7 @@ public ChatMemory chatMemory() {
    - Store assistant response
 
 **Example Prompt to LLM**:
+
 ```json
 {
   "messages": [
@@ -662,13 +693,14 @@ public ChatMemory chatMemory() {
     },
     {
       "role": "user",
-      "content": "Filter for those in New York"  // Current question
+      "content": "Filter for those in New York" // Current question
     }
   ]
 }
 ```
 
 **LLM Understands**:
+
 - Previous context ("all customers" already fetched)
 - Can refine previous result
 - No need to call tool again (just filter existing data)
@@ -676,6 +708,7 @@ public ChatMemory chatMemory() {
 ### Production Memory Options
 
 **Redis-backed** (future enhancement):
+
 ```java
 @Bean
 public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
@@ -684,6 +717,7 @@ public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
 ```
 
 **Benefits**:
+
 - Persistent across restarts
 - Shared across instances (horizontal scaling)
 - TTL support (expire old conversations)
@@ -697,6 +731,7 @@ public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
 **User Question**: "Show me customers who booked last month"
 
 **Step 1: ChatClient Builds Prompt**:
+
 ```json
 {
   "model": "gpt-4o-mini",
@@ -718,6 +753,7 @@ public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
 ```
 
 **Step 2: LLM Decides to Use Tool**:
+
 ```json
 {
   "role": "assistant",
@@ -734,6 +770,7 @@ public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
 ```
 
 **Step 3: Tool Invocation**:
+
 - Spring AI calls registered `ToolCallback`
 - Callback invokes MCP client
 - MCP client sends HTTP request to MCP server
@@ -742,6 +779,7 @@ public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
 - Results returned through chain
 
 **Step 4: LLM Receives Tool Result**:
+
 ```json
 {
   "role": "tool",
@@ -751,7 +789,8 @@ public ChatMemory chatMemory(RedisTemplate<String, Object> redisTemplate) {
 ```
 
 **Step 5: LLM Generates Final Response** (streaming):
-```
+
+```text
 Token 1: "Here"
 Token 2: " are"
 Token 3: " the"
@@ -770,7 +809,8 @@ Token 14: " Johnson**"
 ```
 
 **Step 6: Streaming to User**:
-```
+
+```text
 ChatClient → ChatService (onToken callback)
 → ChatController → SseEmitter
 → Browser SSE EventSource
@@ -787,11 +827,13 @@ ChatClient → ChatService (onToken callback)
 ### Temperature
 
 **Setting**:
+
 ```yaml
 spring.ai.openai.chat.options.temperature: 0.7
 ```
 
 **Values**:
+
 - `0.0`: Deterministic, focused (good for facts)
 - `0.7`: Balanced creativity (recommended)
 - `1.0+`: Very creative (good for brainstorming)
@@ -799,6 +841,7 @@ spring.ai.openai.chat.options.temperature: 0.7
 ### Max Tokens
 
 **Setting**:
+
 ```yaml
 spring.ai.openai.chat.options.max-tokens: 2048
 ```
@@ -808,6 +851,7 @@ spring.ai.openai.chat.options.max-tokens: 2048
 ### Top P (Nucleus Sampling)
 
 **Setting**:
+
 ```yaml
 spring.ai.openai.chat.options.top-p: 0.9
 ```
@@ -823,6 +867,7 @@ spring.ai.openai.chat.options.top-p: 0.9
 **Scenario**: Backend API returns 500 error
 
 **Flow**:
+
 1. `ResOsService.getCustomers()` calls backend API
 2. Backend throws exception (database error)
 3. `ResOsService` catches, wraps in `McpToolException`
@@ -831,7 +876,8 @@ spring.ai.openai.chat.options.top-p: 0.9
 6. LLM generates user-friendly error message
 
 **LLM Response**:
-```
+
+```text
 I apologize, but I'm having trouble accessing customer data right now.
 The backend service appears to be experiencing an issue.
 Please try again in a few moments, or contact support if the problem persists.
@@ -842,6 +888,7 @@ Please try again in a few moments, or contact support if the problem persists.
 **Scenario**: Network interruption during streaming
 
 **Flow**:
+
 1. SseEmitter sending tokens
 2. `IOException` thrown (connection lost)
 3. `emitter.completeWithError(e)` called
@@ -849,6 +896,7 @@ Please try again in a few moments, or contact support if the problem persists.
 5. React displays error message
 
 **React Error Handling**:
+
 ```javascript
 eventSource.onerror = (event) => {
   console.error('SSE error:', event);
@@ -862,7 +910,8 @@ eventSource.onerror = (event) => {
 **Scenario**: OpenAI API rate limit exceeded
 
 **Error**:
-```
+
+```text
 HTTP 429 Too Many Requests
 {
   "error": {
@@ -873,6 +922,7 @@ HTTP 429 Too Many Requests
 ```
 
 **Handling**:
+
 ```java
 catch (HttpStatusCodeException e) {
     if (e.getStatusCode().value() == 429) {
@@ -893,6 +943,7 @@ catch (HttpStatusCodeException e) {
 ### Unit Testing
 
 **Mock ChatClient**:
+
 ```java
 @Test
 void testStreamResponse() {
@@ -919,6 +970,7 @@ void testStreamResponse() {
 ### Integration Testing
 
 **With TestContainers**:
+
 ```java
 @SpringBootTest
 @TestConfiguration
@@ -937,6 +989,7 @@ static class TestConfig {
 ```
 
 **Test Tool Invocation**:
+
 ```java
 @Test
 void testToolInvocation() {
@@ -962,6 +1015,7 @@ void testToolInvocation() {
 ### Token Caching
 
 **OAuth2 tokens cached automatically**:
+
 - MCP Client → MCP Server tokens (1 hour)
 - MCP Server → Backend tokens (1 hour)
 - No redundant token requests
@@ -969,6 +1023,7 @@ void testToolInvocation() {
 ### Connection Pooling
 
 **RestClient** uses connection pooling:
+
 ```java
 RestClient.builder()
     .requestFactory(new JdkClientHttpRequestFactory(
@@ -979,6 +1034,7 @@ RestClient.builder()
 ```
 
 **Benefits**:
+
 - Reuse TCP connections
 - Reduce handshake overhead
 - Better throughput
@@ -986,11 +1042,13 @@ RestClient.builder()
 ### Streaming vs Blocking
 
 **Streaming**:
+
 - First token: ~500ms (LLM starts generating)
 - Subsequent tokens: ~20-50ms each
 - Total time: 2-5 seconds for full response
 
 **Blocking** (if we waited for complete response):
+
 - First token: ~2-5 seconds (wait for entire response)
 - User experience: Perceived as slow
 
@@ -1003,6 +1061,7 @@ RestClient.builder()
 ### Metrics (Future Enhancement)
 
 **Recommended Metrics**:
+
 ```java
 @Bean
 public MeterRegistry meterRegistry() {
@@ -1018,6 +1077,7 @@ meterRegistry.counter("chat.tool.invocations", "tool", toolName).increment();
 ```
 
 **Grafana Dashboard**:
+
 - Chat requests per minute
 - Average response time
 - Tool invocation frequency
@@ -1027,12 +1087,14 @@ meterRegistry.counter("chat.tool.invocations", "tool", toolName).increment();
 ### Logging Strategy
 
 **Levels**:
+
 - `INFO`: User questions, tool invocations, response completion
 - `DEBUG`: Prompts, tool schemas, LLM API calls
 - `ERROR`: Exceptions, tool failures, streaming errors
 
 **Example Logs**:
-```
+
+```text
 INFO  ChatController - Received chat request: "Show me all customers"
 DEBUG ChatService - System prompt: You are a helpful assistant...
 DEBUG ChatService - Tool callbacks registered: 7
@@ -1048,13 +1110,13 @@ INFO  ChatService - Response streaming completed (25 tokens, 2.3s)
 
 ## Critical Files
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatService.java` | AI orchestration | ~120 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatController.java` | SSE streaming | ~60 |
-| `mcp-client/src/main/java/me/pacphi/ai/resos/service/McpSyncClientManager.java` | MCP client wrapper | ~30 |
-| `mcp-client/src/main/resources/application-openai.yml` | OpenAI configuration | ~30 |
-| `mcp-client/src/main/resources/application-ollama.yml` | Ollama configuration | ~25 |
+| File                                                                            | Purpose              | Lines |
+| ------------------------------------------------------------------------------- | -------------------- | ----- |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatService.java`          | AI orchestration     | ~120  |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/ChatController.java`       | SSE streaming        | ~60   |
+| `mcp-client/src/main/java/me/pacphi/ai/resos/service/McpSyncClientManager.java` | MCP client wrapper   | ~30   |
+| `mcp-client/src/main/resources/application-openai.yml`                          | OpenAI configuration | ~30   |
+| `mcp-client/src/main/resources/application-ollama.yml`                          | Ollama configuration | ~25   |
 
 ## Related Documentation
 

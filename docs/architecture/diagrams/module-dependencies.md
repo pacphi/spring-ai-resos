@@ -40,6 +40,7 @@ graph LR
 ### Code Generation Modules
 
 #### codegen
+
 - **Purpose**: Entity transformation using JavaParser
 - **Artifact**: `spring-ai-resos-codegen`
 - **Type**: JAR (no runtime)
@@ -47,6 +48,7 @@ graph LR
 - **Key Class**: `EntityGenerator`
 
 #### client
+
 - **Purpose**: OpenAPI-generated HTTP client
 - **Artifact**: `spring-ai-resos-client`
 - **Type**: JAR library
@@ -55,6 +57,7 @@ graph LR
 - **Used By**: entities (source unpacking), mcp-server (runtime dependency)
 
 #### entities
+
 - **Purpose**: Spring Data JDBC entities
 - **Artifact**: `spring-ai-resos-entities`
 - **Type**: JAR library
@@ -64,6 +67,7 @@ graph LR
 ### Runtime Modules
 
 #### backend
+
 - **Purpose**: OAuth2 Authorization Server + ResOs API
 - **Artifact**: `spring-ai-resos-backend`
 - **Type**: Executable JAR
@@ -72,6 +76,7 @@ graph LR
 - **Provides**: OAuth2 tokens for mcp-server and mcp-client
 
 #### mcp-server
+
 - **Purpose**: MCP server exposing ResOs tools
 - **Artifact**: `spring-ai-resos-mcp-server`
 - **Type**: Executable JAR
@@ -80,6 +85,7 @@ graph LR
 - **Runtime Auth**: OAuth2 resource server + OAuth2 client
 
 #### mcp-client
+
 - **Purpose**: Chatbot web application
 - **Artifact**: `spring-ai-resos-mcp-frontend`
 - **Type**: Executable JAR
@@ -102,12 +108,14 @@ The Maven reactor builds modules in this order:
 ## Dependency Types
 
 ### Build-Time Dependencies
+
 - **codegen → entities**: Transformation tool used during build
 - **client → entities**: Source code unpacked for transformation
 - **entities → backend**: JDBC entities used in backend
 - **client → mcp-server**: HTTP client for backend API calls
 
 ### Runtime Dependencies
+
 - **MCP Client → MCP Server**: HTTP connections (not Maven dependency)
 - **Backend ← MCP Server**: OAuth2 token validation (HTTP)
 - **Backend ← MCP Client**: OAuth2 token validation (HTTP)
@@ -115,20 +123,21 @@ The Maven reactor builds modules in this order:
 ## Packaging
 
 All modules are packaged as JAR files:
+
 - **Libraries**: client, entities (consumed by other modules)
 - **Executables**: backend, mcp-server, mcp-client (Spring Boot fat JARs)
 - **Build Tool**: codegen (used during build only)
 
 ## Key Configuration Files
 
-| Module | Location | Purpose |
-|--------|----------|---------|
-| codegen | `codegen/pom.xml` | JavaParser dependencies |
-| client | `client/pom.xml` | OpenAPI Generator configuration |
-| entities | `entities/pom.xml` | Dependency unpacker + exec plugin |
-| backend | `backend/pom.xml` | Spring Boot + Security + Data JDBC |
-| mcp-server | `mcp-server/pom.xml` | Spring AI MCP Server + OAuth2 |
-| mcp-client | `mcp-client/pom.xml` | Spring AI MCP Client + Frontend |
+| Module     | Location             | Purpose                            |
+| ---------- | -------------------- | ---------------------------------- |
+| codegen    | `codegen/pom.xml`    | JavaParser dependencies            |
+| client     | `client/pom.xml`     | OpenAPI Generator configuration    |
+| entities   | `entities/pom.xml`   | Dependency unpacker + exec plugin  |
+| backend    | `backend/pom.xml`    | Spring Boot + Security + Data JDBC |
+| mcp-server | `mcp-server/pom.xml` | Spring AI MCP Server + OAuth2      |
+| mcp-client | `mcp-client/pom.xml` | Spring AI MCP Client + Frontend    |
 
 ## Build Commands
 
@@ -149,6 +158,7 @@ mvn clean install -T 1C
 ## Parent POM
 
 The root `pom.xml` provides:
+
 - Spring Boot 4.0.1 parent
 - BOM imports (Spring AI, Spring Cloud, Jackson)
 - Common build plugins (spotless, git-commit-id, cyclonedx)

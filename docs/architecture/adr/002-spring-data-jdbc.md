@@ -1,6 +1,7 @@
 # ADR-002: Spring Data JDBC over JPA/Hibernate
 
 ## Status
+
 **Accepted** - Implemented in backend module
 
 ## Context
@@ -13,6 +14,7 @@ Modern Spring Boot applications need a persistence layer for database interactio
 ### Problem Statement
 
 This project needed to:
+
 - Persist domain entities (Customer, Booking, Order, etc.)
 - Support both H2 (dev) and PostgreSQL (prod)
 - Work with dynamically generated Liquibase schemas
@@ -36,6 +38,7 @@ This project needed to:
 ### Implementation Details
 
 1. **Entity Definition**:
+
    ```java
    @Table("customer")
    public class CustomerEntity {
@@ -51,18 +54,21 @@ This project needed to:
    ```
 
 2. **Foreign Keys** (AggregateReference):
+
    ```java
    @Column("guest_id")
    private AggregateReference<CustomerEntity, UUID> guest;
    ```
 
 3. **One-to-Many** (MappedCollection):
+
    ```java
    @MappedCollection(idColumn = "booking_id")
    private Set<BookingTableEntity> tables;
    ```
 
 4. **Repository Definition**:
+
    ```java
    public interface CustomerRepository extends CrudRepository<CustomerEntity, UUID> {
        Optional<CustomerEntity> findByEmail(String email);
@@ -121,6 +127,7 @@ This project needed to:
    - Many-to-many requires explicit join table entities
    - More verbose than JPA's `@ManyToMany`
    - Example:
+
      ```java
      // JDBC (explicit)
      @Table("booking_tables")
@@ -159,6 +166,7 @@ This project needed to:
    - Need custom converters for complex types (OffsetDateTime, URI)
    - Similar to JPA's AttributeConverter
    - Example:
+
      ```java
      @ReadingConverter
      public class StringToOffsetDateTimeConverter
@@ -182,6 +190,7 @@ This project needed to:
 **Approach**: Standard JPA/Hibernate setup with entity manager.
 
 **Pros**:
+
 - Industry standard, huge community
 - Lazy loading reduces initial query cost
 - Rich feature set (caching, dirty checking, cascade)
@@ -189,6 +198,7 @@ This project needed to:
 - Better IDE support (IntelliJ JPA facet)
 
 **Cons**:
+
 - Complex startup (entity scanning, metamodel generation)
 - Hidden queries (N+1 problems common)
 - LazyInitializationException errors
@@ -197,6 +207,7 @@ This project needed to:
 - Hibernate-specific behaviors vary by version
 
 **Rejected Because**:
+
 - Complexity outweighs benefits for this domain model
 - Startup time important for development iteration
 - Prefer explicit SQL control over automatic query generation
@@ -207,12 +218,14 @@ This project needed to:
 **Approach**: SQL-first with XML or annotation-based mappers.
 
 **Pros**:
+
 - Full SQL control
 - No ORM complexity
 - Simple to understand
 - Good performance
 
 **Cons**:
+
 - No Spring Data repositories
 - More boilerplate (mapper interfaces + XML)
 - No integration with Spring Data patterns
@@ -220,6 +233,7 @@ This project needed to:
 - Less type-safe than Spring Data JDBC
 
 **Rejected Because**:
+
 - Spring Data JDBC provides repository abstraction
 - Want to leverage Spring Data conventions
 - MyBatis requires more manual configuration
@@ -229,18 +243,21 @@ This project needed to:
 **Approach**: Type-safe SQL generation with compile-time checking.
 
 **Pros**:
+
 - Type-safe SQL
 - Excellent SQL control
 - Great tooling
 - Supports complex queries
 
 **Cons**:
+
 - Commercial license for certain databases
 - Code generation required (from database schema)
 - Not part of Spring Data family
 - Different programming model than Spring Data
 
 **Rejected Because**:
+
 - Circular dependency (need schema to generate code)
 - Want to generate schema from entities (reverse direction)
 - Prefer Spring Data abstractions
@@ -250,6 +267,7 @@ This project needed to:
 ### Key Configuration
 
 **Application Configuration** (`application.yml`):
+
 ```yaml
 spring:
   data:
@@ -261,6 +279,7 @@ spring:
 ```
 
 **Custom Converters** (`CustomConverters.java`):
+
 ```java
 @Configuration
 public class CustomConverters extends AbstractJdbcConfiguration {
@@ -279,6 +298,7 @@ public class CustomConverters extends AbstractJdbcConfiguration {
 ### Entity Patterns
 
 **Aggregate Root**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -294,6 +314,7 @@ public class CustomerEntity {
 ```
 
 **Embedded Value Object**:
+
 ```java
 @Table("booking")
 public class BookingEntity {
@@ -306,6 +327,7 @@ public class BookingEntity {
 ```
 
 **Referenced Aggregate**:
+
 ```java
 @Column("guest_id")
 private AggregateReference<CustomerEntity, UUID> guest;
@@ -317,6 +339,7 @@ Customer customer = customerRepository.findById(booking.getGuest().getId());
 ### Query Patterns
 
 **Simple Query**:
+
 ```java
 public interface CustomerRepository extends CrudRepository<CustomerEntity, UUID> {
     Optional<CustomerEntity> findByEmail(String email);
@@ -325,12 +348,14 @@ public interface CustomerRepository extends CrudRepository<CustomerEntity, UUID>
 ```
 
 **Custom SQL**:
+
 ```java
 @Query("SELECT * FROM customer WHERE email = :email AND enabled = true")
 Optional<CustomerEntity> findActiveByEmail(@Param("email") String email);
 ```
 
 **Pagination**:
+
 ```java
 public interface PageableCustomerRepository
         extends PagingAndSortingRepository<CustomerEntity, UUID> {
@@ -342,13 +367,13 @@ public interface PageableCustomerRepository
 
 ### Startup Time
 
-| Metric | Spring Data JDBC | Spring Data JPA | Improvement |
-|--------|-----------------|-----------------|-------------|
-| Entity scanning | 50ms | 200ms | 75% faster |
-| Repository initialization | 100ms | 300ms | 67% faster |
-| Total startup | 2.1s | 2.8s | 25% faster |
+| Metric                    | Spring Data JDBC | Spring Data JPA | Improvement |
+| ------------------------- | ---------------- | --------------- | ----------- |
+| Entity scanning           | 50ms             | 200ms           | 75% faster  |
+| Repository initialization | 100ms            | 300ms           | 67% faster  |
+| Total startup             | 2.1s             | 2.8s            | 25% faster  |
 
-*(Measured on backend module with 15 entities)*
+_(Measured on backend module with 15 entities)_
 
 ### Query Performance
 
@@ -386,6 +411,6 @@ January 2026 (Initial Architecture)
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date     | Change                    |
+| -------- | ------------------------- |
 | Jan 2026 | Initial decision document |

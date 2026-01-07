@@ -7,13 +7,15 @@ The Spring AI ResOs project uses a sophisticated multi-stage code generation pip
 See [Code Generation Pipeline Diagram](diagrams/code-generation-pipeline.md) for visual flow.
 
 **Complete Pipeline**:
-```
+
+```text
 OpenAPI Spec → OpenAPI Generator → HTTP Client (POJOs)
 → Maven Unpack → EntityGenerator (JavaParser) → JDBC Entities
 → Runtime SchemaCreator → Liquibase Changelogs → Database Schema
 ```
 
 **Benefits**:
+
 - Single source of truth (OpenAPI specification)
 - Zero manual entity writing
 - Zero manual schema writing
@@ -31,6 +33,7 @@ OpenAPI Spec → OpenAPI Generator → HTTP Client (POJOs)
 **Origin**: Modified from [ResOs API v1.2](https://documenter.getpostman.com/view/3308304/SzzehLGp?version=latest)
 
 **Modifications**:
+
 - Added security schemes for OAuth2
 - Enhanced model descriptions
 - Fixed validation constraints
@@ -81,6 +84,7 @@ Customer:
 ```
 
 **Key Features**:
+
 - Type specifications with formats
 - Validation constraints (min, max, pattern)
 - Descriptions for documentation
@@ -92,7 +96,7 @@ Customer:
 
 ### Tool
 
-**OpenAPI Generator Maven Plugin** (v7.10.0)
+**OpenAPI Generator Maven Plugin** (v7.18.0)
 
 ### Configuration
 
@@ -102,7 +106,7 @@ Customer:
 <plugin>
     <groupId>org.openapitools</groupId>
     <artifactId>openapi-generator-maven-plugin</artifactId>
-    <version>7.10.0</version>
+    <version>7.18.0</version>
     <executions>
         <execution>
             <id>generate-client</id>
@@ -133,6 +137,7 @@ Customer:
 ```
 
 **Key Parameters**:
+
 - `library: spring-http-interface` - Uses Spring 6+ HTTP Interface (not OpenFeign or RestTemplate)
 - `useJakartaEe: true` - Jakarta EE namespace (Spring Boot 3+ requirement)
 - `dateLibrary: java8` - Use `OffsetDateTime`, `LocalDate` (not Date or Calendar)
@@ -141,6 +146,7 @@ Customer:
 ### Generated Output
 
 **DefaultApi Interface**:
+
 ```java
 package me.pacphi.ai.resos.api;
 
@@ -182,6 +188,7 @@ public interface DefaultApi {
 ```
 
 **Customer Model POJO**:
+
 ```java
 package me.pacphi.ai.resos.model;
 
@@ -273,6 +280,7 @@ public class Customer {
 ```
 
 **Process**:
+
 1. Maven builds `client` module, creating `client-1.0.0-SNAPSHOT-sources.jar`
 2. `entities` module unpacks only `model/` package
 3. Excludes `api/` and `configuration/` (not needed for entities)
@@ -283,12 +291,14 @@ public class Customer {
 **Problem**: Generated code is in `client/target/generated-sources/` but we need to transform it in `entities` module.
 
 **Solutions Considered**:
+
 1. Copy files manually (not automated)
 2. Use Maven resources plugin (doesn't preserve package structure)
 3. Depend on client JAR and use reflection (loses source code)
 4. **Unpack sources JAR** ✅ (chosen approach)
 
 **Benefits**:
+
 - Preserves package structure
 - Automated (no manual copying)
 - Source code available for JavaParser
@@ -312,11 +322,13 @@ public class Customer {
 **Steps**:
 
 1. **Parse Source File**:
+
    ```java
    CompilationUnit cu = JavaParser.parse(new File(inputPath));
    ```
 
 2. **Rename Class**:
+
    ```java
    className = className + "Entity";  // Customer → CustomerEntity
    ```
@@ -330,6 +342,7 @@ public class Customer {
    - Add `AggregateReference<TargetEntity, UUID>` for foreign keys
 
 5. **Add Conversion Methods**:
+
    ```java
    public Customer toPojo() {
        return new Customer()
@@ -350,6 +363,7 @@ public class Customer {
 ### Example Transformation
 
 **Before (OpenAPI POJO)**:
+
 ```java
 package me.pacphi.ai.resos.model;
 
@@ -375,6 +389,7 @@ public class Customer {
 ```
 
 **After (JDBC Entity)**:
+
 ```java
 package me.pacphi.ai.resos.jdbc;
 
@@ -420,6 +435,7 @@ public class CustomerEntity {
 ### Build Integration
 
 **entities/pom.xml**:
+
 ```xml
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
@@ -451,6 +467,7 @@ public class CustomerEntity {
 ```
 
 **Process**:
+
 1. Run after source unpacking
 2. Transform all files in `unpacked-sources/model/`
 3. Output to `generated-sources/jdbc/`
@@ -529,7 +546,8 @@ private Map<String, Set<String>> buildDependencyGraph(List<Class<?>> entities) {
 **Output**: Directed graph of table dependencies
 
 **Example**:
-```
+
+```json
 {
   "customer": [],
   "booking": ["customer", "restaurant"],
@@ -632,19 +650,19 @@ private void generateChangelogForEntity(Class<?> entity, Path outputDir) {
 
 **Java → SQL Type Mapping**:
 
-| Java Type | PostgreSQL | H2 | Default Value |
-|-----------|-----------|-----|---------------|
-| `UUID` | `uuid` | `uuid` | `gen_random_uuid()` / `random_uuid()` |
-| `String` | `varchar(255)` | `varchar(255)` | - |
-| `OffsetDateTime` | `timestamp with time zone` | `timestamp` | - |
-| `LocalDate` | `date` | `date` | - |
-| `LocalTime` | `time` | `time` | - |
-| `BigDecimal` | `decimal(19,2)` | `decimal(19,2)` | - |
-| `Integer` | `integer` | `integer` | - |
-| `Long` | `bigint` | `bigint` | - |
-| `Boolean` | `boolean` | `boolean` | `false` |
-| `Enum` | `varchar(50)` | `varchar(50)` | - |
-| `Map<String,Object>` | `jsonb` | `jsonb` | - |
+| Java Type            | PostgreSQL                 | H2              | Default Value                         |
+| -------------------- | -------------------------- | --------------- | ------------------------------------- |
+| `UUID`               | `uuid`                     | `uuid`          | `gen_random_uuid()` / `random_uuid()` |
+| `String`             | `varchar(255)`             | `varchar(255)`  | -                                     |
+| `OffsetDateTime`     | `timestamp with time zone` | `timestamp`     | -                                     |
+| `LocalDate`          | `date`                     | `date`          | -                                     |
+| `LocalTime`          | `time`                     | `time`          | -                                     |
+| `BigDecimal`         | `decimal(19,2)`            | `decimal(19,2)` | -                                     |
+| `Integer`            | `integer`                  | `integer`       | -                                     |
+| `Long`               | `bigint`                   | `bigint`        | -                                     |
+| `Boolean`            | `boolean`                  | `boolean`       | `false`                               |
+| `Enum`               | `varchar(50)`              | `varchar(50)`   | -                                     |
+| `Map<String,Object>` | `jsonb`                    | `jsonb`         | -                                     |
 
 ```java
 private String mapJavaTypeToSqlType(Class<?> javaType) {
@@ -673,6 +691,7 @@ private String mapJavaTypeToSqlType(Class<?> javaType) {
 ### Generated Changeset Example
 
 **Input Entity**:
+
 ```java
 @Table("customer")
 public class CustomerEntity {
@@ -688,6 +707,7 @@ public class CustomerEntity {
 ```
 
 **Generated Liquibase YAML** (`db/changelog/generated/customer.yaml`):
+
 ```yaml
 databaseChangeLog:
   - changeSet:
@@ -751,6 +771,7 @@ private boolean isRunningFromJar() {
 ```
 
 **LiquibaseCustomizer Integration**:
+
 ```java
 @Component
 public class LiquibaseCustomizer implements BeanPostProcessor {
@@ -780,35 +801,113 @@ public class LiquibaseCustomizer implements BeanPostProcessor {
 
 ## Stage 6: Liquibase Execution
 
-### Master Changelog
+### Dynamic Master Changelog Generation
 
-**File**: `backend/src/main/resources/db/changelog/db.changelog-master.yml`
+Unlike traditional Liquibase setups where the master changelog is a static file, this project **dynamically generates** the master changelog at application startup. The `SchemaCreator` component scans `@Table`-annotated entities and produces:
+
+1. **Individual entity changelogs** in `db/changelog/generated/` (one YAML file per entity)
+2. **The master changelog** (`db.changelog-master.yml`) that orchestrates all includes
+
+**Generation Flow**:
+
+```text
+Application Startup
+       ↓
+SchemaCreator.@PostConstruct
+       ↓
+┌──────────────────────────────────────────┐
+│ 1. Scan me.pacphi.ai.resos.jdbc package  │
+│ 2. Find all @Table-annotated entities    │
+│ 3. Build dependency graph (FK ordering)  │
+│ 4. Generate entity changelogs            │
+│ 5. Copy static patches from classpath    │
+│ 6. Generate master changelog             │
+└──────────────────────────────────────────┘
+       ↓
+SpringLiquibase executes migrations
+```
+
+### Generated Master Changelog Structure
+
+The dynamically generated `db.changelog-master.yml` includes changelogs in this order:
 
 ```yaml
 databaseChangeLog:
-  # Generated entity changelogs
+  # Generated entity changelogs (sorted for FK dependency order)
   - include:
-      file: db/changelog/generated/authority.yaml
+      file: generated/20250101_000000_authority.yml
+      relativeToChangelogFile: true
   - include:
-      file: db/changelog/generated/app_user.yaml
+      file: generated/20250101_000001_app_user.yml
+      relativeToChangelogFile: true
   - include:
-      file: db/changelog/generated/customer.yaml
-  - include:
-      file: db/changelog/generated/booking.yaml
-  # ... more entities in dependency order
+      file: generated/20250101_000002_customer.yml
+      relativeToChangelogFile: true
+  # ... more entities
 
-  # Manual patches (OAuth2 column size fixes)
+  # Static patch files (from classpath resources)
   - include:
-      file: db/changelog/patches/001_fix_oauth2_client_column_sizes.yml
+      file: patches/001_fix_oauth2_client_column_sizes.yml
+      relativeToChangelogFile: true
   - include:
-      file: db/changelog/patches/002_fix_oauth2_authorization_column_sizes.yml
+      file: patches/002_fix_oauth2_authorization_column_sizes.yml
+      relativeToChangelogFile: true
 ```
 
-### Liquibase Configuration
+### Static Patch Files
+
+While entity changelogs are generated dynamically, **patch files are static** and stored in the classpath:
+
+**Location**: `backend/src/main/resources/db/changelog/patches/`
+
+Patches are used for schema modifications that cannot be expressed through entity annotations:
+
+- Column size adjustments (e.g., OAuth2 token storage requires larger VARCHAR)
+- Custom indexes or constraints
+- Data migrations
+- Schema fixes discovered post-deployment
+
+**Adding a New Patch**:
+
+1. Create a YAML file in `backend/src/main/resources/db/changelog/patches/`
+2. Use numeric prefix for ordering (e.g., `003_add_custom_index.yml`)
+3. The patch will automatically be included after all generated changelogs
+
+### Execution Mode Handling
+
+The system handles two execution contexts differently:
+
+| Mode               | Changelog Location                                             | Detection                              |
+| ------------------ | -------------------------------------------------------------- | -------------------------------------- |
+| **IDE/Filesystem** | `target/classes/db/changelog/`                                 | Classpath resource protocol is `file:` |
+| **JAR**            | `ApplicationTemp.getDir("liquibase-changelogs")/db/changelog/` | Classpath resource protocol is `jar:`  |
+
+**JAR Mode Coordination**:
+
+```java
+// SchemaCreator sets system property for temp directory
+System.setProperty("liquibase.changelog.dir", tempPath.toString());
+
+// LiquibaseCustomizer redirects Liquibase to read from temp directory
+liquibase.setChangeLog("file:" + changelogFile.toString());
+liquibase.setResourceLoader(new FileSystemResourceLoader());
+```
+
+### Liquibase Configuration Classes
+
+Three classes coordinate changelog generation and Liquibase execution:
+
+| Class                      | Role                                                                        |
+| -------------------------- | --------------------------------------------------------------------------- |
+| **SchemaCreator**          | Generates changelogs from entities, copies patches, writes master changelog |
+| **LiquibaseConfiguration** | Ensures `SchemaCreator` runs before `SpringLiquibase` via `@DependsOn`      |
+| **LiquibaseCustomizer**    | Redirects Liquibase to temp directory when running from JAR                 |
 
 **LiquibaseConfiguration** (`backend/src/main/java/me/pacphi/ai/resos/config/LiquibaseConfiguration.java`):
+
 ```java
 @Configuration
+@Profile({"dev", "test"})
 public class LiquibaseConfiguration implements BeanFactoryPostProcessor {
 
     @Override
@@ -837,6 +936,7 @@ Liquibase executes in this order:
 5. **Record in DATABASECHANGELOG**: Track applied migrations
 
 **Example SQL Executed**:
+
 ```sql
 -- From generated changelog
 CREATE TABLE customer (
@@ -930,12 +1030,14 @@ cd mcp-client/src/main/frontend && npm run build
 ### 1. Single Source of Truth
 
 **OpenAPI Spec** defines:
+
 - API endpoints
 - Request/response models
 - Validation rules
 - Documentation
 
 **Everything else derived**:
+
 - HTTP client (Spring HTTP Interface)
 - JDBC entities (JavaParser transformation)
 - Database schema (Liquibase from entities)
@@ -945,12 +1047,14 @@ cd mcp-client/src/main/frontend && npm run build
 ### 2. Zero Boilerplate
 
 **Without Code Generation**:
+
 - Manually write API client methods (~500 lines)
 - Manually write JDBC entities (~800 lines)
 - Manually write Liquibase changelogs (~1200 lines)
 - **Total**: ~2500 lines of repetitive code
 
 **With Code Generation**:
+
 - Write OpenAPI spec (~400 lines YAML)
 - Write EntityGenerator (~300 lines, reusable)
 - Write SchemaCreator (~400 lines, reusable)
@@ -961,6 +1065,7 @@ cd mcp-client/src/main/frontend && npm run build
 ### 3. Type Safety
 
 Compile-time errors for:
+
 - API contract violations (wrong endpoint, parameters)
 - Entity field mismatches
 - Database schema inconsistencies
@@ -968,6 +1073,7 @@ Compile-time errors for:
 ### 4. Maintainability
 
 **Adding a new entity**:
+
 1. Add model to OpenAPI spec (~20 lines YAML)
 2. Rebuild project
 3. Schema automatically created
@@ -980,28 +1086,28 @@ Compile-time errors for:
 
 ## Challenges & Solutions
 
-| Challenge | Solution |
-|-----------|----------|
-| JAR cannot write to classpath | Use ApplicationTemp directory |
-| Circular dependencies | Topological sort with cycle detection |
-| Type mapping accuracy | Comprehensive mapping table, database detection |
-| Build order | Maven reactor handles automatically |
-| Generated code in git? | .gitignore `target/`, commit OpenAPI spec only |
-| Schema changes in production | Use manual Liquibase changelogs (disable SchemaCreator) |
+| Challenge                     | Solution                                                |
+| ----------------------------- | ------------------------------------------------------- |
+| JAR cannot write to classpath | Use ApplicationTemp directory                           |
+| Circular dependencies         | Topological sort with cycle detection                   |
+| Type mapping accuracy         | Comprehensive mapping table, database detection         |
+| Build order                   | Maven reactor handles automatically                     |
+| Generated code in git?        | .gitignore `target/`, commit OpenAPI spec only          |
+| Schema changes in production  | Use manual Liquibase changelogs (disable SchemaCreator) |
 
 ---
 
 ## Critical Files
 
-| File | Purpose | Module |
-|------|---------|--------|
-| `client/src/main/resources/openapi/resos-openapi-modified.yml` | API specification | client |
-| `client/pom.xml` | OpenAPI Generator config | client |
-| `codegen/src/main/java/me/pacphi/ai/resos/util/EntityGenerator.java` | Entity transformation | codegen |
-| `entities/pom.xml` | Build orchestration | entities |
-| `backend/src/main/java/me/pacphi/ai/resos/config/SchemaCreator.java` | Schema generation | backend |
-| `backend/src/main/java/me/pacphi/ai/resos/config/LiquibaseConfiguration.java` | Bean ordering | backend |
-| `backend/src/main/java/me/pacphi/ai/resos/config/LiquibaseCustomizer.java` | JAR execution support | backend |
+| File                                                                          | Purpose                  | Module   |
+| ----------------------------------------------------------------------------- | ------------------------ | -------- |
+| `client/src/main/resources/openapi/resos-openapi-modified.yml`                | API specification        | client   |
+| `client/pom.xml`                                                              | OpenAPI Generator config | client   |
+| `codegen/src/main/java/me/pacphi/ai/resos/util/EntityGenerator.java`          | Entity transformation    | codegen  |
+| `entities/pom.xml`                                                            | Build orchestration      | entities |
+| `backend/src/main/java/me/pacphi/ai/resos/config/SchemaCreator.java`          | Schema generation        | backend  |
+| `backend/src/main/java/me/pacphi/ai/resos/config/LiquibaseConfiguration.java` | Bean ordering            | backend  |
+| `backend/src/main/java/me/pacphi/ai/resos/config/LiquibaseCustomizer.java`    | JAR execution support    | backend  |
 
 ## Related Documentation
 

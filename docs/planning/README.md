@@ -5,16 +5,19 @@ This directory contains documentation for **future work, remaining tasks, and pr
 ## Contents
 
 ### ROADMAP.md
+
 **Status**: ⏳ Active
 
 **Purpose**: High-level project roadmap and future work
 
 **Key Topics**:
+
 - MVP status (mostly complete)
 - Remaining work: Complete all repository/controller implementations
 - Future LinkedIn articles
 
 **What's Complete**:
+
 - ✅ Multi-module Maven structure
 - ✅ OpenAPI code generation
 - ✅ Spring Data JDBC with entity transformation
@@ -24,6 +27,7 @@ This directory contains documentation for **future work, remaining tasks, and pr
 - ✅ Integration tests (100% passing)
 
 **What Remains**:
+
 - ⏳ Complete all controller endpoints (many are stubs)
 - ⏳ Implement full CRUD for bookings, orders, tables
 - ⏳ Add business logic validation
@@ -31,11 +35,13 @@ This directory contains documentation for **future work, remaining tasks, and pr
 **Audience**: Project managers, stakeholders, contributors
 
 ### PHASE_7_PRODUCTION_READINESS.md
+
 **Status**: ⏳ Not Started
 
 **Purpose**: Production hardening tasks
 
 **Key Topics**:
+
 - Security hardening (CSP, HSTS, session cookies)
 - Docker deployment improvements
 - Documentation updates
@@ -66,11 +72,13 @@ This directory contains documentation for **future work, remaining tasks, and pr
 ### Understanding What's Been Done
 
 **All completed implementation phases are in [archives/](../archives/)**:
+
 - Phase 0: WebFlux → WebMVC migration
 - Phase 1-5: Database, security, OAuth2 implementation
 - Phase 6: Integration testing
 
 **For implementation details, see**:
+
 - [architecture/](../architecture/) - Current architecture documentation
 - [archives/](../archives/) - How features were implemented
 
@@ -78,7 +86,7 @@ This directory contains documentation for **future work, remaining tasks, and pr
 
 ## Document Lifecycle
 
-```
+```text
 New Feature Idea
     ↓
 Add to planning/ (ROADMAP, new phase doc)
