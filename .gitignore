@@ -44,7 +44,6 @@ install.yml
 
 ### Node/NPM/PNPM ###
 package-lock.json
-pnpm-lock.yaml
 dist
 node
 node_modules
