@@ -33,6 +33,8 @@
     "install:all": "pnpm install && pnpm run frontend:install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "prettier": "^3.4.2",
     "markdownlint-cli2": "^0.17.2",
     "yaml-lint": "^1.7.0",

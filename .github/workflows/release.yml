@@ -1,0 +1,419 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "[0-9][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9]*" # YYYY.MM.DD or YYYY.MM.DD.N
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+
+env:
+  JAVA_VERSION: "25"
+  JAVA_DISTRIBUTION: "liberica"
+
+jobs:
+  # Job 1: Validate the tag format and extract version
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - name: Extract version from tag
+        id: extract
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Validate tag format
+        run: |
+          VERSION=${{ steps.extract.outputs.version }}
+          # Validate YYYY.MM.DD or YYYY.MM.DD.N format
+          if [[ $VERSION =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}(\.[0-9]+)?$ ]]; then
+            echo "Valid date-based version: $VERSION"
+          else
+            echo "::error::Invalid version format. Expected YYYY.MM.DD or YYYY.MM.DD.N"
+            exit 1
+          fi
+
+  # Job 2: Build all modules
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Full history for changelog generation
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set version in POMs
+        run: |
+          ./mvnw versions:set -DnewVersion=${{ needs.validate.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Build all modules
+        run: |
+          ./mvnw clean package -DskipTests -Dspotless.check.skip=true
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p release-artifacts
+          VERSION=${{ needs.validate.outputs.version }}
+
+          # Copy all module JARs (main artifacts only, not sources/javadoc)
+          cp client/target/spring-ai-resos-client-${VERSION}.jar release-artifacts/ || echo "client jar not found"
+          cp codegen/target/spring-ai-resos-codegen-${VERSION}.jar release-artifacts/ || echo "codegen jar not found"
+          cp entities/target/spring-ai-resos-entities-${VERSION}.jar release-artifacts/ || echo "entities jar not found"
+          cp mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar release-artifacts/ || echo "mcp-server jar not found"
+          cp backend/target/spring-ai-resos-backend-${VERSION}.jar release-artifacts/ || echo "backend jar not found"
+          cp mcp-client/target/spring-ai-resos-mcp-frontend-${VERSION}.jar release-artifacts/ || echo "mcp-frontend jar not found"
+
+          # Generate checksums
+          cd release-artifacts
+          for f in *.jar; do
+            if [ -f "$f" ]; then
+              sha256sum "$f" > "$f.sha256"
+            fi
+          done
+
+          ls -la
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-jars
+          path: release-artifacts/
+          retention-days: 1
+
+  # Job 3: Generate changelog from conventional commits
+  changelog:
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    outputs:
+      changelog_content: ${{ steps.generate.outputs.changelog }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get previous tag
+        id: prev_tag
+        run: |
+          # Get the previous tag (excluding current)
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREV_TAG" ]; then
+            # No previous tag, use first commit
+            PREV_TAG=$(git rev-list --max-parents=0 HEAD)
+            echo "No previous tag found, using first commit: $PREV_TAG"
+          fi
+          echo "prev_tag=$PREV_TAG" >> $GITHUB_OUTPUT
+          echo "Previous tag/commit: $PREV_TAG"
+
+      - name: Generate changelog
+        id: generate
+        run: |
+          PREV_TAG="${{ steps.prev_tag.outputs.prev_tag }}"
+          VERSION="${{ needs.validate.outputs.version }}"
+
+          # Initialize changelog sections
+          FEATURES=""
+          FIXES=""
+          DOCS=""
+          REFACTOR=""
+          PERF=""
+          TEST=""
+          BUILD=""
+          CI=""
+          CHORE=""
+          BREAKING=""
+          OTHER=""
+
+          # Parse commits since last tag
+          while IFS= read -r line; do
+            if [ -z "$line" ]; then
+              continue
+            fi
+
+            HASH=$(echo "$line" | cut -d'|' -f1)
+            MSG=$(echo "$line" | cut -d'|' -f2-)
+            SHORT_HASH="${HASH:0:7}"
+
+            # Check for breaking changes
+            if [[ "$MSG" == *"BREAKING CHANGE"* ]] || [[ "$MSG" == *"!"*":"* ]]; then
+              BREAKING="${BREAKING}- ${MSG} (\`${SHORT_HASH}\`)\n"
+            fi
+
+            # Categorize by conventional commit type
+            case "$MSG" in
+              feat:*|feat\(*)
+                FEATURES="${FEATURES}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              fix:*|fix\(*)
+                FIXES="${FIXES}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              docs:*|docs\(*)
+                DOCS="${DOCS}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              refactor:*|refactor\(*)
+                REFACTOR="${REFACTOR}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              perf:*|perf\(*)
+                PERF="${PERF}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              test:*|test\(*)
+                TEST="${TEST}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              build:*|build\(*)
+                BUILD="${BUILD}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              ci:*|ci\(*)
+                CI="${CI}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              chore:*|chore\(*)
+                CHORE="${CHORE}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              Bump*)
+                CHORE="${CHORE}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+              *)
+                OTHER="${OTHER}- ${MSG} (\`${SHORT_HASH}\`)\n"
+                ;;
+            esac
+          done < <(git log --pretty=format:"%H|%s" "${PREV_TAG}..HEAD")
+
+          # Build changelog content with emoji badges
+          CHANGELOG="## What's Changed in ${VERSION}\n\n"
+
+          [ -n "$BREAKING" ] && CHANGELOG="${CHANGELOG}### :boom: Breaking Changes\n${BREAKING}\n"
+          [ -n "$FEATURES" ] && CHANGELOG="${CHANGELOG}### :sparkles: Features\n${FEATURES}\n"
+          [ -n "$FIXES" ] && CHANGELOG="${CHANGELOG}### :bug: Bug Fixes\n${FIXES}\n"
+          [ -n "$DOCS" ] && CHANGELOG="${CHANGELOG}### :memo: Documentation\n${DOCS}\n"
+          [ -n "$REFACTOR" ] && CHANGELOG="${CHANGELOG}### :recycle: Code Refactoring\n${REFACTOR}\n"
+          [ -n "$PERF" ] && CHANGELOG="${CHANGELOG}### :zap: Performance Improvements\n${PERF}\n"
+          [ -n "$TEST" ] && CHANGELOG="${CHANGELOG}### :white_check_mark: Tests\n${TEST}\n"
+          [ -n "$BUILD" ] && CHANGELOG="${CHANGELOG}### :package: Build System\n${BUILD}\n"
+          [ -n "$CI" ] && CHANGELOG="${CHANGELOG}### :construction_worker: CI/CD\n${CI}\n"
+          [ -n "$CHORE" ] && CHANGELOG="${CHANGELOG}### :wrench: Maintenance\n${CHORE}\n"
+          [ -n "$OTHER" ] && CHANGELOG="${CHANGELOG}### :pushpin: Other Changes\n${OTHER}\n"
+
+          # Add compare link
+          if [ "$PREV_TAG" != "$(git rev-list --max-parents=0 HEAD)" ]; then
+            CHANGELOG="${CHANGELOG}\n**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${VERSION}\n"
+          else
+            CHANGELOG="${CHANGELOG}\n**Full Changelog**: https://github.com/${{ github.repository }}/commits/${VERSION}\n"
+          fi
+
+          # Output changelog (handle multi-line)
+          {
+            echo "changelog<<EOF"
+            echo -e "$CHANGELOG"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Save changelog to file
+        run: |
+          cat << 'EOF' > RELEASE_NOTES.md
+          ${{ steps.generate.outputs.changelog }}
+          EOF
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: RELEASE_NOTES.md
+          retention-days: 1
+
+  # Job 4: Update CHANGELOG.md file
+  update-changelog:
+    needs: [validate, changelog]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: ./
+
+      - name: Update CHANGELOG.md
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+          DATE=$(date +%Y-%m-%d)
+
+          # Check if version already exists in CHANGELOG
+          if grep -q "## \[${VERSION}\]" CHANGELOG.md 2>/dev/null; then
+            echo "Version ${VERSION} already exists in CHANGELOG.md, skipping update"
+            exit 0
+          fi
+
+          # Read the release notes
+          RELEASE_NOTES=$(cat RELEASE_NOTES.md)
+
+          # Create new entry
+          NEW_ENTRY="## [${VERSION}] - ${DATE}
+
+          ${RELEASE_NOTES}
+
+          "
+
+          if [ -f CHANGELOG.md ]; then
+            # Insert new entry after the ## [Unreleased] section or at the top after header
+            if grep -q "## \[Unreleased\]" CHANGELOG.md; then
+              # Insert after [Unreleased] section
+              sed -i "/## \[Unreleased\]/a\\
+          \\
+          ${NEW_ENTRY}" CHANGELOG.md
+            else
+              # Insert after the header comment
+              sed -i "/<!-- Entries below are auto-generated/a\\
+          \\
+          ${NEW_ENTRY}" CHANGELOG.md
+            fi
+          else
+            echo "CHANGELOG.md not found"
+            exit 1
+          fi
+
+      - name: Commit CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: update CHANGELOG.md for ${{ needs.validate.outputs.version }}"
+            git push origin main
+          fi
+
+  # Job 5: Create GitHub Release with artifacts
+  release:
+    needs: [validate, build, changelog]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-jars
+          path: release-artifacts/
+
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+          path: ./
+
+      - name: List artifacts
+        run: |
+          echo "Release artifacts:"
+          ls -la release-artifacts/
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+
+          # Create the release with all artifacts
+          gh release create "${VERSION}" \
+            --title "Release ${VERSION}" \
+            --notes-file RELEASE_NOTES.md \
+            release-artifacts/*
+
+  # Job 6: Deploy to GitHub Packages
+  deploy-packages:
+    needs: [validate, build, release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Set version in POMs
+        run: |
+          ./mvnw versions:set -DnewVersion=${{ needs.validate.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Deploy to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./mvnw deploy -P github -DskipTests -Dspotless.check.skip=true -Dgpg.skip=true
+
+  # Job 7: Notify on failure
+  notify-failure:
+    needs: [validate, build, changelog, release, deploy-packages]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Create failure issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.validate.outputs.version }}"
+
+          # Check if failure issue already exists
+          EXISTING=$(gh issue list --search "Release ${VERSION} failed" --state open --json number --jq '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "Failure issue already exists: #${EXISTING}"
+            gh issue comment "$EXISTING" --body "Workflow run failed again: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          else
+            gh issue create \
+              --title ":rotating_light: Release ${VERSION} failed" \
+              --body "The release workflow for version **${VERSION}** has failed.
+
+          **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          Please investigate and fix the issue.
+
+          ### Recovery Steps
+
+          1. Check the workflow logs for the specific failure
+          2. Fix the issue in a new commit
+          3. Delete the failed tag: \`git push --delete origin ${VERSION}\`
+          4. Re-create and push the tag: \`git tag ${VERSION} && git push origin ${VERSION}\`
+
+          cc: @pacphi" \
+              --label "release,bug"
+          fi

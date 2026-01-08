@@ -1,8 +1,46 @@
 name: Java CI
 
-on: [push]
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
+  commit-lint:
+    runs-on: ubuntu-latest
+    name: Validate commit messages
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate PR commits
+        run: |
+          # Get commits in this PR
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          echo "Validating commits from $BASE_SHA to $HEAD_SHA"
+
+          # Lint each commit message
+          git log --format=%s "$BASE_SHA".."$HEAD_SHA" | while read -r msg; do
+            echo "Checking: $msg"
+            echo "$msg" | npx commitlint
+          done
+
   quality:
     runs-on: ubuntu-latest
     name: Quality checks

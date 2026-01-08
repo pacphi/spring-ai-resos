@@ -1,159 +1,256 @@
-# Maven Central Setup Guide
+# Release Process
 
-This document summarizes configuring this multi-module Maven project for publication to Maven Central using a GitHub account.
+This document describes the release process for the spring-ai-resos project.
 
-## Excluding Playground Module from Maven Central Release
+## Versioning Scheme
 
-To configure the multi-module Maven project to exclude the playground module from being published to Maven Central:
+This project uses **date-based versioning** in the format `YYYY.MM.DD`:
 
-Add a specific `<modules>` section in the Maven-central profile:
+| Format         | Example        | Description                          |
+| -------------- | -------------- | ------------------------------------ |
+| `YYYY.MM.DD`   | `2026.01.07`   | Standard release on January 7, 2026  |
+| `YYYY.MM.DD.N` | `2026.01.07.1` | Patch/hotfix release on the same day |
 
-```xml
-<profiles>
-    <profile>
-        <id>maven-central</id>
-        <!-- Add modules section here -->
-        <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <!-- existing configuration -->
-                </plugin>
-                <plugin>
-                    <groupId>org.sonatype.central</groupId>
-                    <artifactId>central-publishing-maven-plugin</artifactId>
-                    <!-- existing configuration -->
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
-</profiles>
-```
+## Prerequisites
 
-In the playground module's pom.xml, add:
+Before creating a release:
 
-```xml
-<properties>
-    <maven.deploy.skip>true</maven.deploy.skip>
-    <maven.install.skip>true</maven.install.skip>
-</properties>
-```
+- Ensure you have push access to the repository
+- Verify all CI checks pass on main branch
+- Use conventional commit messages for proper changelog generation
 
-## Setting Up Maven Central Account with GitHub
+## Creating a Release
 
-Here's a detailed guide for setting up a Maven Central account using a GitHub account instead of a domain:
-
-### 1. Initial Setup
-
-1. Create an account on [Sonatype's OSSRH Jira](https://issues.sonatype.org/secure/Signup!default.jspa)
-
-2. Create a New Project ticket:
-   - Click "Create" in JIRA
-   - Select "Community Support - Open Source Project Repository Hosting" (OSSRH)
-   - Project: "Community Support - Open Source Project Repository Hosting"
-   - Issue Type: "New Project"
-
-### 2. Project Information
-
-Provide the following in your ticket:
-
-- Group Id: `io.github.pacphi`
-- Project URL: `https://github.com/pacphi/spring-ai-resos`
-- SCM URL: `https://github.com/pacphi/spring-ai-resos.git`
-- Username(s): Your Sonatype JIRA username
-
-### 3. GitHub Verification
-
-- Create a repository named `OSSRH-XXXXX` (XXXXX = your ticket number) in your GitHub account, or
-- Add a specific comment to your existing repository's issue tracker
-
-### 4. POM Configuration
-
-Update your project's `pom.xml` with the required elements:
-
-```xml
-<groupId>io.github.pacphi</groupId>
-<name>spring-ai-resos</name>
-<description>Spring AI starters for conversational AI with support for alternative model providers</description>
-<url>https://github.com/pacphi/spring-ai-resos</url>
-
-<licenses>
-    <license>
-        <name>Apache License, Version 2.0</name>
-        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-</licenses>
-
-<developers>
-    <developer>
-        <id>pacphi</id>
-        <name>Chris Phillipson</name>
-        <url>https://github.com/pacphi</url>
-    </developer>
-</developers>
-
-<scm>
-    <connection>scm:git:git://github.com/pacphi/spring-ai-resos.git</connection>
-    <developerConnection>scm:git:ssh://github.com:pacphi/spring-ai-resos.git</developerConnection>
-    <url>https://github.com/pacphi/spring-ai-resos/tree/main</url>
-</scm>
-```
-
-### 5. GPG Setup
-
-Generate and distribute your GPG key:
+### 1. Ensure Clean Main Branch
 
 ```bash
-gpg --gen-key
-gpg --keyserver keyserver.ubuntu.com --send-keys YOUR_KEY_ID
+git checkout main
+git pull origin main
+./mvnw clean verify
 ```
 
-### 6. Maven Settings
+### 2. Create and Push Release Tag
 
-Add your credentials to `~/.m2/settings.xml`:
+```bash
+# Determine version based on today's date
+VERSION=$(date +%Y.%m.%d)
+
+# If a release already exists for today, use patch notation
+# VERSION=2026.01.07.1
+
+# Create and push the tag
+git tag -a "$VERSION" -m "Release $VERSION"
+git push origin "$VERSION"
+```
+
+### 3. Automated Release Process
+
+Pushing the tag triggers the GitHub Actions release workflow which:
+
+1. **Validates** the tag format (YYYY.MM.DD or YYYY.MM.DD.N)
+2. **Builds** all 6 modules with the release version
+3. **Generates** changelog from conventional commits
+4. **Creates** a GitHub Release with all JAR artifacts and SHA256 checksums
+5. **Deploys** artifacts to GitHub Packages
+6. **Updates** CHANGELOG.md and commits to main
+
+### 4. Verify Release
+
+After the workflow completes (~5-10 minutes):
+
+- Check [GitHub Releases](https://github.com/pacphi/spring-ai-resos/releases)
+- Verify artifacts are attached (6 JARs + 6 SHA256 checksums)
+- Check [GitHub Packages](https://github.com/pacphi/spring-ai-resos/packages)
+- Review the updated [CHANGELOG.md](../CHANGELOG.md)
+
+## Module Artifacts
+
+Each release publishes the following JARs:
+
+| Module     | Artifact ID                  | Description                   |
+| ---------- | ---------------------------- | ----------------------------- |
+| client     | spring-ai-resos-client       | OpenAPI-generated REST client |
+| codegen    | spring-ai-resos-codegen      | Code generation utilities     |
+| entities   | spring-ai-resos-entities     | Domain entities (JDBC)        |
+| mcp-server | spring-ai-resos-mcp-server   | MCP server implementation     |
+| backend    | spring-ai-resos-backend      | Backend API server            |
+| mcp-client | spring-ai-resos-mcp-frontend | Chatbot UI with MCP client    |
+
+## Consuming Releases
+
+### From GitHub Packages
+
+Add to your `~/.m2/settings.xml`:
 
 ```xml
 <settings>
   <servers>
     <server>
-      <id>central</id>
-      <username>your-jira-username</username>
-      <password>your-jira-password</password>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_GITHUB_TOKEN</password>
     </server>
   </servers>
 </settings>
 ```
 
-### 7. Token Generation
+Your GitHub token needs the `read:packages` scope.
 
-1. Generate a token from [Sonatype's Central Portal](https://central.sonatype.org/register/central-portal/)
-2. Store the token securely
+Add repository to your `pom.xml`:
 
-### 8. Deployment
+```xml
+<repositories>
+  <repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/pacphi/spring-ai-resos</url>
+  </repository>
+</repositories>
 
-Deploy using:
-
-```bash
-mvn clean deploy -P maven-central
+<dependency>
+  <groupId>me.pacphi</groupId>
+  <artifactId>spring-ai-resos-client</artifactId>
+  <version>2026.01.07</version>
+</dependency>
 ```
 
-### Important Notes
+### From GitHub Releases
 
-- Group ID will be `io.github.pacphi`
-- First deployment may take up to 2 hours to sync
-- Subsequent deployments are faster
-- Use proper version format (e.g., `1.0.0` not `1.0.0-SNAPSHOT` for releases)
-- Approval process typically takes 1-2 business days
-- First publication requires manual verification by Sonatype staff
-- Subsequent publications are automated
-
-## Usage
-
-To release the project (excluding playground module):
+Download JAR files directly:
 
 ```bash
-mvn clean deploy -P maven-central
+VERSION=2026.01.07
+
+# Download all JARs
+gh release download "$VERSION" --repo pacphi/spring-ai-resos --pattern "*.jar"
+
+# Verify checksums
+for jar in *.jar; do
+  sha256sum -c "$jar.sha256"
+done
 ```
 
-This will process all modules except playground and publish them to Maven Central.
+Or download from the [Releases page](https://github.com/pacphi/spring-ai-resos/releases).
+
+## Conventional Commits
+
+All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for proper changelog generation:
+
+```text
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types
+
+| Type       | Description             | Changelog Section           |
+| ---------- | ----------------------- | --------------------------- |
+| `feat`     | New feature             | :sparkles: Features         |
+| `fix`      | Bug fix                 | :bug: Bug Fixes             |
+| `docs`     | Documentation only      | :memo: Documentation        |
+| `style`    | Code style (formatting) | -                           |
+| `refactor` | Code refactoring        | :recycle: Code Refactoring  |
+| `perf`     | Performance improvement | :zap: Performance           |
+| `test`     | Adding/updating tests   | :white_check_mark: Tests    |
+| `build`    | Build system changes    | :package: Build System      |
+| `ci`       | CI configuration        | :construction_worker: CI/CD |
+| `chore`    | Maintenance tasks       | :wrench: Maintenance        |
+| `revert`   | Reverts a commit        | -                           |
+
+### Examples
+
+```bash
+# Feature
+git commit -m "feat: add user authentication endpoint"
+
+# Bug fix with scope
+git commit -m "fix(backend): resolve null pointer exception in ReservationService"
+
+# Documentation
+git commit -m "docs: update README with new examples"
+
+# Breaking change
+git commit -m "feat!: remove deprecated API endpoints
+
+BREAKING CHANGE: The /v1/old endpoint has been removed. Use /v2/new instead."
+```
+
+### Local Commit Validation
+
+Install the git hooks for local commit message validation:
+
+```bash
+./scripts/install-hooks.sh
+```
+
+This installs a `commit-msg` hook that validates conventional commit format.
+
+## Troubleshooting
+
+### Release Workflow Failed
+
+If the release workflow fails:
+
+1. Check the workflow logs in [GitHub Actions](https://github.com/pacphi/spring-ai-resos/actions)
+2. An issue will be automatically created with failure details
+3. Fix the issue in a new commit to main
+4. Delete the failed tag and re-create:
+
+```bash
+# Delete remote tag
+git push --delete origin 2026.01.07
+
+# Delete local tag
+git tag -d 2026.01.07
+
+# Re-create and push
+git tag -a "2026.01.07" -m "Release 2026.01.07"
+git push origin "2026.01.07"
+```
+
+### Version Already Exists
+
+If a tag for today already exists:
+
+```bash
+# Use patch version
+VERSION=2026.01.07.1  # or .2, .3, etc.
+git tag -a "$VERSION" -m "Release $VERSION"
+git push origin "$VERSION"
+```
+
+### Rollback a Release
+
+To completely remove a release:
+
+```bash
+VERSION=2026.01.07
+
+# Delete the GitHub Release (keeps the tag)
+gh release delete "$VERSION" --yes
+
+# Or delete both release and tag
+gh release delete "$VERSION" --yes
+git push --delete origin "$VERSION"
+git tag -d "$VERSION"
+```
+
+Note: Artifacts in GitHub Packages cannot be deleted once published.
+
+## Release Checklist
+
+Before releasing:
+
+- [ ] All CI checks pass on main
+- [ ] Version doesn't already exist as a tag
+- [ ] Recent commits follow conventional commit format
+- [ ] No uncommitted changes in working directory
+
+After releasing:
+
+- [ ] GitHub Release created with all artifacts
+- [ ] CHANGELOG.md updated with new entry
+- [ ] Artifacts visible in GitHub Packages
+- [ ] Release notes accurately reflect changes
