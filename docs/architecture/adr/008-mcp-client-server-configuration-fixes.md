@@ -258,6 +258,23 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
    - Test chat with tool calling
    - Test login → chat → logout flow
 
+### Test Configuration Note (January 2026)
+
+MCP client autoconfiguration is **disabled in tests** via `spring.ai.mcp.client.enabled: false`
+in `mcp-client/src/test/resources/application-test.yml`.
+
+**Rationale**: The mcp-client tests use TestContainers to start a backend OAuth2 server, but
+adding an mcp-server container introduces significant complexity:
+- Multi-container Docker networking
+- OAuth2 token validation between containers
+- Container startup timing issues
+
+The current tests verify MCP client configuration beans exist without requiring actual MCP
+server connectivity. `McpSyncClientManager.newMcpSyncClients()` returns an empty list in tests.
+
+Full MCP end-to-end testing is deferred as a future enhancement. See [TESTS.md](../../../TESTS.md)
+troubleshooting section for details.
+
 ## Related Decisions
 
 - [ADR-005: HTTP Streamable Transport](005-http-streamable-transport.md) - Updated with correct property names
