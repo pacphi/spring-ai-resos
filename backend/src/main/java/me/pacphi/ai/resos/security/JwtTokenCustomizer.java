@@ -45,6 +45,9 @@ public class JwtTokenCustomizer {
             if (context.getTokenType().getValue().equals("id_token")) {
                 Authentication principal = context.getPrincipal();
 
+                // Add preferred_username claim (standard OIDC claim)
+                context.getClaims().claim("preferred_username", principal.getName());
+
                 // Add roles to ID token as well
                 Set<String> roles = principal.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)

@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003_create_oauth2_authorization_consent
+      author: security-patch
+      comment: Create oauth2_authorization_consent table for Spring Authorization Server (composite PK not supported by SchemaCreator)
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: oauth2_authorization_consent
+      changes:
+        - createTable:
+            tableName: oauth2_authorization_consent
+            columns:
+              - column:
+                  name: registered_client_id
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: principal_name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authorities
+                  type: varchar(1000)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: oauth2_authorization_consent
+            columnNames: registered_client_id, principal_name
+            constraintName: pk_oauth2_authorization_consent

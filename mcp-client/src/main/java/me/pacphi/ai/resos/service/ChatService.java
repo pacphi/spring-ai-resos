@@ -48,10 +48,24 @@ public class ChatService {
             Consumer<Throwable> onError) {
 
         try {
+            var mcpClients = syncClientManager.newMcpSyncClients();
+            log.info("MCP Clients available: {}", mcpClients.size());
+            if (mcpClients.isEmpty()) {
+                log.warn("NO MCP clients available! Tools will not work.");
+            } else {
+                mcpClients.forEach(client -> log.info("MCP Client: {}", client));
+            }
+
             SyncMcpToolCallbackProvider provider =
                     SyncMcpToolCallbackProvider.builder()
-                        .mcpClients(syncClientManager.newMcpSyncClients())
+                        .mcpClients(mcpClients)
                         .build();
+
+            var toolCallbacks = provider.getToolCallbacks();
+            log.info("Tool callbacks registered: {}", toolCallbacks.length);
+            for (var cb : toolCallbacks) {
+                log.info("  Tool: {}", cb.getToolDefinition().name());
+            }
 
             // Use Spring AI's streaming with callback
             // Note: This assumes Spring AI 2.0+ provides streaming to Consumer

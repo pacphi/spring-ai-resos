@@ -19,12 +19,12 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuthStatus = useCallback(async () => {
         try {
-            const response = await fetch('/api/auth/status');
+            const response = await fetch('/api/auth/status', { credentials: 'include' });
             const data = await response.json();
 
             if (data.authenticated) {
                 // Fetch full user info if authenticated
-                const userResponse = await fetch('/api/auth/user');
+                const userResponse = await fetch('/api/auth/user', { credentials: 'include' });
                 if (userResponse.ok) {
                     const userData = await userResponse.json();
                     setUser(userData);

@@ -7,8 +7,10 @@ spring:
       server:
         name: ${spring.application.name}
         version: 1.2-modified
-        # WebMVC starter uses HTTP Streamable by default (no stdio: true needed)
-        # protocol: STREAMABLE is the default
+        type: SYNC
+        protocol: STREAMABLE
+        streamable-http:
+          mcp-endpoint: /mcp
 
   jackson:
     default-property-inclusion: non_null
@@ -107,5 +109,15 @@ management:
       exposure:
         include: "*"
 
+# Override default.url for local development
+default:
+  url: ${RESOS_API_ENDPOINT:http://localhost:8080}
+
 server:
   port: 8082
+
+logging:
+  level:
+    me.pacphi: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web.client: DEBUG

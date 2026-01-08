@@ -40,6 +40,7 @@ const ChatPage = ({ isDarkMode }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',  // Ensure session cookie is sent
                 body: JSON.stringify({
                     question: questionText
                 }),
@@ -60,9 +61,19 @@ const ChatPage = ({ isDarkMode }) => {
                 if (done) break;
 
                 const chunk = decoder.decode(value);
-                fullAnswer += chunk;
-                setCurrentAnswer((prev) => prev + chunk);
-                setAnswer((prev) => prev + chunk);
+                // Parse SSE format - extract data from "data: <content>" lines
+                const lines = chunk.split('\n');
+                for (const line of lines) {
+                    if (line.startsWith('data:')) {
+                        // Remove "data:" prefix and trim
+                        const content = line.slice(5);
+                        if (content) {
+                            fullAnswer += content;
+                            setCurrentAnswer((prev) => prev + content);
+                            setAnswer((prev) => prev + content);
+                        }
+                    }
+                }
 
                 if (answerContainerRef.current) {
                     answerContainerRef.current.scrollTop = answerContainerRef.current.scrollHeight;

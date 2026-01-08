@@ -65,8 +65,9 @@ The first implementation used SSE transport with WebFlux:
 
 2. **MCP Client Configuration**:
    - Type: `SYNC` (servlet-based, not reactive)
-   - Transport: HTTP (not SSE)
+   - Transport: HTTP Streamable (property key: `streamable-http`)
    - Connection URL: `http://localhost:8082`
+   - Lazy initialization required for OAuth2 timing
 
    ```yaml
    spring:
@@ -74,12 +75,19 @@ The first implementation used SSE transport with WebFlux:
        mcp:
          client:
            type: SYNC
-           initialized: false # Lazy initialization
-           http: # Changed from 'sse'
+           # Do NOT initialize at startup - OAuth2 tokens not ready yet
+           # Clients are initialized on first use in McpSyncClientManager
+           initialized: false
+           streamable-http: # HTTP Streamable transport (not 'http' or 'sse')
              connections:
                butler:
                  url: http://localhost:8082
    ```
+
+   **Important**: The `initialized: false` setting is required because:
+   - OAuth2 client credentials tokens aren't available at startup
+   - The `mcp-security` library requires lazy initialization
+   - `McpSyncClientManager` handles initialization on first use
 
 3. **Security Integration**:
    - OAuth2 Bearer tokens in `Authorization` header

@@ -8,9 +8,10 @@ spring:
         name: ${spring.application.name}
         request-timeout: 30s
         type: SYNC # Changed from ASYNC to SYNC for WebMVC
-        # Don't initialize clients at startup - let McpSyncClientManager handle per-request init
+        # Do NOT initialize at startup - OAuth2 tokens not ready yet
+        # Clients are initialized on first use in McpSyncClientManager
         initialized: false
-        http: # Changed from 'sse' to 'http' for WebMVC HTTP Streamable transport
+        streamable-http: # HTTP Streamable transport (correct property name)
           connections:
             butler:
               url: ${SPRING_AI_RESOS_SERVER_URL:http://localhost:8082}
@@ -62,6 +63,12 @@ management:
 server:
   tomcat:
     max-swallow-size: -1
+  servlet:
+    session:
+      cookie:
+        path: /
+        same-site: lax
+        http-only: true
 
 # OAuth2 Client Configuration
 spring.security.oauth2.client:
@@ -69,6 +76,7 @@ spring.security.oauth2.client:
     # For user authentication (authorization code + PKCE)
     frontend-app:
       client-id: ${OAUTH2_CLIENT_ID:frontend-app}
+      client-authentication-method: none
       authorization-grant-type: authorization_code
       redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
       scope: openid,profile,email,chat.read,chat.write
@@ -85,8 +93,8 @@ spring.security.oauth2.client:
       authorization-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/authorize
       token-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/token
       user-info-uri: ${AUTH_SERVER_URL:http://localhost:8080}/userinfo
-      jwk-set-uri: ${AUTH_SERVER_URL:http://localhost:8080}/.well-known/jwks.json
-      user-name-attribute: preferred_username
+      jwk-set-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/jwks
+      user-name-attribute: sub
     mcp-client-to-server:
       token-uri: ${AUTH_SERVER_URL:http://localhost:8080}/oauth2/token
 
@@ -212,6 +220,11 @@ logging:
     me.pacphi: TRACE
     org.springframework: DEBUG
     com.fasterxml.jackson: TRACE
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.apache.catalina.filters.RequestDumperFilter: DEBUG
+
+# Enable request logging to see cookies
+spring.mvc.log-request-details: true
 
 server:
   port: 8081
