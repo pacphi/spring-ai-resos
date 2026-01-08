@@ -883,14 +883,14 @@ mvn clean package -Pstdio -DskipTests
 
 ### Transport Comparison
 
-| Aspect | HTTP Streamable | STDIO |
-|--------|-----------------|-------|
-| Deployment | Network-accessible | Local process only |
-| Security | OAuth2 JWT | Process isolation |
-| Clients | Multiple | Single (Claude Desktop) |
-| Web Server | Tomcat on port 8082 | None |
-| Configuration | `application.yml` | `application-stdio.yml` |
-| Maven Profile | `webmvc` (default) | `stdio` |
+| Aspect        | HTTP Streamable     | STDIO                   |
+| ------------- | ------------------- | ----------------------- |
+| Deployment    | Network-accessible  | Local process only      |
+| Security      | OAuth2 JWT          | Process isolation       |
+| Clients       | Multiple            | Single (Claude Desktop) |
+| Web Server    | Tomcat on port 8082 | None                    |
+| Configuration | `application.yml`   | `application-stdio.yml` |
+| Maven Profile | `webmvc` (default)  | `stdio`                 |
 
 ---
 
@@ -935,16 +935,17 @@ Add to your Claude Desktop configuration file:
 
 ### Key Configuration Points
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| `spring.profiles.active` | `stdio` | Activates STDIO profile configuration |
-| `spring.main.web-application-type` | `none` | Disables HTTP server |
-| `spring.ai.mcp.server.stdio` | `true` | Enables STDIO transport |
-| `security.oauth2.enabled` | `false` | Disables OAuth2 (not needed for local process) |
+| Setting                            | Value   | Purpose                                        |
+| ---------------------------------- | ------- | ---------------------------------------------- |
+| `spring.profiles.active`           | `stdio` | Activates STDIO profile configuration          |
+| `spring.main.web-application-type` | `none`  | Disables HTTP server                           |
+| `spring.ai.mcp.server.stdio`       | `true`  | Enables STDIO transport                        |
+| `security.oauth2.enabled`          | `false` | Disables OAuth2 (not needed for local process) |
 
 ### STDIO vs HTTP Transport
 
 **STDIO Transport** (Claude Desktop):
+
 - Uses `spring-ai-starter-mcp-server`
 - Sets `spring.main.web-application-type=none`
 - Sets `spring.ai.mcp.server.stdio=true`
@@ -952,6 +953,7 @@ Add to your Claude Desktop configuration file:
 - No HTTP server required
 
 **HTTP Streamable Transport** (Web Chatbot):
+
 - Uses `spring-ai-starter-mcp-server-webmvc`
 - Runs Tomcat HTTP server on port 8082
 - Full OAuth2 JWT security

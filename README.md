@@ -151,18 +151,8 @@ Claude Desktop can connect to the MCP server using STDIO transport. This allows 
 #### Prerequisites
 
 1. Get the STDIO variant of the MCP server:
-
-**Option A: Download from Releases**
-
-Download `spring-ai-resos-mcp-server-stdio-{VERSION}.jar` from the [Releases](../../releases) page.
-
-**Option B: Build from Source**
-
-```bash
-cd mcp-server
-mvn clean package -Pstdio
-```
-
+   - **Option A: Download from Releases** - Download `spring-ai-resos-mcp-server-stdio-{VERSION}.jar` from the [Releases](../../releases) page.
+   - **Option B: Build from Source** - Run `cd mcp-server && mvn clean package -Pstdio`
 2. Ensure the backend is running (if using local development):
 
 ```bash
@@ -224,15 +214,15 @@ Add the following to your Claude Desktop configuration file:
 
 Once connected, Claude Desktop will have access to these tools:
 
-| Tool | Description |
-|------|-------------|
-| `getTables` | Fetch all restaurant tables |
-| `getCustomers` | Fetch customer records with filtering/pagination |
-| `getCustomerById` | Fetch a specific customer |
-| `getFeedback` | Fetch customer feedback and reviews |
-| `getFeedbackById` | Fetch specific feedback |
-| `getOpeningHours` | Fetch opening hours for the next two weeks |
-| `getOpeningHoursById` | Fetch specific opening hours |
+| Tool                  | Description                                      |
+| --------------------- | ------------------------------------------------ |
+| `getTables`           | Fetch all restaurant tables                      |
+| `getCustomers`        | Fetch customer records with filtering/pagination |
+| `getCustomerById`     | Fetch a specific customer                        |
+| `getFeedback`         | Fetch customer feedback and reviews              |
+| `getFeedbackById`     | Fetch specific feedback                          |
+| `getOpeningHours`     | Fetch opening hours for the next two weeks       |
+| `getOpeningHoursById` | Fetch specific opening hours                     |
 
 #### Verification
 
@@ -244,16 +234,19 @@ Once connected, Claude Desktop will have access to these tools:
 #### Troubleshooting
 
 **Server not connecting:**
+
 - Verify the JAR path is absolute and correct
 - Ensure Java 25+ is installed and in PATH
 - Check that the backend server is running on port 8080
 
 **Tools not appearing:**
+
 - Verify the configuration JSON syntax is valid
 - Check Claude Desktop logs for errors
 - Restart Claude Desktop completely (not just the chat)
 
 **Backend connection errors:**
+
 - Ensure `RESOS_API_ENDPOINT` environment variable is correct
 - Verify the backend is accessible at the configured URL
 

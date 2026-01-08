@@ -75,6 +75,7 @@ Two profiles control which Spring AI MCP starter is included:
 ```
 
 **Usage**:
+
 - Build for web chatbot: `mvn clean package` (default)
 - Build for Claude Desktop: `mvn clean package -Pstdio`
 
@@ -132,7 +133,7 @@ security:
 
 logging:
   pattern:
-    console: "%msg%n"  # Minimal logging to avoid STDIO interference
+    console: '%msg%n' # Minimal logging to avoid STDIO interference
 ```
 
 #### 4. Claude Desktop Configuration
@@ -144,11 +145,7 @@ logging:
   "mcpServers": {
     "spring-ai-resos": {
       "command": "java",
-      "args": [
-        "-Dspring.profiles.active=stdio",
-        "-jar",
-        "/path/to/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
-      ],
+      "args": ["-Dspring.profiles.active=stdio", "-jar", "/path/to/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"],
       "env": {
         "RESOS_API_ENDPOINT": "http://localhost:8080/api/v1/resos"
       }
@@ -191,10 +188,10 @@ logging:
 
 ### Test Classes
 
-| Test Class | Profile | Description |
-|------------|---------|-------------|
-| `BackendApiOAuth2ClientTest` | webmvc only | Tests OAuth2 client credentials flow |
-| `McpEndpointSecurityTest` | webmvc only | Tests HTTP endpoint security with JWT |
+| Test Class                        | Profile     | Description                                                                          |
+| --------------------------------- | ----------- | ------------------------------------------------------------------------------------ |
+| `BackendApiOAuth2ClientTest`      | webmvc only | Tests OAuth2 client credentials flow                                                 |
+| `McpEndpointSecurityTest`         | webmvc only | Tests HTTP endpoint security with JWT                                                |
 | `StdioTransportConfigurationTest` | webmvc only | Tests STDIO profile bean configuration (runs with Spring profile, not Maven profile) |
 
 ## CI/CD Workflow Integration
@@ -232,26 +229,26 @@ Produces dual artifacts with transport-specific naming:
 
 Release artifacts use transport-specific naming to differentiate the two MCP server variants:
 
-| Artifact | Transport | OAuth2 | Use Case |
-|----------|-----------|--------|----------|
-| `spring-ai-resos-mcp-server-webmvc-{VERSION}.jar` | HTTP Streamable | Yes | Web chatbot, cloud deployment |
-| `spring-ai-resos-mcp-server-stdio-{VERSION}.jar` | STDIO | No | Claude Desktop integration |
+| Artifact                                          | Transport       | OAuth2 | Use Case                      |
+| ------------------------------------------------- | --------------- | ------ | ----------------------------- |
+| `spring-ai-resos-mcp-server-webmvc-{VERSION}.jar` | HTTP Streamable | Yes    | Web chatbot, cloud deployment |
+| `spring-ai-resos-mcp-server-stdio-{VERSION}.jar`  | STDIO           | No     | Claude Desktop integration    |
 
 Local builds (from source) retain the standard naming: `spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar`
 
 ## Files Changed
 
-| File | Change |
-|------|--------|
-| `mcp-server/pom.xml` | Added `webmvc` and `stdio` Maven profiles with `skipTests` |
-| `mcp-server/src/main/java/.../SecurityConfig.java` | Added `@ConditionalOnProperty` |
-| `mcp-server/src/main/java/.../ResOsConfig.java` | Made OAuth2 beans conditional, used `ObjectProvider` |
-| `mcp-server/src/main/resources/application-stdio.yml` | New STDIO profile configuration |
-| `mcp-server/src/test/.../StdioTransportConfigurationTest.java` | New test for STDIO bean configuration |
-| `.github/workflows/ci.yml` | Added STDIO compile verification step |
-| `.github/workflows/release.yml` | Added dual artifact build and collection |
-| `README.md` | Updated Claude Desktop instructions with download option |
-| `docs/architecture/07-mcp-architecture.md` | Added Transport Options section |
+| File                                                           | Change                                                     |
+| -------------------------------------------------------------- | ---------------------------------------------------------- |
+| `mcp-server/pom.xml`                                           | Added `webmvc` and `stdio` Maven profiles with `skipTests` |
+| `mcp-server/src/main/java/.../SecurityConfig.java`             | Added `@ConditionalOnProperty`                             |
+| `mcp-server/src/main/java/.../ResOsConfig.java`                | Made OAuth2 beans conditional, used `ObjectProvider`       |
+| `mcp-server/src/main/resources/application-stdio.yml`          | New STDIO profile configuration                            |
+| `mcp-server/src/test/.../StdioTransportConfigurationTest.java` | New test for STDIO bean configuration                      |
+| `.github/workflows/ci.yml`                                     | Added STDIO compile verification step                      |
+| `.github/workflows/release.yml`                                | Added dual artifact build and collection                   |
+| `README.md`                                                    | Updated Claude Desktop instructions with download option   |
+| `docs/architecture/07-mcp-architecture.md`                     | Added Transport Options section                            |
 
 ## Related Decisions
 
@@ -271,6 +268,6 @@ January 2026
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date     | Change                                  |
+| -------- | --------------------------------------- |
 | Jan 2026 | Initial ADR for STDIO transport support |
