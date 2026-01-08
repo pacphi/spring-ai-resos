@@ -13,6 +13,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
+    <!-- Common dependencies for all profiles -->
     <dependencies>
         <dependency>
             <groupId>me.pacphi</groupId>
@@ -20,12 +21,17 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!--
+            Spring Security is needed for compilation even in STDIO mode.
+            The SecurityConfig bean is conditionally registered via @ConditionalOnProperty
+            so it won't be active when security.oauth2.enabled=false.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -37,16 +43,6 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- OAuth2 Client for backend authentication (outbound calls) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency>
-        <!-- OAuth2 Resource Server for validating inbound tokens on MCP endpoints -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
         <!-- Native DNS resolver for macOS to avoid DNS resolution warnings -->
         <dependency>
             <groupId>io.netty</groupId>
@@ -55,6 +51,47 @@
             <scope>runtime</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <!-- Default profile: HTTP/WebMVC transport with OAuth2 security -->
+        <profile>
+            <id>webmvc</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.ai</groupId>
+                    <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+                </dependency>
+                <!-- OAuth2 Client for backend authentication (outbound calls) -->
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-oauth2-client</artifactId>
+                </dependency>
+                <!-- OAuth2 Resource Server for validating inbound tokens on MCP endpoints -->
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <!-- STDIO profile: For Claude Desktop integration (no HTTP, no OAuth2) -->
+        <profile>
+            <id>stdio</id>
+            <properties>
+                <!-- Skip test compilation and execution - OAuth2 test classes won't compile without dependencies -->
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.ai</groupId>
+                    <artifactId>spring-ai-starter-mcp-server</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>

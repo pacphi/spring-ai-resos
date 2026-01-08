@@ -1,0 +1,52 @@
+# STDIO Profile Configuration for Claude Desktop Integration
+# Activate with: -Dspring.profiles.active=stdio
+#
+# This profile enables STDIO transport for MCP communication,
+# which is required for Claude Desktop integration.
+# OAuth2 security is disabled since STDIO is a local process-based transport.
+
+spring:
+  application:
+    name: spring-ai-resos-mcp-server
+
+  # Disable web server for STDIO mode
+  main:
+    web-application-type: none
+    banner-mode: off
+
+  ai:
+    mcp:
+      server:
+        name: ${spring.application.name}
+        version: 1.2-modified
+        # Enable STDIO transport
+        stdio: true
+
+  jackson:
+    default-property-inclusion: non_null
+
+  threads:
+    virtual:
+      enabled: true
+
+# Disable OAuth2 security for STDIO mode
+security:
+  oauth2:
+    enabled: false
+
+# Backend API endpoint (still needed for tool execution)
+# Override with RESOS_API_ENDPOINT environment variable
+default:
+  url: ${RESOS_API_ENDPOINT:http://localhost:8080/api/v1/resos}
+
+# Minimal logging for STDIO mode to avoid polluting stdout
+# which is used for MCP protocol communication
+logging:
+  level:
+    root: WARN
+    me.pacphi.ai.resos: INFO
+  # Disable console pattern to avoid interference with STDIO protocol
+  pattern:
+    console: "%msg%n"
+  file:
+    name: ${user.home}/logs/spring-ai-resos-mcp-server-stdio.log
