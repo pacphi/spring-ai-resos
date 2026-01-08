@@ -214,12 +214,13 @@ Produces dual artifacts with transport-specific naming:
 ```yaml
 - name: Build all modules
   run: |
-    # Build webmvc (default) variant
-    ./mvnw clean package -DskipTests
+    # Build webmvc (default) variant and install to local repo
+    # Using 'install' so artifacts are available for single-module stdio build
+    ./mvnw clean install -DskipTests
     mv mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar \
        mcp-server/target/spring-ai-resos-mcp-server-webmvc-${VERSION}.jar
 
-    # Build stdio variant
+    # Build stdio variant (dependencies resolved from local repo)
     ./mvnw package -pl mcp-server -Pstdio
     mv mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar \
        mcp-server/target/spring-ai-resos-mcp-server-stdio-${VERSION}.jar

@@ -151,7 +151,7 @@ Claude Desktop can connect to the MCP server using STDIO transport. This allows 
 #### Prerequisites
 
 1. Get the STDIO variant of the MCP server:
-   - **Option A: Download from Releases** - Download `spring-ai-resos-mcp-server-stdio-{VERSION}.jar` from the [Releases](../../releases) page.
+   - **Option A: Download from Releases** - Download `spring-ai-resos-mcp-server-stdio-{VERSION}.jar` from the [Releases](https://github.com/pacphi/spring-ai-resos/releases) page.
    - **Option B: Build from Source** - Run `cd mcp-server && mvn clean package -Pstdio`
 2. Ensure the backend is running (if using local development):
 

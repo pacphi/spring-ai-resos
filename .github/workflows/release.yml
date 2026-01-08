@@ -71,14 +71,17 @@ jobs:
         run: |
           VERSION=${{ needs.validate.outputs.version }}
 
-          # Build webmvc (default) variant
-          ./mvnw clean package -DskipTests
+          # Build webmvc (default) variant and install to local repo
+          # Using 'install' instead of 'package' so artifacts are available
+          # in ~/.m2/repository for the single-module stdio build
+          ./mvnw clean install -DskipTests
 
           # Rename webmvc JAR to include transport type
           mv mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar \
              mcp-server/target/spring-ai-resos-mcp-server-webmvc-${VERSION}.jar
 
           # Build stdio variant (tests skipped via profile property)
+          # Uses -pl for single module build, dependencies resolved from local repo
           ./mvnw package -pl mcp-server -Pstdio
 
           # Rename stdio JAR to include transport type
