@@ -3,11 +3,11 @@ package me.pacphi.ai.resos.mcp;
 import me.pacphi.ai.resos.api.DefaultApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
@@ -21,7 +21,6 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import java.io.IOException;
 import java.net.http.HttpClient;
 import java.time.Duration;
 
@@ -37,12 +36,14 @@ public class ResOsConfig {
     private boolean oauth2Enabled;
 
     @Bean
+    @ConditionalOnProperty(name = "security.oauth2.enabled", havingValue = "true", matchIfMissing = true)
     public OAuth2AuthorizedClientService authorizedClientService(
             ClientRegistrationRepository clientRegistrationRepository) {
         return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
     }
 
     @Bean
+    @ConditionalOnProperty(name = "security.oauth2.enabled", havingValue = "true", matchIfMissing = true)
     public OAuth2AuthorizedClientManager authorizedClientManager(
             ClientRegistrationRepository clientRegistrationRepository,
             OAuth2AuthorizedClientService authorizedClientService) {
@@ -63,7 +64,8 @@ public class ResOsConfig {
     }
 
     @Bean
-    public RestClient resosRestClient(OAuth2AuthorizedClientManager authorizedClientManager) {
+    public RestClient resosRestClient(
+            ObjectProvider<OAuth2AuthorizedClientManager> authorizedClientManagerProvider) {
         log.info("Creating RestClient with baseUrl: {} (OAuth2 enabled: {})", apiEndpoint, oauth2Enabled);
 
         // Configure JDK HttpClient with timeout
@@ -81,10 +83,13 @@ public class ResOsConfig {
                 .requestInterceptor(logRequestInterceptor())
                 .requestInterceptor(logResponseInterceptor());
 
-        // Add OAuth2 interceptor if enabled
-        if (oauth2Enabled) {
+        // Add OAuth2 interceptor only if enabled and OAuth2 beans are available
+        OAuth2AuthorizedClientManager authorizedClientManager = authorizedClientManagerProvider.getIfAvailable();
+        if (oauth2Enabled && authorizedClientManager != null) {
             builder.requestInterceptor(oauth2Interceptor(authorizedClientManager));
             log.info("OAuth2 client credentials interceptor enabled for mcp-server client");
+        } else {
+            log.info("OAuth2 disabled or not configured - RestClient will make unauthenticated calls");
         }
 
         return builder.build();

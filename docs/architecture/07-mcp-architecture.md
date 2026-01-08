@@ -846,11 +846,72 @@ OAuth2AuthenticationException: invalid_client
 
 ---
 
+## Transport Options
+
+The MCP server supports two transport mechanisms via Maven profiles:
+
+### HTTP Streamable Transport (Default)
+
+- **Maven Profile**: Default (no profile needed) or `-Pwebmvc`
+- **Use Case**: Web-based chatbot, cloud deployment, multi-client
+- **Security**: OAuth2 JWT validation
+- **Port**: 8082
+- **Dependencies**: `spring-ai-starter-mcp-server-webmvc`, OAuth2 starters
+
+```bash
+# Build with HTTP transport (default)
+cd mcp-server
+mvn clean package -DskipTests
+
+# Run with HTTP transport
+mvn spring-boot:run -Dspring-boot.run.profiles=cloud,dev
+```
+
+### STDIO Transport (Claude Desktop)
+
+- **Maven Profile**: `-Pstdio`
+- **Use Case**: Claude Desktop integration, local development
+- **Security**: None (local process only)
+- **Port**: None (uses stdin/stdout)
+- **Dependencies**: `spring-ai-starter-mcp-server` (no OAuth2)
+
+```bash
+# Build for Claude Desktop
+cd mcp-server
+mvn clean package -Pstdio -DskipTests
+```
+
+### Transport Comparison
+
+| Aspect        | HTTP Streamable     | STDIO                   |
+| ------------- | ------------------- | ----------------------- |
+| Deployment    | Network-accessible  | Local process only      |
+| Security      | OAuth2 JWT          | Process isolation       |
+| Clients       | Multiple            | Single (Claude Desktop) |
+| Web Server    | Tomcat on port 8082 | None                    |
+| Configuration | `application.yml`   | `application-stdio.yml` |
+| Maven Profile | `webmvc` (default)  | `stdio`                 |
+
+---
+
 ## With Claude Desktop
 
-MCP Server can also run with Claude Desktop using STDIO transport:
+MCP Server can run with Claude Desktop using STDIO transport. This requires building with the `stdio` Maven profile.
+
+### Build for Claude Desktop
+
+```bash
+cd mcp-server
+mvn clean package -Pstdio -DskipTests
+```
 
 ### Configuration
+
+Add to your Claude Desktop configuration file:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/claude/claude_desktop_config.json`
 
 **claude_desktop_config.json**:
 
@@ -859,20 +920,51 @@ MCP Server can also run with Claude Desktop using STDIO transport:
   "mcpServers": {
     "spring-ai-resos": {
       "command": "java",
-      "args": ["-Dspring.profiles.active=dev", "-jar", "/path/to/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"]
+      "args": [
+        "-Dspring.profiles.active=stdio",
+        "-jar",
+        "/path/to/spring-ai-resos/mcp-server/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
+      ],
+      "env": {
+        "RESOS_API_ENDPOINT": "http://localhost:8080/api/v1/resos"
+      }
     }
   }
 }
 ```
 
-**Note**: STDIO transport doesn't use HTTP, so no OAuth2 needed for Claude Desktop integration
+### Key Configuration Points
+
+| Setting                            | Value   | Purpose                                        |
+| ---------------------------------- | ------- | ---------------------------------------------- |
+| `spring.profiles.active`           | `stdio` | Activates STDIO profile configuration          |
+| `spring.main.web-application-type` | `none`  | Disables HTTP server                           |
+| `spring.ai.mcp.server.stdio`       | `true`  | Enables STDIO transport                        |
+| `security.oauth2.enabled`          | `false` | Disables OAuth2 (not needed for local process) |
+
+### STDIO vs HTTP Transport
+
+**STDIO Transport** (Claude Desktop):
+
+- Uses `spring-ai-starter-mcp-server`
+- Sets `spring.main.web-application-type=none`
+- Sets `spring.ai.mcp.server.stdio=true`
+- Disables OAuth2 (`security.oauth2.enabled=false`)
+- No HTTP server required
+
+**HTTP Streamable Transport** (Web Chatbot):
+
+- Uses `spring-ai-starter-mcp-server-webmvc`
+- Runs Tomcat HTTP server on port 8082
+- Full OAuth2 JWT security
+- Multi-client support
 
 ### Limitations
 
 - **STDIO**: Local desktop only (no cloud deployment)
-- **HTTP Streamable**: Web-based, cloud-deployable
+- **HTTP Streamable**: Web-based, cloud-deployable, multi-client
 
-**This project uses HTTP Streamable** for web-based chatbot
+**This project supports both** - use Maven profiles to choose.
 
 ---
 

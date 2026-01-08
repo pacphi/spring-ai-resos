@@ -146,36 +146,109 @@ But there's also a way to integrate with Claude desktop via MCP client configura
 
 ### with Claude Desktop
 
-Follow these instructions.
+Claude Desktop can connect to the MCP server using STDIO transport. This allows Claude to directly invoke restaurant management tools.
 
-Add the following stanza to a file called `claude_desktop_config.json`:
+#### Prerequisites
+
+1. Get the STDIO variant of the MCP server:
+   - **Option A: Download from Releases** - Download `spring-ai-resos-mcp-server-stdio-{VERSION}.jar` from the [Releases](../../releases) page.
+   - **Option B: Build from Source** - Run `cd mcp-server && mvn clean package -Pstdio`
+2. Ensure the backend is running (if using local development):
+
+```bash
+cd backend
+mvn spring-boot:run -Dspring-boot.run.profiles=dev -Dspring-boot.run.jvmArguments="--add-opens java.base/java.net=ALL-UNNAMED"
+```
+
+#### Configuration
+
+Add the following to your Claude Desktop configuration file:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/claude/claude_desktop_config.json`
+
+**If using downloaded release JAR:**
 
 ```json
-"spring-ai-resos": {
-  "command": "java",
-  "args": [
-    "-jar",
-    "<path-to-project>/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
-  ]
+{
+  "mcpServers": {
+    "spring-ai-resos": {
+      "command": "java",
+      "args": [
+        "-Dspring.profiles.active=stdio",
+        "-jar",
+        "<path-to-jar>/spring-ai-resos-mcp-server-stdio-{VERSION}.jar"
+      ],
+      "env": {
+        "RESOS_API_ENDPOINT": "http://localhost:8080/api/v1/resos"
+      }
+    }
+  }
 }
 ```
 
-or for testing with backend
+**If built from source:**
 
 ```json
-"spring-ai-resos": {
-  "command": "java",
-  "args": [
-    "-Dspring.profiles.active=dev",
-    "-jar",
-    "<path-to-project>/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
-  ]
+{
+  "mcpServers": {
+    "spring-ai-resos": {
+      "command": "java",
+      "args": [
+        "-Dspring.profiles.active=stdio",
+        "-jar",
+        "<path-to-project>/mcp-server/target/spring-ai-resos-mcp-server-1.0.0-SNAPSHOT.jar"
+      ],
+      "env": {
+        "RESOS_API_ENDPOINT": "http://localhost:8080/api/v1/resos"
+      }
+    }
+  }
 }
 ```
 
-Restart Claude Desktop instance.
-Verify that you have a new set of tool calls available.
-Chat with Claude.
+> Replace `<path-to-jar>` or `<path-to-project>` with the absolute path to your JAR file or project directory.
+
+#### Available Tools
+
+Once connected, Claude Desktop will have access to these tools:
+
+| Tool                  | Description                                      |
+| --------------------- | ------------------------------------------------ |
+| `getTables`           | Fetch all restaurant tables                      |
+| `getCustomers`        | Fetch customer records with filtering/pagination |
+| `getCustomerById`     | Fetch a specific customer                        |
+| `getFeedback`         | Fetch customer feedback and reviews              |
+| `getFeedbackById`     | Fetch specific feedback                          |
+| `getOpeningHours`     | Fetch opening hours for the next two weeks       |
+| `getOpeningHoursById` | Fetch specific opening hours                     |
+
+#### Verification
+
+1. Restart Claude Desktop after updating the configuration
+2. Look for the tools icon (hammer) in the Claude interface
+3. You should see "spring-ai-resos" listed with available tools
+4. Try asking: "Show me all customers" or "What tables are available?"
+
+#### Troubleshooting
+
+**Server not connecting:**
+
+- Verify the JAR path is absolute and correct
+- Ensure Java 25+ is installed and in PATH
+- Check that the backend server is running on port 8080
+
+**Tools not appearing:**
+
+- Verify the configuration JSON syntax is valid
+- Check Claude Desktop logs for errors
+- Restart Claude Desktop completely (not just the chat)
+
+**Backend connection errors:**
+
+- Ensure `RESOS_API_ENDPOINT` environment variable is correct
+- Verify the backend is accessible at the configured URL
 
 ### with Chatbot
 

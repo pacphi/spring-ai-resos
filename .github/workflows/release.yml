@@ -69,7 +69,21 @@ jobs:
 
       - name: Build all modules
         run: |
-          ./mvnw clean package -DskipTests -Dspotless.check.skip=true
+          VERSION=${{ needs.validate.outputs.version }}
+
+          # Build webmvc (default) variant
+          ./mvnw clean package -DskipTests
+
+          # Rename webmvc JAR to include transport type
+          mv mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar \
+             mcp-server/target/spring-ai-resos-mcp-server-webmvc-${VERSION}.jar
+
+          # Build stdio variant (tests skipped via profile property)
+          ./mvnw package -pl mcp-server -Pstdio
+
+          # Rename stdio JAR to include transport type
+          mv mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar \
+             mcp-server/target/spring-ai-resos-mcp-server-stdio-${VERSION}.jar
 
       - name: Collect artifacts
         run: |
@@ -80,7 +94,9 @@ jobs:
           cp client/target/spring-ai-resos-client-${VERSION}.jar release-artifacts/ || echo "client jar not found"
           cp codegen/target/spring-ai-resos-codegen-${VERSION}.jar release-artifacts/ || echo "codegen jar not found"
           cp entities/target/spring-ai-resos-entities-${VERSION}.jar release-artifacts/ || echo "entities jar not found"
-          cp mcp-server/target/spring-ai-resos-mcp-server-${VERSION}.jar release-artifacts/ || echo "mcp-server jar not found"
+          # MCP server: both webmvc and stdio variants
+          cp mcp-server/target/spring-ai-resos-mcp-server-webmvc-${VERSION}.jar release-artifacts/ || echo "mcp-server-webmvc jar not found"
+          cp mcp-server/target/spring-ai-resos-mcp-server-stdio-${VERSION}.jar release-artifacts/ || echo "mcp-server-stdio jar not found"
           cp backend/target/spring-ai-resos-backend-${VERSION}.jar release-artifacts/ || echo "backend jar not found"
           cp mcp-client/target/spring-ai-resos-mcp-frontend-${VERSION}.jar release-artifacts/ || echo "mcp-frontend jar not found"
 

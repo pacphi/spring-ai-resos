@@ -1,0 +1,29 @@
+# Test configuration for STDIO profile
+# Used by StdioTransportConfigurationTest
+
+spring:
+  application:
+    name: mcp-server-stdio-test
+
+  main:
+    web-application-type: none
+
+  ai:
+    mcp:
+      server:
+        stdio: true
+
+# Disable OAuth2 security
+security:
+  oauth2:
+    enabled: false
+
+# Backend API endpoint (mock URL for tests)
+default:
+  url: http://localhost:8080/api/v1/resos
+
+# Logging
+logging:
+  level:
+    root: WARN
+    me.pacphi.ai.resos: DEBUG
