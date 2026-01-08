@@ -9,7 +9,7 @@ spring:
         enabled: false # Disable real AI calls in tests
     mcp:
       client:
-        enabled: false  # Disable MCP client - no MCP server available in tests
+        enabled: false # Disable MCP client - no MCP server available in tests
 
 # Logging
 logging:

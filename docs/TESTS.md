@@ -993,10 +993,11 @@ spring:
   ai:
     mcp:
       client:
-        enabled: false  # No MCP server available in tests
+        enabled: false # No MCP server available in tests
 ```
 
 **Result**:
+
 - `McpSyncClientManager.newMcpSyncClients()` returns an empty list
 - No real HTTP connections are attempted
 - Tests verify configuration beans exist without runtime connectivity
@@ -1004,6 +1005,7 @@ spring:
 
 **Trade-off**: This approach verifies configuration correctness but not actual MCP communication.
 Full end-to-end MCP testing would require:
+
 1. Multi-container TestContainers setup (backend + mcp-server)
 2. Shared Docker network for container-to-container OAuth2 validation
 3. Significant additional complexity
