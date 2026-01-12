@@ -86,7 +86,7 @@
 		<spring-doc.version>3.0.1</spring-doc.version>
 		<cfenv.version>3.5.0</cfenv.version>
 		<commons-io.version>2.19.0</commons-io.version>
-		<json-io.version>4.80.0</json-io.version>
+		<json-io.version>4.81.0</json-io.version>
 		<junit-jupiter.version>6.0.2</junit-jupiter.version>
 		<liquibase.version>5.0.1</liquibase.version>
 		<node.version>v23.4.0</node.version>
