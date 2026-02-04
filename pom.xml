@@ -84,7 +84,7 @@
 		<spring-ai.version>2.0.0-M1</spring-ai.version>
 		<jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
 		<spring-doc.version>3.0.1</spring-doc.version>
-		<cfenv.version>3.5.0</cfenv.version>
+		<cfenv.version>3.5.1</cfenv.version>
 		<commons-io.version>2.19.0</commons-io.version>
 		<json-io.version>4.81.0</json-io.version>
 		<junit-jupiter.version>6.0.2</junit-jupiter.version>
