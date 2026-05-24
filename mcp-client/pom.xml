@@ -180,10 +180,6 @@
             <version>${spring-cloud-bindings.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-spring-cloud-bindings</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.github.springboot-addons</groupId>
             <artifactId>spring-boot-starter-httpclient5-actuator</artifactId>
             <version>${spring-boot-hc5.version}</version>
@@ -250,7 +246,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.ai</groupId>
-                    <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+                    <artifactId>spring-ai-starter-model-ollama</artifactId>
                 </dependency>
             </dependencies>
         </profile>
