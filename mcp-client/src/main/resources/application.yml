@@ -106,13 +106,16 @@ spring:
     import: "${SPRING_CONFIG_IMPORT:optional:file:./config/creds.yml}"
 
   ai:
+    model:
+      chat: openai
+      embedding: openai
     openai:
-      base_url: ${OPENAI_BASE_URL:https://api.groq.com/openai}
+      base-url: ${OPENAI_BASE_URL:https://api.groq.com/openai}
       chat:
         options:
           model: ${CHAT_MODEL:llama-3.3-70b-versatile}
       embedding:
-        base_url: ${EMBEDDING_BASEURL:https://api.openai.com}
+        base-url: ${EMBEDDING_BASEURL:https://api.openai.com}
         options:
           model: ${EMBEDDING_MODEL:text-embedding-ada-002}
 ---
@@ -123,6 +126,14 @@ spring:
     import: "${SPRING_CONFIG_IMPORT:optional:file:./config/creds.yml}"
 
   ai:
+    model:
+      chat: openai
+      embedding: openai
+      image: none
+      moderation: none
+      audio:
+        speech: openai
+        transcription: openai
     openai:
       audio:
         speech:
@@ -132,7 +143,7 @@ spring:
             # Available options are: alloy, echo, fable, onyx, nova, and shimmer
             voice: nova
             # The speed of the voice synthesis. The acceptable range is from 0.25 (slowest) to 4.0 (fastest).
-            speed: 1.0f
+            speed: 1.0
         transcription:
           options:
             prompt: "Transcribe the audio"
@@ -154,8 +165,11 @@ spring:
     import: "${SPRING_CONFIG_IMPORT:optional:file:./config/creds.yml}"
 
   ai:
+    model:
+      chat: openai
+      embedding: openai
     openai:
-      base_url: ${OPENAI_BASE_URL:https://openrouter.ai/api}
+      base-url: ${OPENAI_BASE_URL:https://openrouter.ai/api}
       chat:
         options:
           model: ${CHAT_MODEL:anthropic/claude-3.7-sonnet}
@@ -179,10 +193,15 @@ spring:
     activate:
       on-profile: ollama
 
-  autoconfigure:
-    exclude: org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration
-
   ai:
+    model:
+      chat: ollama
+      embedding: ollama
+      image: none
+      moderation: none
+      audio:
+        speech: none
+        transcription: none
     ollama:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       chat:
@@ -219,7 +238,7 @@ logging:
   level:
     me.pacphi: TRACE
     org.springframework: DEBUG
-    com.fasterxml.jackson: TRACE
+    tools.jackson: TRACE
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
     org.apache.catalina.filters.RequestDumperFilter: DEBUG
 

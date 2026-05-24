@@ -1,8 +1,9 @@
 package me.pacphi.ai.resos.config;
 
+import io.modelcontextprotocol.client.McpClient;
 import org.springaicommunity.mcp.security.client.sync.oauth2.http.client.OAuth2ClientCredentialsSyncHttpRequestCustomizer;
 import org.springaicommunity.mcp.security.client.sync.AuthenticationMcpTransportContextProvider;
-import org.springframework.ai.mcp.customizer.McpSyncClientCustomizer;
+import org.springframework.ai.mcp.customizer.McpClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
@@ -19,7 +20,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 public class McpClientOAuth2Config {
 
     @Bean
-    public McpSyncClientCustomizer mcpSyncClientCustomizer() {
+    public McpClientCustomizer<McpClient.SyncSpec> mcpSyncClientCustomizer() {
         return (name, syncSpec) ->
                 syncSpec.transportContextProvider(
                         new AuthenticationMcpTransportContextProvider()
