@@ -8,19 +8,19 @@ import me.pacphi.ai.resos.jdbc.AuthorityEntity;
 @CsvEntityMapper("authorities")
 public class AuthorityMapper implements EntityMapper<AuthorityEntity> {
 
-    @Override
-    public AuthorityEntity mapFromCsv(String[] line) throws CsvMappingException {
-        try {
-            var entity = new AuthorityEntity();
-            entity.setName(line[0]);
-            return entity;
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new CsvMappingException("Failed to map authority from CSV", e);
-        }
-    }
+	@Override
+	public AuthorityEntity mapFromCsv(String[] line) throws CsvMappingException {
+		try {
+			var entity = new AuthorityEntity();
+			entity.setName(line[0]);
+			return entity;
+		} catch (IllegalArgumentException | NullPointerException e) {
+			throw new CsvMappingException("Failed to map authority from CSV", e);
+		}
+	}
 
-    @Override
-    public Class<AuthorityEntity> getEntityClass() {
-        return AuthorityEntity.class;
-    }
+	@Override
+	public Class<AuthorityEntity> getEntityClass() {
+		return AuthorityEntity.class;
+	}
 }

@@ -47,7 +47,11 @@
   "packageManager": "pnpm@9.15.4",
   "pnpm": {
     "overrides": {
-      "js-yaml": ">=4.1.1"
+      "js-yaml": ">=4.1.1",
+      "fast-uri": ">=3.1.2",
+      "picomatch": ">=2.3.2",
+      "ajv": ">=8.18.0",
+      "markdown-it": ">=14.1.1"
     }
   }
 }

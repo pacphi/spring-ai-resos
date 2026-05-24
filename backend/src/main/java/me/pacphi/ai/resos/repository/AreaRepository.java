@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 public interface AreaRepository extends CrudRepository<AreaEntity, UUID> {
 
-    @Query("SELECT * FROM area WHERE name_01 = :name")
-    Optional<AreaEntity> findByName(String name);
+	@Query("SELECT * FROM area WHERE name_01 = :name")
+	Optional<AreaEntity> findByName(String name);
 }

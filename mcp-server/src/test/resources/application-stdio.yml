@@ -13,6 +13,15 @@ spring:
       server:
         stdio: true
 
+  autoconfigure:
+    exclude:
+      # Spring AI 2.0.0-M7: spring-ai-autoconfigure-mcp-server-webmvc has stale
+      # spring-autoconfigure-metadata.properties referencing the removed class
+      # org.springframework.ai.mcp.server.common.autoconfigure.McpServerStdioDisabledCondition
+      - org.springframework.ai.mcp.server.webmvc.autoconfigure.McpServerSseWebMvcAutoConfiguration
+      - org.springframework.ai.mcp.server.webmvc.autoconfigure.McpServerStreamableHttpWebMvcAutoConfiguration
+      - org.springframework.ai.mcp.server.webmvc.autoconfigure.McpServerStatelessWebMvcAutoConfiguration
+
 # Disable OAuth2 security
 security:
   oauth2:

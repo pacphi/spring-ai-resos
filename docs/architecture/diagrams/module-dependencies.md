@@ -159,7 +159,7 @@ mvn clean install -T 1C
 
 The root `pom.xml` provides:
 
-- Spring Boot 4.0.1 parent
+- Spring Boot 4.1.0-RC1 parent
 - BOM imports (Spring AI, Spring Cloud, Jackson)
 - Common build plugins (spotless, git-commit-id, cyclonedx)
 - Version properties centralization

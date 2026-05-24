@@ -6,8 +6,8 @@ This document provides a comprehensive guide for migrating to Spring Boot 4, Spr
 
 This project successfully migrated to:
 
-- **Spring Boot**: 3.x → 4.0.1
-- **Spring AI**: 1.x → 2.0.0-M1
+- **Spring Boot**: 3.x → 4.1.0-RC1
+- **Spring AI**: 1.x → 2.0.0-M7
 - **Spring Security**: 6.x → 7.0.2
 - **Jackson**: 2.x → 3.0.3
 - **JUnit**: 5.x → 6.0.0

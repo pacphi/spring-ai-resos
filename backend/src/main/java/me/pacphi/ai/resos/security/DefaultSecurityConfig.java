@@ -21,72 +21,56 @@ import java.util.List;
 @Configuration
 public class DefaultSecurityConfig {
 
-    @Bean
-    @Order(3)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(authorize -> authorize
-                // Public endpoints
-                .requestMatchers("/login", "/logout", "/error").permitAll()
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+	@Bean
+	@Order(3)
+	public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+		http.authorizeHttpRequests(authorize -> authorize
+				// Public endpoints
+				.requestMatchers("/login", "/logout", "/error").permitAll()
+				.requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
 
-                // Actuator endpoints
-                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+				// Actuator endpoints
+				.requestMatchers("/actuator/health", "/actuator/info").permitAll()
 
-                // Swagger/OpenAPI
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
+				// Swagger/OpenAPI
+				.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
 
-                // H2 Console (dev only)
-                .requestMatchers("/h2-console/**").permitAll()
+				// H2 Console (dev only)
+				.requestMatchers("/h2-console/**").permitAll()
 
-                // OAuth2 endpoints are handled by authorization server filter chain
-                .requestMatchers("/oauth2/**", "/.well-known/**").permitAll()
+				// OAuth2 endpoints are handled by authorization server filter chain
+				.requestMatchers("/oauth2/**", "/.well-known/**").permitAll()
 
-                // All other requests require authentication
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-                .loginPage("/login")
-                .defaultSuccessUrl("/", false)
-                .permitAll()
-            )
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-            )
-            .cors(Customizer.withDefaults())
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/h2-console/**")
-            )
-            // Allow H2 console frames
-            .headers(headers -> headers
-                .frameOptions(frame -> frame.sameOrigin())
-            );
+				// All other requests require authentication
+				.anyRequest().authenticated())
+				.formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/", false).permitAll())
+				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout").permitAll())
+				.cors(Customizer.withDefaults()).csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
+				// Allow H2 console frames
+				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
-        return http.build();
-    }
+		return http.build();
+	}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12);
-    }
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder(12);
+	}
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:8081",  // MCP Client frontend
-            "http://localhost:3000",  // Development server
-            "http://localhost:8082"   // MCP Server
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:8081", // MCP Client frontend
+				"http://localhost:3000", // Development server
+				"http://localhost:8082" // MCP Server
+		));
+		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		configuration.setAllowedHeaders(List.of("*"));
+		configuration.setAllowCredentials(true);
+		configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
 }

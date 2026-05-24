@@ -12,7 +12,7 @@ This document details the Spring AI 2.0 integration, ChatClient architecture, st
 - Vector stores for RAG (Retrieval-Augmented Generation)
 - Model Context Protocol (MCP) integration
 
-**Version**: 2.0.0-M1 (Milestone 1)
+**Version**: 2.0.0-M7 (Milestone 1)
 **Documentation**: https://docs.spring.io/spring-ai/reference/
 
 ---

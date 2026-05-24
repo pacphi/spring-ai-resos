@@ -6,31 +6,31 @@ This document provides a comprehensive breakdown of all technologies, frameworks
 
 ### Core Platform
 
-| Category         | Technology   | Version  | Purpose                                  |
-| ---------------- | ------------ | -------- | ---------------------------------------- |
-| **Language**     | Java         | 25       | Runtime environment with latest features |
-| **Build Tool**   | Maven        | 3.9.11   | Multi-module project management          |
-| **Framework**    | Spring Boot  | 4.0.1    | Application framework                    |
-| **AI Framework** | Spring AI    | 2.0.0-M1 | AI integration and tool management       |
-| **Cloud**        | Spring Cloud | 2025.1.0 | Cloud-native patterns                    |
+| Category         | Technology   | Version   | Purpose                                  |
+| ---------------- | ------------ | --------- | ---------------------------------------- |
+| **Language**     | Java         | 25        | Runtime environment with latest features |
+| **Build Tool**   | Maven        | 3.9.11    | Multi-module project management          |
+| **Framework**    | Spring Boot  | 4.1.0-RC1 | Application framework                    |
+| **AI Framework** | Spring AI    | 2.0.0-M7  | AI integration and tool management       |
+| **Cloud**        | Spring Cloud | 2025.1.1  | Cloud-native patterns                    |
 
 ### Spring Ecosystem
 
-| Component                       | Version | Purpose                          |
-| ------------------------------- | ------- | -------------------------------- |
-| **Spring Security**             | 7.0.2   | Authentication and authorization |
-| **Spring Authorization Server** | 1.4.0   | OAuth2 and OIDC provider         |
-| **Spring Data JDBC**            | 4.0.0   | Lightweight data persistence     |
-| **Spring Web MVC**              | 7.0.2   | Servlet-based web framework      |
-| **Spring Boot Actuator**        | 4.0.1   | Production-ready features        |
+| Component                       | Version   | Purpose                          |
+| ------------------------------- | --------- | -------------------------------- |
+| **Spring Security**             | 7.0.2     | Authentication and authorization |
+| **Spring Authorization Server** | 1.4.0     | OAuth2 and OIDC provider         |
+| **Spring Data JDBC**            | 4.0.0     | Lightweight data persistence     |
+| **Spring Web MVC**              | 7.0.2     | Servlet-based web framework      |
+| **Spring Boot Actuator**        | 4.1.0-RC1 | Production-ready features        |
 
 ### AI & MCP Stack
 
 | Component               | Version  | Purpose                       |
 | ----------------------- | -------- | ----------------------------- |
-| **Spring AI BOM**       | 2.0.0-M1 | AI dependency management      |
-| **MCP Server WebMVC**   | 2.0.0-M1 | Model Context Protocol server |
-| **MCP Client**          | 2.0.0-M1 | Model Context Protocol client |
+| **Spring AI BOM**       | 2.0.0-M7 | AI dependency management      |
+| **MCP Server WebMVC**   | 2.0.0-M7 | Model Context Protocol server |
+| **MCP Client**          | 2.0.0-M7 | Model Context Protocol client |
 | **MCP Client Security** | 0.0.5    | OAuth2 integration for MCP    |
 
 **LLM Providers**:
@@ -76,16 +76,16 @@ This document provides a comprehensive breakdown of all technologies, frameworks
 
 ### Build Plugins
 
-| Plugin                       | Version | Purpose                              |
-| ---------------------------- | ------- | ------------------------------------ |
-| **spring-boot-maven-plugin** | 4.0.1   | Executable JAR creation              |
-| **spring-banner-plugin**     | 1.6.0   | Custom Spring Boot banner            |
-| **git-commit-id-plugin**     | 9.0.1   | Git info in artifacts                |
-| **spotless-maven-plugin**    | 3.1.0   | Code formatting (Google Java Format) |
-| **cyclonedx-maven-plugin**   | 2.9.2   | SBOM generation                      |
-| **maven-dependency-plugin**  | 3.9.0   | Source unpacking                     |
-| **exec-maven-plugin**        | 3.5.0   | Java execution during build          |
-| **frontend-maven-plugin**    | 2.0.0   | React build integration              |
+| Plugin                       | Version   | Purpose                              |
+| ---------------------------- | --------- | ------------------------------------ |
+| **spring-boot-maven-plugin** | 4.1.0-RC1 | Executable JAR creation              |
+| **spring-banner-plugin**     | 1.6.0     | Custom Spring Boot banner            |
+| **git-commit-id-plugin**     | 9.0.1     | Git info in artifacts                |
+| **spotless-maven-plugin**    | 3.1.0     | Code formatting (Google Java Format) |
+| **cyclonedx-maven-plugin**   | 2.9.2     | SBOM generation                      |
+| **maven-dependency-plugin**  | 3.9.0     | Source unpacking                     |
+| **exec-maven-plugin**        | 3.5.0     | Java execution during build          |
+| **frontend-maven-plugin**    | 2.0.0     | React build integration              |
 
 ### Frontend Stack
 
@@ -100,20 +100,20 @@ This document provides a comprehensive breakdown of all technologies, frameworks
 
 ### Testing
 
-| Component            | Version | Purpose                             |
-| -------------------- | ------- | ----------------------------------- |
-| **JUnit Jupiter**    | 6.0.0   | Testing framework                   |
-| **AssertJ**          | 3.27.6  | Fluent assertions                   |
-| **Mockito**          | 5.15.2  | Mocking framework                   |
-| **Spring Boot Test** | 4.0.1   | Spring test support                 |
-| **TestContainers**   | 1.20.4  | Integration testing with containers |
+| Component            | Version   | Purpose                             |
+| -------------------- | --------- | ----------------------------------- |
+| **JUnit Jupiter**    | 6.0.0     | Testing framework                   |
+| **AssertJ**          | 3.27.6    | Fluent assertions                   |
+| **Mockito**          | 5.15.2    | Mocking framework                   |
+| **Spring Boot Test** | 4.1.0-RC1 | Spring test support                 |
+| **TestContainers**   | 1.20.4    | Integration testing with containers |
 
 ### Development Tools
 
 | Component           | Version           | Purpose               |
 | ------------------- | ----------------- | --------------------- |
 | **Lombok**          | (via Spring Boot) | Boilerplate reduction |
-| **Spring DevTools** | 4.0.1             | Hot reload            |
+| **Spring DevTools** | 4.1.0-RC1         | Hot reload            |
 | **H2 Console**      | 2.3.232           | Database admin UI     |
 
 ## Dependency Management
@@ -129,14 +129,14 @@ The project uses Maven BOMs for consistent dependency versioning:
         <parent>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-parent</artifactId>
-            <version>4.0.1</version>
+            <version>4.1.0-RC1</version>
         </parent>
 
         <!-- Spring AI BOM -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-bom</artifactId>
-            <version>2.0.0-M1</version>
+            <version>2.0.0-M7</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -145,7 +145,7 @@ The project uses Maven BOMs for consistent dependency versioning:
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>2025.1.0</version>
+            <version>2025.1.1</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -183,7 +183,7 @@ Centralized in parent POM:
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
     <!-- Frameworks -->
-    <spring-ai.version>2.0.0-M1</spring-ai.version>
+    <spring-ai.version>2.0.0-M7</spring-ai.version>
 
     <!-- Libraries -->
     <liquibase.version>5.0.1</liquibase.version>
@@ -407,7 +407,7 @@ Centralized in parent POM:
 </repositories>
 ```
 
-**Why**: Spring AI 2.0.0-M1 is a milestone release, not in Maven Central
+**Why**: Spring AI 2.0.0-M7 is a milestone release, not in Maven Central
 
 ## Profiles
 
@@ -463,7 +463,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=openai,dev
 
 ### Current Limitations
 
-1. **Spring AI 2.0.0-M1**: Milestone release, not GA
+1. **Spring AI 2.0.0-M7**: Milestone release, not GA
    - APIs may change before release
    - Check Spring AI release notes for breaking changes
 

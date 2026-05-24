@@ -11,9 +11,9 @@ import java.util.UUID;
 @Repository
 public interface AppUserRepository extends CrudRepository<AppUserEntity, UUID> {
 
-    @Query("SELECT * FROM app_user WHERE username = :username")
-    Optional<AppUserEntity> findByUsername(String username);
+	@Query("SELECT * FROM app_user WHERE username = :username")
+	Optional<AppUserEntity> findByUsername(String username);
 
-    @Query("SELECT * FROM app_user WHERE email = :email")
-    Optional<AppUserEntity> findByEmail(String email);
+	@Query("SELECT * FROM app_user WHERE email = :email")
+	Optional<AppUserEntity> findByEmail(String email);
 }

@@ -276,9 +276,9 @@ curl http://localhost:8081/api/auth/status  # MCP Client
 
 ### Core Framework
 
-- **Spring Boot**: 4.0.1
-- **Spring AI**: 2.0.0-M1
-- **Spring Cloud**: 2025.1.0
+- **Spring Boot**: 4.1.0-RC1
+- **Spring AI**: 2.0.0-M7
+- **Spring Cloud**: 2025.1.1
 - **Spring Security**: 7.0.2
 - **Java**: 25
 

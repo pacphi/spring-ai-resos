@@ -2,6 +2,18 @@ spring:
   application:
     name: mcp-server-test
 
+  autoconfigure:
+    exclude:
+      # Spring AI 2.0.0-M7: spring-ai-autoconfigure-mcp-server-webmvc has stale
+      # spring-autoconfigure-metadata.properties referencing
+      # org.springframework.ai.mcp.server.common.autoconfigure.McpServerStdioDisabledCondition
+      # which was removed after M1 when the mcp-server-common artifact was dissolved.
+      # Excluding these autoconfiguration classes prevents the ClassNotFoundException
+      # in test context loading.
+      - org.springframework.ai.mcp.server.webmvc.autoconfigure.McpServerSseWebMvcAutoConfiguration
+      - org.springframework.ai.mcp.server.webmvc.autoconfigure.McpServerStreamableHttpWebMvcAutoConfiguration
+      - org.springframework.ai.mcp.server.webmvc.autoconfigure.McpServerStatelessWebMvcAutoConfiguration
+
   security:
     oauth2:
       resourceserver:

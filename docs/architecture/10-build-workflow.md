@@ -16,7 +16,7 @@ This document details the Maven multi-module build process, dependency managemen
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.1</version>
+    <version>4.1.0-RC1</version>
 </parent>
 ```
 
@@ -76,7 +76,7 @@ This document details the Maven multi-module build process, dependency managemen
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-bom</artifactId>
-            <version>2.0.0-M1</version>
+            <version>2.0.0-M7</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -85,7 +85,7 @@ This document details the Maven multi-module build process, dependency managemen
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>2025.1.0</version>
+            <version>2025.1.1</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -140,7 +140,7 @@ This document details the Maven multi-module build process, dependency managemen
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Spring AI -->
-    <spring-ai.version>2.0.0-M1</spring-ai.version>
+    <spring-ai.version>2.0.0-M7</spring-ai.version>
 
     <!-- Libraries -->
     <jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
@@ -180,7 +180,7 @@ This document details the Maven multi-module build process, dependency managemen
 <plugin>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-maven-plugin</artifactId>
-    <version>4.0.1</version>
+    <version>4.1.0-RC1</version>
     <executions>
         <execution>
             <goals>
@@ -626,7 +626,7 @@ cd backend && mvn package
 </repositories>
 ```
 
-**Why Spring Milestones?**: Spring AI 2.0.0-M1 is not in Maven Central
+**Why Spring Milestones?**: Spring AI 2.0.0-M7 is not in Maven Central
 
 ### Dependency Tree
 
@@ -645,7 +645,7 @@ mvn dependency:tree -Dverbose -Dincludes=tools.jackson.core:jackson-databind
 
 ```text
 [INFO] me.pacphi:spring-ai-resos-backend:jar:1.0.0-SNAPSHOT
-[INFO] +- org.springframework.boot:spring-boot-starter-web:jar:4.0.1:compile
+[INFO] +- org.springframework.boot:spring-boot-starter-web:jar:4.1.0-RC1:compile
 [INFO] |  +- org.springframework:spring-web:jar:7.0.2:compile
 [INFO] |  +- org.springframework:spring-webmvc:jar:7.0.2:compile
 [INFO] +- me.pacphi:spring-ai-resos-entities:jar:1.0.0-SNAPSHOT:compile

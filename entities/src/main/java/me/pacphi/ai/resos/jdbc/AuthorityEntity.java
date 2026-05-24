@@ -12,16 +12,24 @@ import java.util.UUID;
 @Table("authority")
 public class AuthorityEntity {
 
-    @Id
-    private UUID id;
+	@Id
+	private UUID id;
 
-    @Column("name_01")
-    private String name;
+	@Column("name_01")
+	private String name;
 
-    // Getters and Setters
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+	// Getters and Setters
+	public UUID getId() {
+		return id;
+	}
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 }

@@ -11,6 +11,6 @@ import java.util.UUID;
 @Repository
 public interface AuthorityRepository extends CrudRepository<AuthorityEntity, UUID> {
 
-    @Query("SELECT * FROM authority WHERE name_01 = :name")
-    Optional<AuthorityEntity> findByName(String name);
+	@Query("SELECT * FROM authority WHERE name_01 = :name")
+	Optional<AuthorityEntity> findByName(String name);
 }

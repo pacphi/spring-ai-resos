@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SpotBugs exclusion filter for Spring Boot applications.
+
+  WHY: Suppresses two categories of false positives common to every Spring
+  application. Real bugs (e.g., defensive copy violations in setters) are NOT
+  suppressed here — investigate any new SpotBugs finding before adding a rule.
+
+  Reference: https://spotbugs.readthedocs.io/en/stable/filter.html
+-->
+<FindBugsFilter
+        xmlns="https://github.com/spotbugs/filter/3.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0
+            https://raw.githubusercontent.com/spotbugs/spotbugs/master/spotbugs/etc/findbugsfilter.xsd">
+
+    <!--
+      EI_EXPOSE_REP2 — "May expose internal representation by incorporating reference
+      to mutable object."
+
+      WHY SUPPRESSED: Spring constructor injection stores collaborators (Services,
+      Repositories, etc.) by reference. This is the correct IoC/DI pattern — making
+      a defensive copy of a Spring-managed bean would break the container's lifecycle
+      management and destroy the singleton guarantee. These are not data-encapsulation
+      objects; they are collaborator references that must remain shared.
+
+      Scope: classes whose names end with common Spring stereotype suffixes.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <!-- Spring stereotype beans -->
+            <Class name="~.*Service"/>
+            <Class name="~.*ServiceImpl"/>
+            <Class name="~.*Repository"/>
+            <Class name="~.*RepositoryImpl"/>
+            <Class name="~.*Controller"/>
+            <Class name="~.*RestController"/>
+            <Class name="~.*Component"/>
+            <Class name="~.*Configuration"/>
+            <Class name="~.*Config"/>
+            <Class name="~.*Adapter"/>
+            <Class name="~.*Handler"/>
+            <Class name="~.*Processor"/>
+            <Class name="~.*Manager"/>
+            <Class name="~.*Helper"/>
+            <Class name="~.*Client"/>
+            <!-- Domain value objects whose fields are set once at construction -->
+            <Class name="~.*Properties"/>
+            <Class name="~.*Settings"/>
+        </Or>
+    </Match>
+
+    <!--
+      EI_EXPOSE_REP — "May expose internal representation by returning reference
+      to mutable object."
+
+      WHY SUPPRESSED (ApplicationEvent subclasses only): in-process Spring
+      ApplicationEvents are never serialised across a network boundary. The JDK
+      Serializable contract that triggers this warning is inherited from
+      java.util.EventObject, but these events exist only within the same JVM.
+      A defensive copy in the getter would add overhead with no safety benefit.
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="~.*Event"/>
+    </Match>
+
+    <!--
+      SE_BAD_FIELD — "Non-transient non-serializable instance field in serializable
+      class."
+
+      WHY SUPPRESSED (ApplicationEvent subclasses only): same reasoning as
+      EI_EXPOSE_REP above. The event payload fields (Services, domain objects, etc.)
+      are not serialisable, but the events are never written to an ObjectOutputStream
+      in a correctly-architected Spring application. Marking every field transient
+      would make the events useless.
+    -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+        <Class name="~.*Event"/>
+    </Match>
+
+</FindBugsFilter>

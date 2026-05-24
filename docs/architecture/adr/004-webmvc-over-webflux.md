@@ -42,10 +42,10 @@ The initial WebFlux implementation faced these challenges:
 
 ### Constraints
 
-- Must use Spring AI 2.0.0-M1
+- Must use Spring AI 2.0.0-M7
 - Must support OAuth2 security at all layers
 - Must use HTTP Streamable (not SSE) for MCP
-- Must work with Spring Boot 4.0.1 and Spring Security 7.x
+- Must work with Spring Boot 4.1.0-RC1 and Spring Security 7.x
 - Backend must remain compatible (OAuth2 Authorization Server)
 
 ## Decision

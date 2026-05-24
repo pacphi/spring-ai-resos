@@ -16,38 +16,37 @@ import java.util.UUID;
 @Repository
 public interface PageableFeedbackRepository extends PagingAndSortingRepository<FeedbackEntity, UUID> {
 
-    default Page<FeedbackEntity> findByCustomQuery(@Param("customQuery") String customQuery, Pageable pageable, JdbcTemplate jdbcTemplate) {
-        String baseQuery = "SELECT * FROM feedback WHERE " + customQuery;
-        String countQuery = "SELECT COUNT(*) FROM feedback WHERE " + customQuery;
+	default Page<FeedbackEntity> findByCustomQuery(@Param("customQuery") String customQuery, Pageable pageable,
+			JdbcTemplate jdbcTemplate) {
+		String baseQuery = "SELECT * FROM feedback WHERE " + customQuery;
+		String countQuery = "SELECT COUNT(*) FROM feedback WHERE " + customQuery;
 
-        // Add sorting
-        if (pageable.getSort().isSorted()) {
-            baseQuery += " ORDER BY ";
-            baseQuery += pageable.getSort().stream()
-                    .map(order -> order.getProperty() + " " + order.getDirection().name())
-                    .reduce((s1, s2) -> s1 + ", " + s2)
-                    .orElse("");
-        }
+		// Add sorting
+		if (pageable.getSort().isSorted()) {
+			baseQuery += " ORDER BY ";
+			baseQuery += pageable.getSort().stream()
+					.map(order -> order.getProperty() + " " + order.getDirection().name())
+					.reduce((s1, s2) -> s1 + ", " + s2).orElse("");
+		}
 
-        // Add pagination
-        baseQuery += " LIMIT " + pageable.getPageSize() + " OFFSET " + pageable.getOffset();
+		// Add pagination
+		baseQuery += " LIMIT " + pageable.getPageSize() + " OFFSET " + pageable.getOffset();
 
-        List<FeedbackEntity> content = jdbcTemplate.query(baseQuery, (rs, rowNum) -> {
-            FeedbackEntity entity = new FeedbackEntity();
-            entity.setId(rs.getObject("id", UUID.class));
-            entity.setRating(rs.getInt("rating"));
-            entity.setComment(rs.getString("comment"));
-            entity.setIsPublic(rs.getBoolean("is_public"));
-            entity.setCreatedAt(rs.getTimestamp("created_at").toInstant().atOffset(java.time.ZoneOffset.UTC));
-            entity.setBookingId(rs.getString("booking_id"));
-            entity.setCustomer(AggregateReference.to(rs.getObject("customer_id", UUID.class)));
-            return entity;
-        });
+		List<FeedbackEntity> content = jdbcTemplate.query(baseQuery, (rs, rowNum) -> {
+			FeedbackEntity entity = new FeedbackEntity();
+			entity.setId(rs.getObject("id", UUID.class));
+			entity.setRating(rs.getInt("rating"));
+			entity.setComment(rs.getString("comment"));
+			entity.setIsPublic(rs.getBoolean("is_public"));
+			entity.setCreatedAt(rs.getTimestamp("created_at").toInstant().atOffset(java.time.ZoneOffset.UTC));
+			entity.setBookingId(rs.getString("booking_id"));
+			entity.setCustomer(AggregateReference.to(rs.getObject("customer_id", UUID.class)));
+			return entity;
+		});
 
+		Long total = jdbcTemplate.queryForObject(countQuery, Long.class);
 
-        Long total = jdbcTemplate.queryForObject(countQuery, Long.class);
-
-        return new PageImpl<FeedbackEntity>(content, pageable, total == null ? 0 : total);
-    }
+		return new PageImpl<FeedbackEntity>(content, pageable, total == null ? 0 : total);
+	}
 
 }

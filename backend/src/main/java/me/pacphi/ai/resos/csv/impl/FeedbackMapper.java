@@ -15,51 +15,48 @@ import java.time.format.DateTimeParseException;
 @CsvEntityMapper("feedback")
 public class FeedbackMapper implements EntityMapper<FeedbackEntity> {
 
-    private final FeedbackRepository feedbackRepository;
-    private final CustomerRepository customerRepository;
-    private final BookingRepository bookingRepository;
+	private final FeedbackRepository feedbackRepository;
+	private final CustomerRepository customerRepository;
+	private final BookingRepository bookingRepository;
 
-    public FeedbackMapper(
-            FeedbackRepository feedbackRepository,
-            CustomerRepository customerRepository,
-            BookingRepository bookingRepository) {
-        this.feedbackRepository = feedbackRepository;
-        this.customerRepository = customerRepository;
-        this.bookingRepository = bookingRepository;
-    }
+	public FeedbackMapper(FeedbackRepository feedbackRepository, CustomerRepository customerRepository,
+			BookingRepository bookingRepository) {
+		this.feedbackRepository = feedbackRepository;
+		this.customerRepository = customerRepository;
+		this.bookingRepository = bookingRepository;
+	}
 
-    @Override
-    public FeedbackEntity mapFromCsv(String[] line) throws CsvMappingException {
-        try {
+	@Override
+	public FeedbackEntity mapFromCsv(String[] line) throws CsvMappingException {
+		try {
 
-            String customerName = line[0];
+			String customerName = line[0];
 
-            // Try to find the customer by name
-            var customer = customerRepository.findByName(customerName)
-                    .orElseGet(() -> {
-                        CustomerEntity newCustomer = new CustomerEntity();
-                        newCustomer.setName(customerName);
-                        return customerRepository.save(newCustomer);
-                    });
+			// Try to find the customer by name
+			var customer = customerRepository.findByName(customerName).orElseGet(() -> {
+				CustomerEntity newCustomer = new CustomerEntity();
+				newCustomer.setName(customerName);
+				return customerRepository.save(newCustomer);
+			});
 
-            var entity = new FeedbackEntity();
-            entity.setRating(Integer.parseInt(line[1]));
-            entity.setComment(line[2]);
-            entity.setCreatedAt(null);  // should be one day after booking
-            entity.setIsPublic(Boolean.parseBoolean(line[3]));
-            entity.setBookingId(null); // lookup based on guest details embedded in booking and date booking made
+			var entity = new FeedbackEntity();
+			entity.setRating(Integer.parseInt(line[1]));
+			entity.setComment(line[2]);
+			entity.setCreatedAt(null); // should be one day after booking
+			entity.setIsPublic(Boolean.parseBoolean(line[3]));
+			entity.setBookingId(null); // lookup based on guest details embedded in booking and date booking made
 
-            // Create AggregateReference using the found Area's ID
-            entity.setCustomer(AggregateReference.to(customer.getId()));
+			// Create AggregateReference using the found Area's ID
+			entity.setCustomer(AggregateReference.to(customer.getId()));
 
-            return entity;
-        } catch (DateTimeParseException | IllegalArgumentException | NullPointerException e) {
-            throw new CsvMappingException("Failed to map table from CSV", e);
-        }
-    }
+			return entity;
+		} catch (DateTimeParseException | IllegalArgumentException | NullPointerException e) {
+			throw new CsvMappingException("Failed to map table from CSV", e);
+		}
+	}
 
-    @Override
-    public Class<FeedbackEntity> getEntityClass() {
-        return FeedbackEntity.class;
-    }
+	@Override
+	public Class<FeedbackEntity> getEntityClass() {
+		return FeedbackEntity.class;
+	}
 }

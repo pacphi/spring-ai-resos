@@ -18,27 +18,19 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-@Profile(value = { "dev", "seed", "test" })
+@Profile(value = {"dev", "seed", "test"})
 public class CsvFileProcessor {
-    private static final String SEPARATOR = ";";
+	private static final String SEPARATOR = ";";
 
-    public <T> List<T> processCsvFile(Path filePath, Function<String[], T> mapper) throws IOException {
-        try (Reader reader = Files.newBufferedReader(filePath)) {
-            CSVParser parser = new CSVParserBuilder()
-                    .withSeparator(SEPARATOR.charAt(0))
-                    .build();
+	public <T> List<T> processCsvFile(Path filePath, Function<String[], T> mapper) throws IOException {
+		try (Reader reader = Files.newBufferedReader(filePath)) {
+			CSVParser parser = new CSVParserBuilder().withSeparator(SEPARATOR.charAt(0)).build();
 
-            CSVReader csvReader = new CSVReaderBuilder(reader)
-                    .withSkipLines(1)
-                    .withCSVParser(parser)
-                    .build();
+			CSVReader csvReader = new CSVReaderBuilder(reader).withSkipLines(1).withCSVParser(parser).build();
 
-            return csvReader.readAll().stream()
-                    .map(mapper)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (CsvException e) {
-            throw new IOException("Failed to process CSV file: " + filePath, e);
-        }
-    }
+			return csvReader.readAll().stream().map(mapper).filter(Objects::nonNull).collect(Collectors.toList());
+		} catch (CsvException e) {
+			throw new IOException("Failed to process CSV file: " + filePath, e);
+		}
+	}
 }
