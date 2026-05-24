@@ -24,7 +24,7 @@ This project needed to:
 
 ### Constraints
 
-- Using Spring Boot 4.0.1 and Spring AI 2.0.0-M1
+- Using Spring Boot 4.1.0-RC1 and Spring AI 2.0.0-M7
 - Need Spring HTTP Interface (not OpenFeign) for better integration
 - Must support code generation at build time (Maven)
 - OpenAPI spec must be comprehensive enough for entity generation

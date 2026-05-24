@@ -10,39 +10,34 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Security configuration for the MCP Server.
- * Protects MCP endpoints with OAuth2 JWT validation.
- * Based on Baeldung pattern: https://www.baeldung.com/spring-ai-mcp-servers-oauth2
+ * Security configuration for the MCP Server. Protects MCP endpoints with OAuth2
+ * JWT validation. Based on Baeldung pattern:
+ * https://www.baeldung.com/spring-ai-mcp-servers-oauth2
  *
- * Only active when security.oauth2.enabled=true (default).
- * Disabled for STDIO transport (Claude Desktop integration).
+ * Only active when security.oauth2.enabled=true (default). Disabled for STDIO
+ * transport (Claude Desktop integration).
  */
 @Configuration
 @EnableWebSecurity
 @ConditionalOnProperty(name = "security.oauth2.enabled", havingValue = "true", matchIfMissing = true)
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-            .authorizeHttpRequests(auth -> auth
-                // MCP endpoints require authentication (JWT Bearer tokens)
-                .requestMatchers("/mcp/**").authenticated()
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		return http.authorizeHttpRequests(auth -> auth
+				// MCP endpoints require authentication (JWT Bearer tokens)
+				.requestMatchers("/mcp/**").authenticated()
 
-                // Actuator endpoints are public (for health checks)
-                .requestMatchers("/actuator/**").permitAll()
+				// Actuator endpoints are public (for health checks)
+				.requestMatchers("/actuator/**").permitAll()
 
-                // All other requests are permitted (for MCP protocol negotiation)
-                .anyRequest().permitAll()
-            )
-            // Configure as OAuth2 Resource Server with JWT validation
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(Customizer.withDefaults())
-            )
-            // Disable CSRF for stateless API
-            .csrf(CsrfConfigurer::disable)
-            // Enable CORS
-            .cors(Customizer.withDefaults())
-            .build();
-    }
+				// All other requests are permitted (for MCP protocol negotiation)
+				.anyRequest().permitAll())
+				// Configure as OAuth2 Resource Server with JWT validation
+				.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+				// Disable CSRF for stateless API
+				.csrf(CsrfConfigurer::disable)
+				// Enable CORS
+				.cors(Customizer.withDefaults()).build();
+	}
 }

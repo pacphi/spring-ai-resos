@@ -11,12 +11,10 @@ import java.time.Duration;
 @Configuration
 public class Http {
 
-    @Bean
-    public WebClient.Builder webClientBuilder() {
-        HttpClient httpClient = HttpClient.create()
-                .responseTimeout(Duration.ofMinutes(10));
+	@Bean
+	public WebClient.Builder webClientBuilder() {
+		HttpClient httpClient = HttpClient.create().responseTimeout(Duration.ofMinutes(10));
 
-        return WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient));
-    }
+		return WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
+	}
 }

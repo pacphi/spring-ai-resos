@@ -1033,7 +1033,7 @@ public List<Customer> getCustomers(Integer limit, ...) {
  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
   '  |____| .__|_| |_|_| |_\__, | / / / /
  =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v4.0.1)
+ :: Spring Boot ::                (v4.1.0-RC1)
 
 INFO  SpringAiResOsMcpServerApplication - Starting SpringAiResOsMcpServerApplication
 INFO  SpringAiResOsMcpServerApplication - The following 1 profile is active: "dev"

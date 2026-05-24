@@ -19,39 +19,33 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 @Configuration
 public class McpClientOAuth2Config {
 
-    @Bean
-    public McpClientCustomizer<McpClient.SyncSpec> mcpSyncClientCustomizer() {
-        return (name, syncSpec) ->
-                syncSpec.transportContextProvider(
-                        new AuthenticationMcpTransportContextProvider()
-                );
-    }
+	@Bean
+	public McpClientCustomizer<McpClient.SyncSpec> mcpSyncClientCustomizer() {
+		return (name, syncSpec) -> syncSpec.transportContextProvider(new AuthenticationMcpTransportContextProvider());
+	}
 
-    @Bean
-    public AuthorizedClientServiceOAuth2AuthorizedClientManager mcpAuthorizedClientManager(
-            ClientRegistrationRepository clientRegistrationRepository,
-            OAuth2AuthorizedClientService authorizedClientService) {
+	@Bean
+	public AuthorizedClientServiceOAuth2AuthorizedClientManager mcpAuthorizedClientManager(
+			ClientRegistrationRepository clientRegistrationRepository,
+			OAuth2AuthorizedClientService authorizedClientService) {
 
-        OAuth2AuthorizedClientProvider authorizedClientProvider =
-                OAuth2AuthorizedClientProviderBuilder.builder()
-                        .clientCredentials()
-                        .build();
+		OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+				.clientCredentials().build();
 
-        AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
-                new AuthorizedClientServiceOAuth2AuthorizedClientManager(
-                        clientRegistrationRepository,
-                        authorizedClientService);
-        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(
+				clientRegistrationRepository, authorizedClientService);
+		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
-        return authorizedClientManager;
-    }
+		return authorizedClientManager;
+	}
 
-    @Bean
-    public OAuth2ClientCredentialsSyncHttpRequestCustomizer mcpHttpRequestCustomizer(
-            AuthorizedClientServiceOAuth2AuthorizedClientManager clientManager) {
-        return new OAuth2ClientCredentialsSyncHttpRequestCustomizer(
-                clientManager,
-                "mcp-client-to-server"  // OAuth2 client registration ID
-        );
-    }
+	@Bean
+	public OAuth2ClientCredentialsSyncHttpRequestCustomizer mcpHttpRequestCustomizer(
+			AuthorizedClientServiceOAuth2AuthorizedClientManager clientManager) {
+		return new OAuth2ClientCredentialsSyncHttpRequestCustomizer(clientManager, "mcp-client-to-server" // OAuth2
+																											// client
+																											// registration
+																											// ID
+		);
+	}
 }

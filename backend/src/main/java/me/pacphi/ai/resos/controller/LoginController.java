@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class LoginController {
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+	@GetMapping("/login")
+	public String login() {
+		return "login";
+	}
 
-    @GetMapping("/")
-    public String home() {
-        // Redirect to Swagger UI as the default home page
-        return "redirect:/swagger-ui.html";
-    }
+	@GetMapping("/")
+	public String home() {
+		// Redirect to Swagger UI as the default home page
+		return "redirect:/swagger-ui.html";
+	}
 }

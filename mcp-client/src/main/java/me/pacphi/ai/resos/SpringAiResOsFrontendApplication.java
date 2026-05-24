@@ -10,8 +10,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties
 public class SpringAiResOsFrontendApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(SpringAiResOsFrontendApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(SpringAiResOsFrontendApplication.class, args);
+	}
 
 }

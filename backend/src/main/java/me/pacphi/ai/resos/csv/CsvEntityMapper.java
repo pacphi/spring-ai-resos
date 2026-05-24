@@ -10,8 +10,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Profile(value = { "dev", "seed", "test" })
+@Profile(value = {"dev", "seed", "test"})
 @Component
 public @interface CsvEntityMapper {
-    String value();
+	String value();
 }

@@ -16,41 +16,39 @@ import java.util.UUID;
 @CsvEntityMapper("user-authorities")
 public class UserAuthorityMapper implements EntityMapper<UserAuthorityEntity> {
 
-    private final AppUserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
+	private final AppUserRepository userRepository;
+	private final AuthorityRepository authorityRepository;
 
-    public UserAuthorityMapper(AppUserRepository userRepository, AuthorityRepository authorityRepository) {
-        this.userRepository = userRepository;
-        this.authorityRepository = authorityRepository;
-    }
+	public UserAuthorityMapper(AppUserRepository userRepository, AuthorityRepository authorityRepository) {
+		this.userRepository = userRepository;
+		this.authorityRepository = authorityRepository;
+	}
 
-    @Override
-    public UserAuthorityEntity mapFromCsv(String[] line) throws CsvMappingException {
-        try {
-            String username = line[0];
-            String authorityName = line[1];
+	@Override
+	public UserAuthorityEntity mapFromCsv(String[] line) throws CsvMappingException {
+		try {
+			String username = line[0];
+			String authorityName = line[1];
 
-            // Look up user by username
-            UUID userId = userRepository.findByUsername(username)
-                    .map(AppUserEntity::getId)
-                    .orElseThrow(() -> new CsvMappingException("User not found: " + username));
+			// Look up user by username
+			UUID userId = userRepository.findByUsername(username).map(AppUserEntity::getId)
+					.orElseThrow(() -> new CsvMappingException("User not found: " + username));
 
-            // Look up authority by name
-            UUID authorityId = authorityRepository.findByName(authorityName)
-                    .map(AuthorityEntity::getId)
-                    .orElseThrow(() -> new CsvMappingException("Authority not found: " + authorityName));
+			// Look up authority by name
+			UUID authorityId = authorityRepository.findByName(authorityName).map(AuthorityEntity::getId)
+					.orElseThrow(() -> new CsvMappingException("Authority not found: " + authorityName));
 
-            var entity = new UserAuthorityEntity();
-            entity.setUserId(userId);
-            entity.setAuthorityId(authorityId);
-            return entity;
-        } catch (IllegalArgumentException | NullPointerException | ArrayIndexOutOfBoundsException e) {
-            throw new CsvMappingException("Failed to map user authority from CSV", e);
-        }
-    }
+			var entity = new UserAuthorityEntity();
+			entity.setUserId(userId);
+			entity.setAuthorityId(authorityId);
+			return entity;
+		} catch (IllegalArgumentException | NullPointerException | ArrayIndexOutOfBoundsException e) {
+			throw new CsvMappingException("Failed to map user authority from CSV", e);
+		}
+	}
 
-    @Override
-    public Class<UserAuthorityEntity> getEntityClass() {
-        return UserAuthorityEntity.class;
-    }
+	@Override
+	public Class<UserAuthorityEntity> getEntityClass() {
+		return UserAuthorityEntity.class;
+	}
 }
