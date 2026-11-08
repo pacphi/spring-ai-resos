@@ -1,2 +1,7 @@
 overrides:
   js-yaml: ">=4.1.1"
+  # markdownlint-cli2 0.17.x pins markdown-it 14.1.0 exactly. 14.3.3 (same major)
+  # fixes GHSA-gfr2-rv44-r23c, GHSA-r7fv-28h4-cvq7, GHSA-253c-mchw-3w2r,
+  # GHSA-6v5v-wf23-fmfq and GHSA-vfgh-jcmw-g37q. Remove once markdownlint-cli2
+  # is on a release that pins a fixed markdown-it.
+  "markdown-it@>=14.0.0 <14.3.3": "^14.3.3"
