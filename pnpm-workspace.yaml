@@ -1,2 +1,6 @@
 overrides:
+  # GHSA-238p-pmpm-9mq7: katex (dev only, via markdownlint > micromark-extension-math) is fixed in 0.18.2,
+  # a 0.x minor approved on the dashboard. Markdown linting never renders math. Remove when markdownlint
+  # requires katex 0.18.2 or later itself.
+  katex@0.16.27: 0.18.2
   js-yaml: ">=4.1.1"
