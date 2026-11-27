@@ -32,10 +32,10 @@ Use-case:
 
 ## Technologies
 
-- Spring Boot 4.0.1
+- Spring Boot 4.0.10
 - Spring AI 2.0.0-M1
-- Spring Cloud 2025.1.0
-- Spring Security 7.0.2
+- Spring Cloud 2025.1.5
+- Spring Security 7.0.9
 - Java 25
 - Maven 3.9.11
 

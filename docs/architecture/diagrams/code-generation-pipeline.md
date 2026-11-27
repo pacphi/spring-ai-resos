@@ -257,7 +257,7 @@ public class CustomerEntity {
 
 ### Stage 6: Database Migration
 
-**Tool**: Liquibase 5.0.1
+**Tool**: Liquibase 5.0.4
 
 **Master Changelog**: `db/changelog/db.changelog-master.yml`
 
