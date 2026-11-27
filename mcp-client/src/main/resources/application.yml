@@ -3,6 +3,10 @@ spring:
     name: spring-ai-resos-frontend
 
   ai:
+    # Spring AI 2.0.0-M6 OpenAI uses the official OpenAI Java SDK (default timeout 60s).
+    # Keep the 10-minute LLM response timeout the old WebClient setup gave us.
+    openai:
+      timeout: PT10M
     mcp:
       client:
         name: ${spring.application.name}
@@ -107,12 +111,12 @@ spring:
 
   ai:
     openai:
-      base_url: ${OPENAI_BASE_URL:https://api.groq.com/openai}
+      base-url: ${OPENAI_BASE_URL:https://api.groq.com/openai/v1}
       chat:
         options:
           model: ${CHAT_MODEL:llama-3.3-70b-versatile}
       embedding:
-        base_url: ${EMBEDDING_BASEURL:https://api.openai.com}
+        base-url: ${EMBEDDING_BASEURL:https://api.openai.com/v1}
         options:
           model: ${EMBEDDING_MODEL:text-embedding-ada-002}
 ---
@@ -155,7 +159,7 @@ spring:
 
   ai:
     openai:
-      base_url: ${OPENAI_BASE_URL:https://openrouter.ai/api}
+      base-url: ${OPENAI_BASE_URL:https://openrouter.ai/api/v1}
       chat:
         options:
           model: ${CHAT_MODEL:anthropic/claude-3.7-sonnet}

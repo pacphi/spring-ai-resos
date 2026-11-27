@@ -170,6 +170,11 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-openai</artifactId>
         </dependency>
+        <!-- WebClient for Http.java; Spring AI 2.0.0-M6 OpenAI starter no longer brings it in -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webclient</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
@@ -234,7 +239,7 @@
         <dependency>
             <groupId>org.springaicommunity</groupId>
             <artifactId>mcp-client-security</artifactId>
-            <version>0.0.5</version>
+            <version>0.1.11</version>
         </dependency>
     </dependencies>
 
@@ -250,7 +255,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.springframework.ai</groupId>
-                    <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+                    <artifactId>spring-ai-starter-model-ollama</artifactId>
                 </dependency>
             </dependencies>
         </profile>

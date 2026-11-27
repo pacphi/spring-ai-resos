@@ -389,7 +389,7 @@ spring:
   ai:
     openai:
       api-key: ${GROQ_API_KEY}
-      base-url: https://api.groq.com/openai
+      base-url: https://api.groq.com/openai/v1
       chat:
         options:
           model: llama-3.3-70b-versatile
