@@ -14,7 +14,7 @@
 
     <properties>
         <h2.verison>2.3.232</h2.verison>
-        <spring-doc.version>3.0.1</spring-doc.version>
+        <spring-doc.version>3.0.3</spring-doc.version>
     </properties>
 
     <dependencies>
@@ -152,7 +152,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>3.5.2</version>
                 <configuration>
                     <from>
                         <image>bellsoft/liberica-openjdk-debian:25</image>
@@ -203,7 +203,7 @@
                 <dependency>
                     <groupId>org.postgresql</groupId>
                     <artifactId>postgresql</artifactId>
-                    <version>42.7.8</version>
+                    <version>42.7.15</version>
                 </dependency>
             </dependencies>
         </profile>

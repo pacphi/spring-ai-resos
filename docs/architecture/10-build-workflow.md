@@ -16,7 +16,7 @@ This document details the Maven multi-module build process, dependency managemen
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.10</version>
 </parent>
 ```
 
@@ -85,16 +85,7 @@ This document details the Maven multi-module build process, dependency managemen
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>2025.1.0</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-
-        <!-- Jackson BOM (Jakarta namespace) -->
-        <dependency>
-            <groupId>tools.jackson</groupId>
-            <artifactId>jackson-bom</artifactId>
-            <version>3.0.3</version>
+            <version>2025.1.5</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -103,16 +94,7 @@ This document details the Maven multi-module build process, dependency managemen
         <dependency>
             <groupId>org.junit</groupId>
             <artifactId>junit-bom</artifactId>
-            <version>6.0.0</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-
-        <!-- Micrometer BOM -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-bom</artifactId>
-            <version>1.16.1</version>
+            <version>6.1.3</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -144,17 +126,16 @@ This document details the Maven multi-module build process, dependency managemen
 
     <!-- Libraries -->
     <jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
-    <spring-doc.version>3.0.1</spring-doc.version>
-    <liquibase.version>5.0.1</liquibase.version>
+    <spring-doc.version>3.0.3</spring-doc.version>
     <commons-io.version>2.19.0</commons-io.version>
-    <junit-jupiter.version>6.0.0</junit-jupiter.version>
+    <junit-jupiter.version>6.1.3</junit-jupiter.version>
 
     <!-- Frontend -->
     <node.version>v23.4.0</node.version>
     <npm.version>10.9.2</npm.version>
 
     <!-- Testing -->
-    <assertj.version>3.27.6</assertj.version>
+    <assertj.version>3.27.7</assertj.version>
 </properties>
 ```
 
@@ -180,7 +161,7 @@ This document details the Maven multi-module build process, dependency managemen
 <plugin>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-maven-plugin</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.10</version>
     <executions>
         <execution>
             <goals>
@@ -245,7 +226,7 @@ This document details the Maven multi-module build process, dependency managemen
 <plugin>
     <groupId>com.diffplug.spotless</groupId>
     <artifactId>spotless-maven-plugin</artifactId>
-    <version>3.1.0</version>
+    <version>3.12.0</version>
     <configuration>
         <java>
             <excludes>

@@ -276,16 +276,16 @@ curl http://localhost:8081/api/auth/status  # MCP Client
 
 ### Core Framework
 
-- **Spring Boot**: 4.0.1
+- **Spring Boot**: 4.0.10
 - **Spring AI**: 2.0.0-M1
-- **Spring Cloud**: 2025.1.0
-- **Spring Security**: 7.0.2
+- **Spring Cloud**: 2025.1.5
+- **Spring Security**: 7.0.9
 - **Java**: 25
 
 ### Persistence
 
 - **Spring Data JDBC**: Lightweight ORM
-- **Liquibase**: 5.0.1
+- **Liquibase**: 5.0.4
 - **PostgreSQL**: 16
 - **H2**: In-memory database (dev)
 
