@@ -57,7 +57,7 @@ spring:
   ai:
     openai: # Groq uses OpenAI-compatible API
       api-key: ${GROQ_API_KEY}
-      base-url: https://api.groq.com/openai
+      base-url: https://api.groq.com/openai/v1
       chat:
         options:
           model: llama-3.3-70b-versatile
@@ -75,7 +75,7 @@ spring:
   ai:
     openai:
       api-key: ${OPENROUTER_API_KEY}
-      base-url: https://openrouter.ai/api
+      base-url: https://openrouter.ai/api/v1
       chat:
         options:
           model: anthropic/claude-3.7-sonnet
